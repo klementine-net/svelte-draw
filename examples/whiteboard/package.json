@@ -1,0 +1,33 @@
+{
+	"name": "@klementine/example-whiteboard",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"description": "A whiteboard on Klementine Draw: the built-in plugins plus a sticky note written as a plugin of its own. A Draw example.",
+	"engines": {
+		"node": ">=24.13.0"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@fontsource/caveat": "^5.3.0",
+		"@klementine/draw": "workspace:*",
+		"@klementine/ui": "file:../../../klementine/packages/ui",
+		"phosphor-svelte": "^3.1.1"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@tailwindcss/vite": "^4.3.0",
+		"@types/node": "^24",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"tailwindcss": "^4.3.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0"
+	}
+}

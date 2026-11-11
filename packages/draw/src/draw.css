@@ -1,0 +1,162 @@
+/*
+ * Klementine Draw's styles, imported after the theme:
+ *   @import '@klementine/ui/theme.css';
+ *   @import '@klementine/draw/draw.css';
+ * The canvas's own classes (kd-*) are plain CSS on the theme's tokens, so the canvas follows
+ * light and dark with the rest of the app. The controls around it are @klementine/ui parts
+ * with Tailwind classes; the @source line lets Tailwind see them.
+ */
+
+@source './lib';
+
+.kd-root {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	isolation: isolate;
+	background: var(--canvas-ground);
+
+	/* The shape colours by name. No orange: that one is Klementine's own. */
+	--kd-ink: var(--cream-ink);
+	--kd-grey: light-dark(#8b877d, #9c968a);
+	--kd-red: light-dark(#cf3f3f, #f0796f);
+	--kd-yellow: light-dark(#dcb100, #f0d04f);
+	--kd-green: light-dark(#2e9455, #6ac88c);
+	--kd-blue: light-dark(#2f6bd8, #74a5f5);
+	--kd-violet: light-dark(#7d4fd6, #b494f2);
+	--kd-select: var(--color-focus);
+}
+
+.kd-surface {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	outline: none;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	/* A dot every grid step, moving and scaling with the camera. */
+	background-image: radial-gradient(circle, var(--line-strong) 1px, transparent 1.5px);
+	background-size: var(--kd-grid-size) var(--kd-grid-size);
+	background-position: var(--kd-grid-x) var(--kd-grid-y);
+}
+.kd-surface[data-grid='off'] {
+	background-image: none;
+}
+/* Keyboard focus shows on the canvas's edge; a click does not need a ring. */
+.kd-surface:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--kd-select);
+}
+
+.kd-world {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: 0 0;
+	pointer-events: none;
+}
+
+.kd-shape {
+	position: absolute;
+	top: 0;
+	left: 0;
+	--kd-color: var(--kd-ink);
+}
+.kd-shape[data-color='grey'] {
+	--kd-color: var(--kd-grey);
+}
+.kd-shape[data-color='red'] {
+	--kd-color: var(--kd-red);
+}
+.kd-shape[data-color='yellow'] {
+	--kd-color: var(--kd-yellow);
+}
+.kd-shape[data-color='green'] {
+	--kd-color: var(--kd-green);
+}
+.kd-shape[data-color='blue'] {
+	--kd-color: var(--kd-blue);
+}
+.kd-shape[data-color='violet'] {
+	--kd-color: var(--kd-violet);
+}
+
+/* A shape's drawing: no box of its own, so nothing is ever clipped. */
+.kd-svg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	overflow: visible;
+}
+.kd-ink {
+	fill: var(--kd-color);
+}
+.kd-fill {
+	fill: none;
+	stroke: none;
+}
+[data-fill='tint'] > .kd-fill {
+	fill: color-mix(in oklab, var(--kd-color) 18%, var(--canvas-ground));
+}
+[data-fill='solid'] > .kd-fill {
+	fill: color-mix(in oklab, var(--kd-color) 55%, var(--canvas-ground));
+}
+.kd-line {
+	stroke: var(--kd-color);
+	stroke-linejoin: round;
+}
+
+.kd-overlay {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	pointer-events: none;
+}
+.kd-outline {
+	fill: none;
+	stroke: var(--kd-select);
+	stroke-width: 1.5px;
+	vector-effect: non-scaling-stroke;
+}
+.kd-handle {
+	fill: var(--canvas-ground);
+	stroke: var(--kd-select);
+	stroke-width: 1.5px;
+}
+.kd-brush {
+	fill: color-mix(in oklab, var(--kd-select) 10%, transparent);
+	stroke: color-mix(in oklab, var(--kd-select) 50%, transparent);
+	stroke-width: 1px;
+}
+
+/* A colour's dot in the style panel. */
+.kd-swatch {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--kd-ink);
+	box-shadow: 0 0 0 1.5px var(--layer, var(--canvas-ground));
+}
+.kd-swatch[data-color='grey'] {
+	background: var(--kd-grey);
+}
+.kd-swatch[data-color='red'] {
+	background: var(--kd-red);
+}
+.kd-swatch[data-color='yellow'] {
+	background: var(--kd-yellow);
+}
+.kd-swatch[data-color='green'] {
+	background: var(--kd-green);
+}
+.kd-swatch[data-color='blue'] {
+	background: var(--kd-blue);
+}
+.kd-swatch[data-color='violet'] {
+	background: var(--kd-violet);
+}

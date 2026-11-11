@@ -1,0 +1,18 @@
+/* Type-checks the example. */
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "bundler",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"types": ["node"]
+	},
+	"include": ["src", "vite.config.ts", "eslint.config.js"]
+}

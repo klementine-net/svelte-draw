@@ -1,0 +1,31 @@
+{
+	"name": "klementine-draw",
+	"private": true,
+	"type": "module",
+	"description": "Klementine Draw, an infinite canvas for Svelte (whiteboards now, a design tool later), and its example apps, in one pnpm workspace.",
+	"packageManager": "pnpm@11.0.5",
+	"engines": {
+		"node": ">=24.13.0"
+	},
+	"scripts": {
+		"dev": "pnpm --filter @klementine/example-whiteboard dev",
+		"check": "pnpm -r run check",
+		"test": "pnpm -r run test",
+		"lint": "prettier --check . '!packages' '!examples' && pnpm -r run lint",
+		"format": "prettier --write . '!packages' '!examples' && pnpm -r run format",
+		"build": "pnpm -r run build"
+	},
+	"devDependencies": {
+		"@eslint/compat": "^2.1.1",
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.12.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.23.1",
+		"globals": "^17.13.0",
+		"prettier": "^3.9.10",
+		"prettier-plugin-svelte": "^4.1.1",
+		"prettier-plugin-tailwindcss": "^0.8.1",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.71.1"
+	}
+}

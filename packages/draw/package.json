@@ -1,0 +1,39 @@
+{
+	"name": "@klementine/draw",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"description": "Klementine Draw: an infinite canvas for Svelte. A plain TypeScript core (record store, shape utils, tool state machines, undo) and a Svelte layer that renders it; shapes and tools come in as plugins.",
+	"engines": {
+		"node": ">=24.13.0"
+	},
+	"scripts": {
+		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"test": "node --test 'tests/*.test.ts'",
+		"lint": "prettier --check . && eslint .",
+		"format": "prettier --write ."
+	},
+	"exports": {
+		".": "./src/lib/index.ts",
+		"./svelte": "./src/lib/svelte/index.ts",
+		"./draw.css": "./src/draw.css",
+		"./package.json": "./package.json"
+	},
+	"peerDependencies": {
+		"@klementine/ui": "*",
+		"svelte": "^5.57.1"
+	},
+	"dependencies": {
+		"fractional-indexing": "^4.0.0",
+		"perfect-freehand": "^1.2.2",
+		"phosphor-svelte": "^3.1.1"
+	},
+	"devDependencies": {
+		"@klementine/ui": "file:../../../klementine/packages/ui",
+		"@types/node": "^24",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.6.0",
+		"tailwindcss": "^4.3.0",
+		"typescript": "^6.0.3"
+	}
+}

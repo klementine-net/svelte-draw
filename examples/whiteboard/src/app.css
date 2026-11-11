@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import '@klementine/ui/theme.css';
+@import '@klementine/draw/draw.css';
+
+@source './';
+
+html,
+body,
+#app {
+	height: 100%;
+	margin: 0;
+}
