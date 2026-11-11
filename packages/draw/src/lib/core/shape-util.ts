@@ -8,7 +8,7 @@
  */
 
 import { box, type Box, type Vec } from './geometry.ts';
-import type { ShapeRecord, StyleKey } from './records.ts';
+import type { AssetRecord, ShapeRecord, StyleKey } from './records.ts';
 import type { Editor, ShapePatch } from './editor.ts';
 
 export interface ShapeUtilConstructor {
@@ -82,6 +82,29 @@ export abstract class ShapeUtil<S extends ShapeRecord = ShapeRecord> {
 	 * is not made from text.
 	 */
 	fromText(_text: string): S['props'] | undefined {
+		return undefined;
+	}
+
+	/**
+	 * A shape of this kind made from a dropped, pasted or picked file: its props, and the asset
+	 * records it needs. Undefined for a file this kind is not made from.
+	 */
+	async fromFile(_file: Blob): Promise<{ props: S['props']; assets: AssetRecord[] } | undefined> {
+		return undefined;
+	}
+
+	/** The ids of the asset records the shape shows (an image's file). */
+	assets(_shape: S): string[] {
+		return [];
+	}
+
+	/** Switches the shape offers in the right-click menu (a line's arrowheads). */
+	toggles(_shape: S): { id: string; on: boolean }[] {
+		return [];
+	}
+
+	/** The change when the switch `id` is flipped. */
+	toggle(_shape: S, _id: string): ShapePatch | undefined {
 		return undefined;
 	}
 

@@ -10,8 +10,11 @@ a whiteboard today and a design tool later. What is built and what is not:
 	import { Draw } from '@klementine/draw/svelte';
 </script>
 
-<div class="h-dvh"><Draw /></div>
+<div class="h-dvh"><Draw persistenceKey="my-board" minimap deepLinks /></div>
 ```
+
+`persistenceKey` keeps the board in the browser and in step with its other tabs; without it the
+board lives as long as the page. `readOnly` shows it without letting it be changed.
 
 ```css
 @import 'tailwindcss';
@@ -58,8 +61,10 @@ record at a time.
 
 ## A plugin
 
-A plugin is a list of classes plus, for the screen, a view and a toolbar entry. The demo's
-sticky note (`examples/whiteboard/src/note/`) is one, written outside the package:
+A plugin is a list of classes plus, for the screen, a view and a toolbar entry. The built-in
+kinds are plugins too; the sticky note (`shapes/note.ts`, `svelte/note-view.svelte`) reads like
+this, and a kind of your own is written the same way outside the package (name it something
+else: a kind can be registered once):
 
 ```ts
 class NoteShapeUtil extends ShapeUtil<NoteShape> {
@@ -91,7 +96,7 @@ export const notePlugin: DrawSveltePlugin = {
 ```
 
 ```svelte
-<Draw plugins={[...defaultPlugins, notePlugin]} />
+<Draw plugins={[...defaultPlugins, myPlugin]} />
 ```
 
 ### Text that can be typed into
@@ -99,10 +104,10 @@ export const notePlugin: DrawSveltePlugin = {
 A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
 `editor.editing` to the shape, and the view shows the text field with `editText`
 (`@klementine/draw/svelte`). Escape, a press elsewhere or a tool switch ends it; everything typed
-is one undo step. A new shape whose util says `canEdit` is typed into straight away. The example's
-note (`examples/whiteboard/src/note`) is the reference.
+is one undo step. A box tool with `edit = true` (the note's) starts typing as soon as the shape
+is made. The note (`svelte/note-view.svelte`) is the reference.
 
-## Collaboration (the seam, not yet a server)
+## Collaboration (the seam; tabs use it, a server does not yet)
 
 Sync is two calls on the store: listen for `user` diffs and send them; apply what arrives as
 `remote`.
@@ -134,7 +139,22 @@ reorder at once). `tests/core.test.ts` runs two editors against each other this 
   guides in `editor.snapLines`.
 - **Clipboard.** `editor.getContent` gives records that stand on their own (on the page, tied
   only to each other); `putContent` adds them with new ids. The canvas puts them on the system
-  clipboard as JSON under `application/x-klementine-draw`.
+  clipboard as JSON under `application/x-klementine-draw`, with the files they show.
+- **Saving and tabs** (`core/persist.ts`). `persist(editor, { storage, channel })` loads the
+  document, then writes every change of this user record by record and posts it to the
+  channel; what arrives from the channel is applied as `remote`. `DocumentStorage` and
+  `Channel` are two small interfaces: IndexedDB and BroadcastChannel are the ones built, a
+  server's would be two more. Who else is there (`editor.peers`: pointer, selection, laser)
+  travels on the same channel and is never in the document.
+- **Files** are asset records; a shape holds the asset's id. `editor.assets.upload(file)`
+  decides where a file goes (by default into the document, as a data URL).
+- **Pages** are records; `editor.setPage` shows another one. Shapes hang on a page through
+  `parentId`.
+- **What other kinds can say about themselves** on their `ShapeUtil`: `fromText` and
+  `fromFile` (made from pasted text or a dropped file), `assets`, `toggles` (switches in the
+  right-click menu), `rotate`, `onEditEnd`. The editor asks; it never names a kind.
+- **Pictures** (`svelte/export.ts`): `toSvg` and `toPng` copy the shapes' elements into an
+  SVG with their styles and fonts packed in.
 
 ## Where the ideas come from
 

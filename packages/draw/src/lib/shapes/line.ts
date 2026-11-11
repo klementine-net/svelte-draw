@@ -23,6 +23,14 @@ export type LineProps = {
 	start?: string | null;
 	/** The shape the end is attached to. While it is, `dx`/`dy` are only where it last was. */
 	end?: string | null;
+	/** True for a head at the start too (or only there). */
+	arrowStart?: boolean;
+	/** The words written on the line, at its middle. */
+	text?: string;
+	/** How far the middle of the line is pulled to its side: 0 or not there for a straight line. */
+	bend?: number;
+	/** True for a line that runs in right angles: out, across, in. */
+	elbow?: boolean;
 };
 
 export type LineShape = ShapeRecord<'line', LineProps>;
@@ -30,13 +38,54 @@ export type LineShape = ShapeRecord<'line', LineProps>;
 /** The space (page px) between an attached end and the shape's edge. */
 const GAP = 5;
 
-/** Where the line's two ends are, in the line's own space, attached ends worked out. */
-export function lineEnds(editor: Editor, shape: LineShape): { start: Vec; end: Vec } {
+/** The point a bent line's curve is pulled towards: twice the bend out from the middle. */
+function controlPoint(start: Vec, end: Vec, bend: number): Vec {
+	const dx = end.x - start.x;
+	const dy = end.y - start.y;
+	const length = Math.hypot(dx, dy) || 1;
+	return {
+		x: (start.x + end.x) / 2 - (dy / length) * bend * 2,
+		y: (start.y + end.y) / 2 + (dx / length) * bend * 2
+	};
+}
+
+/**
+ * The two corners of a right-angled line from `a` to `b`: across first when the two are
+ * further apart sideways (`sideways`), down first otherwise.
+ */
+function elbowCorners(a: Vec, b: Vec, sideways: boolean): [Vec, Vec] {
+	if (sideways) {
+		const x = (a.x + b.x) / 2;
+		return [
+			{ x, y: a.y },
+			{ x, y: b.y }
+		];
+	}
+	const y = (a.y + b.y) / 2;
+	return [
+		{ x: a.x, y },
+		{ x: b.x, y }
+	];
+}
+
+/**
+ * Where the line's two ends are, in the line's own space, attached ends worked out.
+ * `sideways` says which way a right-angled line sets out (see `elbowCorners`).
+ */
+export function lineEnds(
+	editor: Editor,
+	shape: LineShape
+): { start: Vec; end: Vec; sideways: boolean } {
 	const rawStart = { x: 0, y: 0 };
 	const rawEnd = { x: shape.props.dx, y: shape.props.dy };
 	const startTarget = shape.props.start ? editor.getShape(shape.props.start) : undefined;
 	const endTarget = shape.props.end ? editor.getShape(shape.props.end) : undefined;
-	if (!startTarget && !endTarget) return { start: rawStart, end: rawEnd };
+	if (!startTarget && !endTarget)
+		return {
+			start: rawStart,
+			end: rawEnd,
+			sideways: Math.abs(rawEnd.x) >= Math.abs(rawEnd.y)
+		};
 
 	const middle = (target: ShapeRecord) =>
 		editor.shapeToPage(target, box.center(editor.util(target.kind).bounds(target)));
@@ -58,46 +107,153 @@ export function lineEnds(editor: Editor, shape: LineShape): { start: Vec; end: V
 		return vec.add(from, vec.mul(vec.sub(edge, from), (reach - gap) / reach));
 	};
 
+	const sideways = Math.abs(aimEnd.x - aimStart.x) >= Math.abs(aimEnd.y - aimStart.y);
+	if (shape.props.elbow) {
+		// A right-angled line leaves each shape straight out of its side, towards its corner.
+		const [first, second] = elbowCorners(aimStart, aimEnd, sideways);
+		return {
+			start: editor.pageToShape(shape, startTarget ? stop(startTarget, first, aimStart) : aimStart),
+			end: editor.pageToShape(shape, endTarget ? stop(endTarget, second, aimEnd) : aimEnd),
+			sideways
+		};
+	}
+	let start = startTarget ? stop(startTarget, aimEnd, aimStart) : aimStart;
+	let end = endTarget ? stop(endTarget, aimStart, aimEnd) : aimEnd;
+	// A bent line comes in from the side: each end stops where the curve meets its shape.
+	const bend = shape.props.bend ?? 0;
+	if (bend !== 0) {
+		const control = controlPoint(start, end, bend);
+		if (startTarget) start = stop(startTarget, control, aimStart);
+		if (endTarget) end = stop(endTarget, control, aimEnd);
+	}
 	return {
-		start: startTarget ? editor.pageToShape(shape, stop(startTarget, aimEnd, aimStart)) : rawStart,
-		end: endTarget ? editor.pageToShape(shape, stop(endTarget, aimStart, aimEnd)) : rawEnd
+		start: editor.pageToShape(shape, start),
+		end: editor.pageToShape(shape, end),
+		sideways
+	};
+}
+
+/** Everything about how a line runs, in its own space: for drawing, hit testing and handles. */
+export interface LineGeometry {
+	start: Vec;
+	end: Vec;
+	/** Where a bent line is pulled towards; null for a straight one. */
+	control: Vec | null;
+	/** The middle of the line, on the curve: where its words and its bend handle sit. */
+	middle: Vec;
+	/** Points along the line (its two ends, if it is straight). */
+	points: Vec[];
+	/** The point each end is reached from: what an arrowhead there points away from. */
+	from: { start: Vec; end: Vec };
+	/** The line as an SVG path. */
+	path: string;
+}
+
+export function lineGeometry(editor: Editor, shape: LineShape): LineGeometry {
+	const { start, end, sideways } = lineEnds(editor, shape);
+	if (shape.props.elbow) {
+		const [first, second] = elbowCorners(start, end, sideways);
+		const points = [start, first, second, end];
+		return {
+			start,
+			end,
+			control: null,
+			middle: { x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 },
+			points,
+			from: { start: first, end: second },
+			path: `M${points.map(({ x, y }) => `${x},${y}`).join('L')}`
+		};
+	}
+	const bend = shape.props.bend ?? 0;
+	if (bend === 0)
+		return {
+			start,
+			end,
+			control: null,
+			middle: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
+			points: [start, end],
+			from: { start: end, end: start },
+			path: `M${start.x},${start.y}L${end.x},${end.y}`
+		};
+	const control = controlPoint(start, end, bend);
+	const at = (t: number): Vec => ({
+		x: (1 - t) ** 2 * start.x + 2 * (1 - t) * t * control.x + t ** 2 * end.x,
+		y: (1 - t) ** 2 * start.y + 2 * (1 - t) * t * control.y + t ** 2 * end.y
+	});
+	return {
+		start,
+		end,
+		control,
+		middle: at(0.5),
+		points: Array.from({ length: 17 }, (_, i) => at(i / 16)),
+		from: { start: control, end: control },
+		path: `M${start.x},${start.y}Q${control.x},${control.y} ${end.x},${end.y}`
 	};
 }
 
 export class LineShapeUtil extends ShapeUtil<LineShape> {
 	static override kind = 'line';
-	override readonly styles: readonly StyleKey[] = ['color', 'size', 'look', 'opacity'];
+	override readonly styles: readonly StyleKey[] = ['color', 'size', 'look', 'font', 'opacity'];
 
 	defaultProps(): LineProps {
 		return { dx: 120, dy: 0, arrow: false, start: null, end: null };
 	}
 
 	bounds(shape: LineShape): Box {
-		const { start, end } = lineEnds(this.editor, shape);
-		return box.fromPoints(start, end);
+		return box.around(lineGeometry(this.editor, shape).points);
 	}
 
 	/** Hit when the point is on the stroke itself, not merely in its box. */
 	override hitTest(shape: LineShape, point: Vec, margin: number): boolean {
 		const reach = STROKE_WIDTH[shape.style.size] / 2 + margin;
-		const { start, end } = lineEnds(this.editor, shape);
-		return vec.distToSegment(point, start, end) <= reach;
+		const { points } = lineGeometry(this.editor, shape);
+		for (let i = 1; i < points.length; i++)
+			if (vec.distToSegment(point, points[i - 1], points[i]) <= reach) return true;
+		return false;
 	}
 
 	override outline(shape: LineShape): string {
-		const { start, end } = lineEnds(this.editor, shape);
-		return `M${start.x},${start.y}L${end.x},${end.y}`;
+		return lineGeometry(this.editor, shape).path;
 	}
 
 	override canBind() {
 		return false;
 	}
 
-	/** A line is changed by its two ends, not by a box around it. */
+	/** Words can be written on a line: they sit at its middle. */
+	override canEdit() {
+		return true;
+	}
+
+	/** The right-click menu switches the two arrowheads. */
+	override toggles(shape: LineShape) {
+		return [
+			{ id: 'arrowStart', on: !!shape.props.arrowStart },
+			{ id: 'arrowEnd', on: !!shape.props.arrow },
+			{ id: 'elbow', on: !!shape.props.elbow }
+		];
+	}
+
+	override toggle(shape: LineShape, id: string): ShapePatch | undefined {
+		if (id === 'arrowStart') return { props: { arrowStart: !shape.props.arrowStart } };
+		if (id === 'arrowEnd') return { props: { arrow: !shape.props.arrow } };
+		if (id === 'elbow') return { props: { elbow: !shape.props.elbow } };
+		return undefined;
+	}
+
+	/** A line is changed by its two ends and its middle (which bends it), not by a box. */
 	override handles(shape: LineShape): ShapeHandle[] {
-		const { start, end } = lineEnds(this.editor, shape);
+		const { start, end, middle } = lineGeometry(this.editor, shape);
+		// A right-angled line has no bend to pull.
+		if (shape.props.elbow)
+			return [
+				{ id: 'start', ...start },
+				{ id: 'end', ...end }
+			];
+		// The end comes last: a line just begun has all three in one place, and the end is grabbed.
 		return [
 			{ id: 'start', ...start },
+			{ id: 'bend', ...middle },
 			{ id: 'end', ...end }
 		];
 	}
@@ -109,6 +265,18 @@ export class LineShapeUtil extends ShapeUtil<LineShape> {
 	override dragHandle(shape: LineShape, handle: string, point: Vec): ShapePatch {
 		const { editor } = this;
 		const ends = lineEnds(editor, shape);
+		if (handle === 'bend') {
+			// How far the pointer is to the side of the straight line between the ends.
+			const p = editor.pageToShape(shape, point);
+			const dx = ends.end.x - ends.start.x;
+			const dy = ends.end.y - ends.start.y;
+			const length = Math.hypot(dx, dy) || 1;
+			const mx = (ends.start.x + ends.end.x) / 2;
+			const my = (ends.start.y + ends.end.y) / 2;
+			const bend = ((p.x - mx) * -dy + (p.y - my) * dx) / length;
+			// Close to straight is straight.
+			return { props: { bend: Math.abs(bend) < 6 / editor.camera.peek().z ? 0 : bend } };
+		}
 		const which = handle === 'start' ? 'start' : 'end';
 		const other = which === 'start' ? 'end' : 'start';
 		// The end that stays: where it shows now.
@@ -183,7 +351,9 @@ export class LineShapeUtil extends ShapeUtil<LineShape> {
 			props: {
 				...shape.props,
 				dx: (startsLeft ? target.x + target.w : target.x) - x,
-				dy: (startsTop ? target.y + target.h : target.y) - y
+				dy: (startsTop ? target.y + target.h : target.y) - y,
+				// Mirrored once, a bend goes to the other side.
+				bend: flip.x !== flip.y ? -(shape.props.bend ?? 0) : shape.props.bend
 			}
 		};
 	}

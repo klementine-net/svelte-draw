@@ -30,6 +30,7 @@ export class GeoShapeUtil extends ShapeUtil<GeoShape> {
 		'look',
 		'font',
 		'align',
+		'valign',
 		'opacity'
 	];
 

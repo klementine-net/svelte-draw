@@ -4,6 +4,9 @@
 	import LineSegment from 'phosphor-svelte/lib/LineSegment';
 	import Minus from 'phosphor-svelte/lib/Minus';
 	import Scribble from 'phosphor-svelte/lib/Scribble';
+	import AlignBottom from 'phosphor-svelte/lib/AlignBottom';
+	import AlignCenterVertical from 'phosphor-svelte/lib/AlignCenterVertical';
+	import AlignTop from 'phosphor-svelte/lib/AlignTop';
 	import TextAlignCenter from 'phosphor-svelte/lib/TextAlignCenter';
 	import TextAlignLeft from 'phosphor-svelte/lib/TextAlignLeft';
 	import TextAlignRight from 'phosphor-svelte/lib/TextAlignRight';
@@ -19,6 +22,7 @@
 		LOOKS,
 		OPACITIES,
 		SIZES,
+		VALIGNS,
 		type Editor,
 		type ShapeStyle,
 		type StyleKey
@@ -44,12 +48,23 @@
 	// The first selected shape speaks for the selection.
 	const style = $derived({ ...DEFAULT_STYLE, ...(shapes[0]?.style ?? editor.style.get()) });
 	const rows = $derived.by(() => {
-		const order: StyleKey[] = ['color', 'fill', 'size', 'look', 'font', 'align', 'opacity'];
+		const order: StyleKey[] = [
+			'color',
+			'fill',
+			'size',
+			'look',
+			'font',
+			'align',
+			'valign',
+			'opacity'
+		];
 		if (shapes.length === 0) {
 			// Nothing selected: the styles of what the picked tool is most likely to make.
 			const text = editor.tool === 'text';
 			return order.filter((key) =>
-				text ? key !== 'fill' && key !== 'look' : key !== 'font' && key !== 'align'
+				text
+					? key !== 'fill' && key !== 'look' && key !== 'valign'
+					: key !== 'font' && key !== 'align' && key !== 'valign'
 			);
 		}
 		const used = new Set(shapes.flatMap((shape) => editor.util(shape.kind).styles));
@@ -70,9 +85,10 @@
 	const look = row('look');
 	const font = row('font');
 	const align = row('align');
+	const valign = row('valign');
 	const opacity = row('opacity', Number);
 
-	const sizeWeight = { s: 'light', m: 'regular', l: 'bold' } as const;
+	const sizeWeight = { s: 'thin', m: 'regular', l: 'bold', xl: 'fill' } as const;
 	const percent = (value: number) => `${Math.round(value * 100)}%`;
 </script>
 
@@ -109,7 +125,7 @@
 					variant="quiet"
 					size="icon"
 					aria-label={labels.fill}
-					class="flex gap-0.5"
+					class="grid grid-cols-4 gap-0.5"
 					bind:value={fill.get, fill.set}
 				>
 					{#each FILLS as name (name)}
@@ -118,6 +134,7 @@
 								<ToggleGroupItem {...props} value={name} aria-label={labels.fills[name]}>
 									{#if name === 'none'}<Circle aria-hidden="true" />
 									{:else if name === 'tint'}<CircleHalf aria-hidden="true" />
+									{:else if name === 'pattern'}<Circle weight="duotone" aria-hidden="true" />
 									{:else}<Circle weight="fill" aria-hidden="true" />{/if}
 								</ToggleGroupItem>
 							{/snippet}
@@ -131,7 +148,7 @@
 					variant="quiet"
 					size="icon"
 					aria-label={labels.size}
-					class="flex gap-0.5"
+					class="grid grid-cols-4 gap-0.5"
 					bind:value={size.get, size.set}
 				>
 					{#each SIZES as name (name)}
@@ -210,6 +227,28 @@
 									{#if name === 'start'}<TextAlignLeft aria-hidden="true" />
 									{:else if name === 'middle'}<TextAlignCenter aria-hidden="true" />
 									{:else}<TextAlignRight aria-hidden="true" />{/if}
+								</ToggleGroupItem>
+							{/snippet}
+						</Hint>
+					{/each}
+				</ToggleGroup>
+			{/if}
+			{#if rows.includes('valign')}
+				<ToggleGroup
+					type="single"
+					variant="quiet"
+					size="icon"
+					aria-label={labels.valign}
+					class="flex gap-0.5"
+					bind:value={valign.get, valign.set}
+				>
+					{#each VALIGNS as name (name)}
+						<Hint label={labels.valigns[name]} side="left">
+							{#snippet control(props)}
+								<ToggleGroupItem {...props} value={name} aria-label={labels.valigns[name]}>
+									{#if name === 'top'}<AlignTop aria-hidden="true" />
+									{:else if name === 'middle'}<AlignCenterVertical aria-hidden="true" />
+									{:else}<AlignBottom aria-hidden="true" />{/if}
 								</ToggleGroupItem>
 							{/snippet}
 						</Hint>

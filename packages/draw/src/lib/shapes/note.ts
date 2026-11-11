@@ -1,12 +1,13 @@
 /*
- * A plugin written outside the package, the way an app would: a sticky note. One shape util,
- * one tool (the box tool, pointed at the note), one view, one toolbar entry.
+ * The sticky note: a square of paper with a few words on it, stuck on a little askew. The
+ * words are typed straight onto it, and get smaller so that all of them fit.
  */
 
-import NoteBlank from 'phosphor-svelte/lib/NoteBlank';
-import { BoxTool, seededRandom, ShapeUtil, type Box, type ShapeRecord } from '@klementine/draw';
-import type { DrawSveltePlugin } from '@klementine/draw/svelte';
-import NoteView from './note-view.svelte';
+import type { Box } from '../core/geometry.ts';
+import type { ShapeRecord, StyleKey } from '../core/records.ts';
+import { ShapeUtil } from '../core/shape-util.ts';
+import { BoxTool } from '../tools/box-tool.ts';
+import { seededRandom } from './sketch.ts';
 
 export type NoteShape = ShapeRecord<'note', { w: number; h: number; text: string }>;
 
@@ -20,9 +21,9 @@ export function noteTilt(id: string): number {
 	return direction * (1 + random() * 2);
 }
 
-class NoteShapeUtil extends ShapeUtil<NoteShape> {
+export class NoteShapeUtil extends ShapeUtil<NoteShape> {
 	static override kind = 'note';
-	override readonly styles = ['color', 'opacity'] as const;
+	override readonly styles: readonly StyleKey[] = ['color', 'opacity'];
 
 	defaultProps() {
 		return { w: 180, h: 180, text: '' };
@@ -59,18 +60,9 @@ class NoteShapeUtil extends ShapeUtil<NoteShape> {
 	}
 }
 
-class NoteTool extends BoxTool {
+export class NoteTool extends BoxTool {
 	static override id = 'note';
 	shape = { kind: 'note', style: { color: 'ink' as const } };
 	// A new note is typed into straight away.
 	override edit = true;
 }
-
-export const notePlugin: DrawSveltePlugin = {
-	name: 'note',
-	shapes: [NoteShapeUtil],
-	tools: [NoteTool],
-	shortcuts: { n: 'note' },
-	views: { note: NoteView },
-	toolbar: [{ tool: 'note', label: 'Note', icon: NoteBlank, shortcut: 'N' }]
-};

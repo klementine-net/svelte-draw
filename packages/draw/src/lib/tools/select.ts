@@ -7,7 +7,7 @@
  *        ─ press the turn handle ───────→ rotating
  *        ─ press a resize handle ───────→ resizing
  *        ─ press a shape or selection ──→ pointing_shape ─ drag → translating
- *        ─ press the canvas ────────────→ pointing_canvas ─ drag → brushing
+ *        ─ press the canvas ────────────→ pointing_canvas ─ drag → brushing (Alt: lassoing)
  *        ─ double click, or Enter ──────→ editing (shapes whose util says `canEdit`)
  */
 
@@ -215,8 +215,10 @@ class PointingShape extends StateNode {
 class PointingCanvas extends StateNode {
 	static override id = 'pointing_canvas';
 
+	/** A drag draws a marquee; with Alt held, a lasso. */
 	override onPointerMove() {
-		if (this.editor.inputs.isDragging) this.parent!.transition('brushing');
+		const { inputs } = this.editor;
+		if (inputs.isDragging) this.parent!.transition(inputs.alt ? 'lassoing' : 'brushing');
 	}
 
 	override onPointerUp(event: PointerInfo) {
@@ -398,6 +400,14 @@ class Resizing extends StateNode {
 			else right = left + w;
 			if (movesTop) top = bottom - h;
 			else bottom = top + h;
+		}
+
+		// Alt resizes from the middle: the opposite edge moves the other way.
+		if (editor.inputs.alt) {
+			if (movesLeft) right = b.x * 2 + b.w - left;
+			else if (movesRight) left = b.x * 2 + b.w - right;
+			if (movesTop) bottom = b.y * 2 + b.h - top;
+			else if (movesBottom) top = b.y * 2 + b.h - bottom;
 		}
 
 		const scaleX = b.w > 0 ? (right - left) / b.w : 1;
@@ -663,6 +673,57 @@ class Brushing extends StateNode {
 	}
 }
 
+/** A freehand line is drawn; every shape it crosses is picked. */
+class Lassoing extends StateNode {
+	static override id = 'lassoing';
+	#initial: readonly string[] = [];
+	#picked = new Set<string>();
+	#last: Vec = { x: 0, y: 0 };
+
+	override onEnter() {
+		const { editor } = this;
+		this.#initial = editor.inputs.shift ? editor.selection.peek() : [];
+		this.#picked = new Set(this.#initial);
+		this.#last = editor.inputs.originPage;
+		editor.cursor.set('crosshair');
+		editor.lasso.set([this.#last]);
+		this.#reach();
+	}
+
+	override onPointerMove() {
+		this.#reach();
+	}
+
+	/** Every shape along the way from the last point to this one. */
+	#reach() {
+		const { editor } = this;
+		const to = editor.inputs.page;
+		const from = this.#last;
+		const step = 4 / editor.camera.peek().z;
+		const steps = Math.max(1, Math.ceil(vec.dist(from, to) / step));
+		for (let i = 1; i <= steps; i++) {
+			const leaf = editor.getShapeAtPoint(vec.add(from, vec.mul(vec.sub(to, from), i / steps)));
+			if (leaf && editor.isInFocus(leaf)) this.#picked.add(editor.getSelectable(leaf).id);
+		}
+		this.#last = to;
+		editor.lasso.set([...editor.lasso.peek(), to]);
+		editor.select([...this.#picked]);
+	}
+
+	override onExit() {
+		this.editor.lasso.set([]);
+	}
+
+	override onPointerUp() {
+		this.parent!.transition('idle');
+	}
+
+	override onCancel() {
+		this.editor.select(this.#initial);
+		this.parent!.transition('idle');
+	}
+}
+
 export class SelectTool extends StateNode {
 	static override id = 'select';
 	static override initial = 'idle';
@@ -675,6 +736,7 @@ export class SelectTool extends StateNode {
 		Rotating,
 		DraggingHandle,
 		Editing,
-		Brushing
+		Brushing,
+		Lassoing
 	];
 }

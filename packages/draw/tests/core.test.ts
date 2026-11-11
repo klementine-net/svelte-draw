@@ -4,6 +4,8 @@ import {
 	BoxTool,
 	corePlugins,
 	Editor,
+	lineGeometry,
+	persist,
 	GEO_KINDS,
 	geoPoints,
 	indexBetween,
@@ -12,6 +14,9 @@ import {
 	ShapeUtil,
 	Store,
 	type Box,
+	type Channel,
+	type ChannelMessage,
+	type DocumentStorage,
 	type DrawPlugin,
 	type DrawRecord,
 	type DrawShape,
@@ -239,9 +244,9 @@ test('stacking: bring to front and send to back reorder without renumbering othe
 });
 
 test('a plugin adds a shape and a tool from outside the package', () => {
-	type Note = ShapeRecord<'note', { w: number; h: number; text: string }>;
+	type Note = ShapeRecord<'sticker', { w: number; h: number; text: string }>;
 	class NoteUtil extends ShapeUtil<Note> {
-		static override kind = 'note';
+		static override kind = 'sticker';
 		defaultProps() {
 			return { w: 200, h: 200, text: '' };
 		}
@@ -253,18 +258,21 @@ test('a plugin adds a shape and a tool from outside the package', () => {
 		}
 	}
 	class NoteTool extends BoxTool {
-		static override id = 'note';
-		shape = { kind: 'note' };
+		static override id = 'sticker';
+		shape = { kind: 'sticker' };
 	}
 	const editor = makeEditor([
 		...corePlugins,
-		{ name: 'note', shapes: [NoteUtil], tools: [NoteTool], shortcuts: { n: 'note' } }
+		{ name: 'sticker', shapes: [NoteUtil], tools: [NoteTool], shortcuts: { k: 'sticker' } }
 	]);
-	editor.dispatch(key('n'));
-	assert.equal(editor.tool, 'note');
+	editor.dispatch(key('k'));
+	assert.equal(editor.tool, 'sticker');
 	drag(editor, [10, 10], [110, 60]);
 	const [note] = editor.getShapes() as Note[];
-	assert.deepEqual([note.kind, note.props.w, note.props.h, note.props.text], ['note', 100, 50, '']);
+	assert.deepEqual(
+		[note.kind, note.props.w, note.props.h, note.props.text],
+		['sticker', 100, 50, '']
+	);
 });
 
 test('sync seam: two stores converge through diffs, and undo leaves remote work alone', () => {
@@ -367,7 +375,18 @@ test('editing: double click or Enter starts it, Escape or a press elsewhere ends
 		});
 
 	const card = editor.createShape({ kind: 'card', x: 100, y: 100, props: { text: 'old' } });
-	const geo = editor.createShape({ kind: 'line', x: 400, y: 150, props: { dx: 100, dy: 0 } });
+	const geo = editor.createShape({
+		kind: 'draw',
+		x: 400,
+		y: 150,
+		props: {
+			points: [
+				[0, 0, 0.5],
+				[100, 0, 0.5]
+			],
+			done: true
+		}
+	});
 	editor.history.clear();
 
 	// A shape that holds no text is not edited.
@@ -463,7 +482,8 @@ test('arrows attach: the end follows its shape, lets go when moved alone, surviv
 	// The one selected line shows its two ends instead of a resize box.
 	editor.select([arrow.id]);
 	assert.equal(editor.canResizeSelection(), false);
-	assert.equal(editor.getShapeHandles()?.handles.length, 2);
+	// (its two ends, and the middle that bends it)
+	assert.equal(editor.getShapeHandles()?.handles.length, 3);
 
 	// Drag the end off the shape: it lets go there. Back onto it: attached again.
 	drag(editor, [x2, y2], [300, 300]);
@@ -940,4 +960,414 @@ test('an arrow to a shape in a group stays attached when it moves with the group
 	editor.select([arrow.id]);
 	editor.nudgeSelection(0, 10);
 	assert.equal(editor.getShape(arrow.id)?.props.end, null);
+});
+
+/** Storage and a pair of channels that live in memory, standing in for IndexedDB and tabs. */
+function fakeStorage() {
+	const records = new Map<string, DrawRecord>();
+	let version: number | undefined;
+	const storage: DocumentStorage = {
+		load: async () =>
+			records.size > 0 ? { version: version ?? 1, records: [...records.values()] } : undefined,
+		save: async (change) => {
+			version = change.version;
+			for (const record of change.put) records.set(record.id, record);
+			for (const id of change.remove) records.delete(id);
+		}
+	};
+	return { storage, records };
+}
+function fakeChannels(): [Channel, Channel] {
+	const listeners: ((message: ChannelMessage) => void)[][] = [[], []];
+	const end = (mine: number): Channel => ({
+		// A message goes to the other end, never back to the sender.
+		post: (message) =>
+			listeners[1 - mine].forEach((listener) => listener(structuredClone(message))),
+		listen(listener) {
+			listeners[mine].push(listener);
+			return () => listeners[mine].splice(listeners[mine].indexOf(listener), 1);
+		}
+	});
+	return [end(0), end(1)];
+}
+
+test('saving: a board is seeded once, kept record by record, loaded again; tabs stay in step', async () => {
+	const { storage, records } = fakeStorage();
+	const [one, two] = fakeChannels();
+	const seed = (editor: Editor) => void rect(editor, 100, 100);
+
+	const first = makeEditor();
+	await persist(first, { storage, channel: one, seed });
+	assert.equal(first.getShapes().length, 1);
+	// The seed is not an undo step, and it is saved with the page.
+	assert.equal(first.history.canUndo.peek(), false);
+	assert.equal(records.size, 2);
+
+	// A second tab loads what is there and is not seeded again.
+	const second = makeEditor();
+	await persist(second, { storage, channel: two, seed });
+	assert.equal(second.getShapes().length, 1);
+	assert.equal(second.history.canUndo.peek(), false);
+
+	// What one draws, the other sees, and it is saved; the other cannot undo it.
+	const shape = rect(first, 300, 300);
+	assert.equal(second.getShape(shape.id)?.x, 300);
+	assert.equal(second.history.canUndo.peek(), false);
+	assert.ok(records.has(shape.id));
+	second.updateShape(shape.id, { x: 500 });
+	assert.equal(first.getShape(shape.id)?.x, 500);
+	assert.equal((records.get(shape.id) as ShapeRecord).x, 500);
+	first.history.mark();
+	first.deleteShapes([shape.id]);
+	assert.equal(second.getShape(shape.id), undefined);
+	assert.equal(records.has(shape.id), false);
+	first.undo();
+	assert.ok(second.getShape(shape.id));
+
+	// A shape of a kind this app does not know is kept and left out, not a crash.
+	await storage.save({
+		version: 1,
+		put: [{ ...(first.getShape(shape.id) as ShapeRecord), id: 'shape:alien', kind: 'hologram' }],
+		remove: []
+	});
+	const third = makeEditor();
+	await persist(third, { storage });
+	assert.equal(
+		third.getShapes().some((s) => s.id === 'shape:alien'),
+		false
+	);
+	assert.ok(third.store.has('shape:alien'));
+});
+
+test('pages: each has its own shapes and view; deleting one takes its shapes; the last stays', () => {
+	const editor = makeEditor();
+	const [firstPage] = editor.getPages();
+	const a = rect(editor, 100, 100);
+	editor.select([a.id]);
+	editor.pan(-50, 0);
+	const second = editor.createPage();
+	assert.deepEqual(
+		editor.getPages().map((page) => page.name),
+		['Page 1', 'Page 2']
+	);
+	// The new page is empty, nothing is selected, and its view starts fresh.
+	assert.deepEqual([editor.getShapes().length, editor.selection.peek().length], [0, 0]);
+	assert.equal(editor.camera.peek().x, 0);
+	const b = rect(editor, 200, 200);
+	assert.equal(b.parentId, second.id);
+	editor.setPage(firstPage.id);
+	assert.deepEqual(
+		editor.getShapes().map((shape) => shape.id),
+		[a.id]
+	);
+	assert.equal(editor.camera.peek().x, -50);
+	editor.renamePage(second.id, 'Ideas');
+	assert.equal(editor.getPages()[1].name, 'Ideas');
+
+	// Deleting the page being looked at moves to another and takes its shapes along.
+	editor.setPage(second.id);
+	editor.deletePage(second.id);
+	assert.equal(editor.pageId.peek(), firstPage.id);
+	assert.equal(editor.store.has(b.id), false);
+	editor.undo();
+	assert.ok(editor.store.has(b.id));
+	assert.equal(editor.getPages().length, 2);
+	editor.redo();
+	// The last page cannot be deleted.
+	editor.deletePage(firstPage.id);
+	assert.equal(editor.getPages().length, 1);
+
+	// A saved document loads into another editor.
+	const copy = makeEditor();
+	copy.loadDocument(JSON.parse(JSON.stringify(editor.getDocument().records)));
+	assert.deepEqual(
+		copy.getShapes().map((shape) => shape.id),
+		[a.id]
+	);
+	assert.equal(copy.history.canUndo.peek(), false);
+});
+
+test('images: a file becomes an asset and a shape; a copy carries the file; arrows get heads and words', async () => {
+	const editor = new Editor({
+		plugins: corePlugins,
+		assets: { upload: async () => 'https://files.example/cat.png' }
+	});
+	editor.viewport.set({ w: 1000, h: 800 });
+	// No browser here to read a picture's size: the image kind is handed a made-up file through
+	// a util of its own that skips the measuring.
+	const util = editor.util('image');
+	util.fromFile = async (file: Blob) =>
+		file.type.startsWith('image/')
+			? {
+					props: { assetId: 'asset:cat', w: 400, h: 300 },
+					assets: [
+						{
+							id: 'asset:cat',
+							type: 'asset',
+							name: 'cat.png',
+							mime: file.type,
+							w: 800,
+							h: 600,
+							src: await editor.assets.upload(file)
+						}
+					]
+				}
+			: undefined;
+	const made = await editor.addFiles(
+		[new Blob(['x'], { type: 'image/png' }), new Blob(['y'], { type: 'text/csv' })],
+		{ x: 500, y: 400 }
+	);
+	assert.equal(made.length, 1);
+	const [image] = editor.getSelectedShapes();
+	assert.deepEqual([image.kind, image.x, image.y], ['image', 300, 250]);
+	assert.equal(
+		(editor.store.get('asset:cat') as { src: string }).src,
+		'https://files.example/cat.png'
+	);
+	// One undo takes back the picture and its file; a delete alone keeps the file for an undo.
+	editor.undo();
+	assert.equal(editor.store.has('asset:cat'), false);
+	editor.redo();
+	editor.deleteShapes([image.id]);
+	assert.ok(editor.store.has('asset:cat'));
+	editor.undo();
+
+	// A copy that leaves the document takes the file with it.
+	editor.select([image.id]);
+	const content = editor.copy();
+	const assets = editor.getContentAssets(content);
+	assert.equal(assets.length, 1);
+	const other = makeEditor();
+	other.paste(JSON.parse(JSON.stringify(content)), { x: 0, y: 0 }, assets);
+	assert.ok(other.store.has('asset:cat'));
+	assert.equal(other.getShapes()[0].props.assetId, 'asset:cat');
+
+	// A line's switches: a head at the start; and it can be written on.
+	const line = editor.createShape({ kind: 'line', x: 0, y: 0, props: { dx: 100, dy: 0 } });
+	editor.select([line.id]);
+	editor.toggleSelection('arrowStart');
+	assert.equal(editor.getShape(line.id)?.props.arrowStart, true);
+	assert.equal(editor.canEdit(line.id), true);
+
+	// Read-only: nothing changes, only the view moves.
+	editor.setReadOnly(true);
+	assert.equal(editor.tool, 'hand');
+	editor.setTool('draw');
+	assert.equal(editor.tool, 'hand');
+	editor.undo();
+	assert.equal(editor.getShape(line.id)?.props.arrowStart, true);
+	// What the keys and the right-click menu would do is refused too.
+	editor.select([line.id]);
+	editor.deleteSelection();
+	editor.duplicateSelection();
+	editor.nudgeSelection(10, 0);
+	editor.setStyle({ color: 'red' });
+	assert.equal(editor.getShapes().filter((shape) => shape.kind === 'line').length, 1);
+	assert.deepEqual(
+		[editor.getShape(line.id)?.x, editor.getShape(line.id)?.style.color],
+		[0, 'ink']
+	);
+});
+
+test('a line bends by its middle handle; hit test and box follow the curve; near straight snaps back', () => {
+	const editor = makeEditor();
+	const line = editor.createShape({
+		kind: 'line',
+		x: 100,
+		y: 300,
+		props: { dx: 200, dy: 0, arrow: true }
+	});
+	editor.select([line.id]);
+	// Drag the middle up by 80.
+	drag(editor, [200, 300], [200, 220]);
+	const bent = editor.getShape<LineShape>(line.id)!;
+	near(bent.props.bend!, -80, 0.5);
+	const { middle, control } = lineGeometry(editor, bent);
+	near(middle.y + bent.y, 220, 0.5);
+	assert.ok(control);
+	// The curve is hit where it runs, not where the straight line was.
+	assert.equal(editor.getShapeAtPoint({ x: 200, y: 222 })?.id, line.id);
+	assert.equal(editor.getShapeAtPoint({ x: 200, y: 300 }), undefined);
+	near(editor.getShapePageBounds(bent).y, 220, 1);
+	// Dragged back to within a few pixels of straight: straight.
+	drag(editor, [200, 220], [200, 297]);
+	assert.equal(editor.getShape(line.id)?.props.bend, 0);
+});
+
+test('presence: tabs see each other\u2019s pointer and selection, and a tab that leaves is gone', async () => {
+	const [one, two] = fakeChannels();
+	const first = makeEditor();
+	const second = makeEditor();
+	const stopFirst = await persist(first, { channel: one, user: { name: 'Ada' } });
+	await persist(second, { channel: two, user: { name: 'Grace' } });
+	const shape = rect(first, 100, 100);
+	first.select([shape.id]);
+	first.dispatch(pointer('move', { x: 140, y: 160 }));
+	await new Promise((resolve) => setTimeout(resolve, 80));
+	const [ada] = second.peers.peek();
+	assert.deepEqual([ada.name, ada.cursor, ada.selection], ['Ada', { x: 140, y: 160 }, [shape.id]]);
+	// The newcomer was told about the one already there, too.
+	assert.deepEqual(
+		first.peers.peek().map((peer) => peer.name),
+		['Grace']
+	);
+	// Nothing of this is in the document or the undo history.
+	assert.equal(second.history.canUndo.peek(), false);
+	stopFirst();
+	assert.deepEqual(second.peers.peek(), []);
+});
+
+test('more ways in and around: links, lasso, zoom tool, laser, grid, frames in frames', () => {
+	const editor = makeEditor();
+	// A pasted web address is a link (a player for a video); any other text is a text.
+	editor.pasteText('https://www.youtube.com/watch?v=dQw4w9WgXcQ', { x: 500, y: 300 });
+	editor.pasteText('https://example.com/a/page', { x: 500, y: 600 });
+	editor.pasteText('just words', { x: 100, y: 700 });
+	assert.deepEqual(
+		editor.getShapes().map((shape) => [shape.kind, shape.props.w]),
+		[
+			['link', 480],
+			['link', 320],
+			['text', 8]
+		]
+	);
+	editor.deleteShapes(editor.getShapes().map((shape) => shape.id));
+
+	// Alt-drag from the canvas draws a lasso: what the line crosses is picked.
+	const a = rect(editor, 100, 100);
+	const b = rect(editor, 300, 100);
+	const c = rect(editor, 100, 400);
+	editor.setTool('select');
+	drag(editor, [50, 150], [450, 150], { alt: true });
+	assert.deepEqual([...editor.selection.peek()].sort(), [a.id, b.id].sort());
+	assert.deepEqual(editor.lasso.peek(), []);
+	assert.ok(c);
+
+	// The zoom tool: a drag zooms to the box, a click zooms in; then it hands back to select.
+	editor.setTool('zoom');
+	drag(editor, [100, 100], [300, 260]);
+	assert.equal(editor.tool, 'select');
+	assert.equal(editor.camera.peek().z, 5);
+	editor.resetZoom();
+	editor.camera.set({ x: 0, y: 0, z: 1 });
+
+	// The laser leaves a trail and nothing in the document.
+	editor.history.clear();
+	editor.setTool('laser');
+	editor.dispatch(pointer('down', { x: 10, y: 10 }));
+	editor.dispatch(pointer('move', { x: 60, y: 40 }));
+	assert.equal(editor.laser.peek().length, 2);
+	editor.dispatch(pointer('up', { x: 60, y: 40 }));
+	assert.equal(editor.history.canUndo.peek(), false);
+
+	// With the grid's snap on, a moved shape lands on a grid line.
+	editor.setTool('select');
+	editor.grid.set({ show: true, snap: true });
+	editor.select([c.id]);
+	drag(editor, [150, 450], [557, 631]);
+	assert.deepEqual([editor.getShape(c.id)!.x % 24, editor.getShape(c.id)!.y % 24], [0, 0]);
+	editor.grid.set({ show: true, snap: false });
+
+	// A frame dropped on a larger frame becomes its child.
+	const outer = editor.createShape({ kind: 'frame', x: 600, y: 300, props: { w: 380, h: 400 } });
+	const inner = editor.createShape({ kind: 'frame', x: 0, y: 0, props: { w: 120, h: 100 } });
+	editor.settle([inner.id]);
+	assert.equal(editor.getShape(inner.id)?.parentId, editor.pageId.peek());
+	editor.updateShape(inner.id, { x: 700, y: 400 });
+	editor.settle([inner.id, outer.id]);
+	assert.equal(editor.getShape(inner.id)?.parentId, outer.id);
+	assert.equal(editor.getShape(outer.id)?.parentId, editor.pageId.peek());
+});
+
+test('a drag held at the edge of the canvas moves the view, and the shape with it', async () => {
+	const editor = makeEditor();
+	const shape = rect(editor, 400, 300);
+	editor.select([shape.id]);
+	editor.dispatch(pointer('down', { x: 450, y: 350 }));
+	editor.dispatch(pointer('move', { x: 700, y: 350 }));
+	// At the right edge: held there, the view keeps moving left and the shape keeps going right.
+	editor.dispatch(pointer('move', { x: 995, y: 350 }));
+	const before = editor.getShape(shape.id)!.x;
+	await new Promise((resolve) => setTimeout(resolve, 120));
+	assert.ok(editor.camera.peek().x < 0);
+	assert.ok(editor.getShape(shape.id)!.x > before);
+	// Released: it stops.
+	editor.dispatch(pointer('up', { x: 995, y: 350 }));
+	const camera = editor.camera.peek().x;
+	await new Promise((resolve) => setTimeout(resolve, 60));
+	assert.equal(editor.camera.peek().x, camera);
+});
+
+test('a right-angled arrow leaves each shape straight out of its side', () => {
+	const editor = makeEditor();
+	const a = rect(editor, 100, 100);
+	const b = rect(editor, 500, 300);
+	const arrow = editor.createShape({
+		kind: 'line',
+		x: 0,
+		y: 0,
+		props: { arrow: true, elbow: true, start: a.id, end: b.id }
+	});
+	const line = editor.getShape<LineShape>(arrow.id)!;
+	const { points, from } = lineGeometry(editor, line);
+	assert.equal(points.length, 4);
+	// Out of the first shape's right side at its middle height, into the second's left side.
+	near(points[0].y, 150, 0.01);
+	assert.ok(points[0].x > 200 && points[0].x < 215);
+	near(points[3].y, 350, 0.01);
+	assert.ok(points[3].x < 500 && points[3].x > 485);
+	// Every stretch runs along one axis, and the head comes in level.
+	for (let i = 1; i < points.length; i++)
+		assert.ok(points[i].x === points[i - 1].x || points[i].y === points[i - 1].y);
+	near(from.end.y, 350, 0.01);
+	// Only its two ends can be dragged; the switch in the menu turns it straight again.
+	editor.select([arrow.id]);
+	assert.equal(editor.getShapeHandles()?.handles.length, 2);
+	editor.toggleSelection('elbow');
+	assert.equal(lineGeometry(editor, editor.getShape<LineShape>(arrow.id)!).points.length, 2);
+});
+
+test('a file opened over a board with the same records keeps every record in storage and in other tabs', async () => {
+	const { storage, records } = fakeStorage();
+	const [one, two] = fakeChannels();
+	const first = makeEditor();
+	const second = makeEditor();
+	await persist(first, { storage, channel: one, seed: (editor) => void rect(editor, 100, 100) });
+	await persist(second, { storage, channel: two });
+	const file = JSON.parse(JSON.stringify(first.getDocument().records)) as DrawRecord[];
+	const extra = rect(first, 300, 300);
+	// Opening the file replaces the board: the page and the first shape keep their ids.
+	first.loadDocument(file, 'user');
+	assert.equal(first.getShapes().length, 1);
+	assert.deepEqual([...records.keys()].sort(), file.map((record) => record.id).sort());
+	assert.deepEqual(
+		second.store
+			.snapshot()
+			.map((record) => record.id)
+			.sort(),
+		file.map((record) => record.id).sort()
+	);
+	assert.equal(second.getShape(extra.id), undefined);
+	assert.equal(second.getShapes().length, 1);
+
+	// With a delay, the changes of a drag are written once, with the last state.
+	const slow = fakeStorage();
+	let saves = 0;
+	const counted: DocumentStorage = {
+		load: slow.storage.load,
+		save: (change) => (saves++, slow.storage.save(change))
+	};
+	const third = makeEditor();
+	const stop = await persist(third, { storage: counted, saveDelay: 20 });
+	saves = 0;
+	const shape = rect(third, 0, 0);
+	for (let x = 1; x <= 5; x++) third.updateShape(shape.id, { x });
+	assert.equal(saves, 0);
+	await new Promise((resolve) => setTimeout(resolve, 60));
+	assert.equal(saves, 1);
+	assert.equal((slow.records.get(shape.id) as ShapeRecord).x, 5);
+	// Stopping writes what was still waiting.
+	third.updateShape(shape.id, { x: 9 });
+	stop();
+	assert.equal((slow.records.get(shape.id) as ShapeRecord).x, 9);
 });

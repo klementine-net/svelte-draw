@@ -44,6 +44,7 @@
 	} = $props();
 
 	const items = $derived(plugins.flatMap((plugin) => plugin.toolbar ?? []));
+	const actions = $derived(plugins.flatMap((plugin) => plugin.actions ?? []));
 
 	// One place in the bar per tool, or per group of tools (at the group's first tool).
 	const places = $derived.by(() => {
@@ -127,6 +128,20 @@
 				{/if}
 			{/each}
 		</ToolbarGroup>
+		{#each actions as action (action.id)}
+			<Hint label={action.label}>
+				{#snippet control(props)}
+					<ToolbarButton
+						{...props}
+						size="icon"
+						aria-label={action.label}
+						onclick={() => action.run(editor)}
+					>
+						<action.icon aria-hidden="true" />
+					</ToolbarButton>
+				{/snippet}
+			</Hint>
+		{/each}
 		<ToolbarSeparator />
 		<Hint label={labels.undo}>
 			{#snippet control(props)}

@@ -40,8 +40,25 @@
 </script>
 
 <svg class="kd-svg" data-fill={shape.style.fill}>
+	{#if shape.style.fill === 'pattern'}
+		<!-- Hatching in the shape's colour; the id is the shape's, so each shape has its own. -->
+		<defs>
+			<pattern
+				id="kd-hatch-{shape.id}"
+				width="8"
+				height="8"
+				patternUnits="userSpaceOnUse"
+				patternTransform="rotate(45)"
+			>
+				<line class="kd-hatch" x1="0" y1="0" x2="0" y2="8" />
+			</pattern>
+		</defs>
+	{/if}
 	<path
 		class={isSketch ? 'kd-fill' : 'kd-fill kd-line'}
+		style:fill={shape.style.fill === 'pattern'
+			? `url(#kd-hatch-${CSS.escape(shape.id)})`
+			: undefined}
 		d={path}
 		stroke-width={stroke}
 		stroke-dasharray={dash}
@@ -68,6 +85,7 @@
 		class="kd-label kd-geo-label"
 		data-font={shape.style.font ?? 'hand'}
 		data-align={shape.style.align ?? 'middle'}
+		data-valign={shape.style.valign ?? 'middle'}
 		data-fill={shape.style.fill}
 		style:width="{w}px"
 		style:height="{h}px"

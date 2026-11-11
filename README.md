@@ -1,15 +1,16 @@
 # Klementine Draw
 
-An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, group,
-frame, turn, snap, copy and paste, undo. Shapes and tools are plugins, so the same engine can be
-a whiteboard today and a design tool later.
+An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, add
+pictures and links, group, frame, turn, snap, copy and paste, undo, on several pages. It keeps
+the document in the browser, keeps tabs in step and saves pictures and files. Shapes and tools
+are plugins, so the same engine can be a whiteboard today and a design tool later.
 
 What is built and what is not, line by line against tldraw: [FEATURES.md](FEATURES.md).
 
-| Folder                | Package                          | What                                                              |
-| --------------------- | -------------------------------- | ----------------------------------------------------------------- |
-| `packages/draw`       | `@klementine/draw`               | the engine (plain TypeScript) and its Svelte layer: start there   |
-| `examples/whiteboard` | `@klementine/example-whiteboard` | a whiteboard with a sticky note written as a plugin, on port 5196 |
+| Folder                | Package                          | What                                                            |
+| --------------------- | -------------------------------- | --------------------------------------------------------------- |
+| `packages/draw`       | `@klementine/draw`               | the engine (plain TypeScript) and its Svelte layer: start there |
+| `examples/whiteboard` | `@klementine/example-whiteboard` | a whiteboard that is kept in the browser, on port 5196          |
 
 ```sh
 export PATH=/home/simon/.local/share/asdf/installs/nodejs/24.13.0/bin:/home/simon/.local/share/asdf/installs/pnpm/11.0.5/bin:$PATH

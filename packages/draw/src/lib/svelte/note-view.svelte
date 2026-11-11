@@ -1,7 +1,7 @@
 <script lang="ts">
-	import '@fontsource/caveat/600.css';
-	import { editText, type ShapeViewProps } from '@klementine/draw/svelte';
-	import { noteTilt, type NoteShape } from './note.ts';
+	import { noteTilt, type NoteShape } from '../index.ts';
+	import { editText } from './edit-text.ts';
+	import type { ShapeViewProps } from './plugin.ts';
 
 	/**
 	 * NoteView: a sticky note. Flat bright paper with a slightly darker band on top where the glue is,
@@ -111,10 +111,7 @@
 		overflow: hidden;
 		text-align: center;
 		text-wrap: balance;
-		font:
-			600 34px/1.05 'Caveat',
-			'Bradley Hand',
-			cursive;
+		font: 600 34px/1.05 var(--kd-font-hand);
 	}
 	span {
 		/* A block of its own inside the centring box, so line breaks and the caret behave. */

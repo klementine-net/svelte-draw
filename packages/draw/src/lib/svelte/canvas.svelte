@@ -2,7 +2,15 @@
 	import type { Snippet } from 'svelte';
 	import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@klementine/ui/context-menu';
 	import './reactive.ts';
-	import type { DrawEvent, Editor, PointerInfo, ShapeRecord, Vec } from '../index.ts';
+	import {
+		box,
+		type AssetRecord,
+		type DrawEvent,
+		type Editor,
+		type PointerInfo,
+		type ShapeRecord,
+		type Vec
+	} from '../index.ts';
 	import type { DrawSveltePlugin, ShapeView as View } from './plugin.ts';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 	import ShapeView from './shape-view.svelte';
@@ -43,6 +51,26 @@
 		Object.assign({}, ...plugins.map((plugin) => plugin.views ?? {})) as Record<string, View>
 	);
 	const camera = $derived(editor.camera.get());
+	// Only what is on screen (and a little around it) is drawn: a large board stays light.
+	const shown = $derived.by(() => {
+		const ids = editor.getShapeIds();
+		const view = editor.getViewportPageBounds();
+		// (Not before the canvas knows its own size: then everything would count as off screen.)
+		if (!editor.culling.get() || view.w === 0 || view.h === 0) return ids;
+		const margin = 200 / camera.z;
+		const area = {
+			x: view.x - margin,
+			y: view.y - margin,
+			w: view.w + margin * 2,
+			h: view.h + margin * 2
+		};
+		const kept = new Set([...editor.selection.get(), editor.editing.get()]);
+		return ids.filter((id) => {
+			if (kept.has(id)) return true;
+			const shape = editor.getShape(id);
+			return !!shape && box.intersects(area, editor.getShapePageBounds(shape));
+		});
+	});
 
 	let surface = $state<HTMLElement | null>(null);
 	/** The pointer that is down. A second finger or pen while one is down is ignored. */
@@ -187,7 +215,9 @@
 		if (inField(event) || !event.clipboardData) return;
 		const content = cut ? editor.cut() : editor.copy();
 		if (content.length === 0) return;
-		event.clipboardData.setData(CLIPBOARD_TYPE, JSON.stringify({ shapes: content }));
+		// With the files the shapes show, so a picture arrives whole in another tab.
+		const assets = editor.getContentAssets(content);
+		event.clipboardData.setData(CLIPBOARD_TYPE, JSON.stringify({ shapes: content, assets }));
 		// What the shapes say, for a paste into a text field.
 		const text = content
 			.map((shape) => shape.props.text)
@@ -208,14 +238,28 @@
 		const data = event.clipboardData.getData(CLIPBOARD_TYPE);
 		if (data) {
 			try {
-				const shapes = (JSON.parse(data) as { shapes?: ShapeRecord[] }).shapes;
-				if (Array.isArray(shapes)) return editor.paste(shapes, at);
+				const { shapes, assets } = JSON.parse(data) as {
+					shapes?: ShapeRecord[];
+					assets?: AssetRecord[];
+				};
+				if (Array.isArray(shapes)) return editor.paste(shapes, at, assets);
 			} catch {
 				// Not ours after all: fall through to plain text.
 			}
 		}
+		// A copied picture (a screenshot, an image from another app).
+		const files = [...event.clipboardData.files];
+		if (files.length > 0) return void editor.addFiles(files, at);
 		const text = event.clipboardData.getData('text/plain').trim();
 		if (text) editor.pasteText(text, at);
+	}
+
+	/** Files dropped on the canvas land where they were dropped. */
+	function ondrop(event: DragEvent) {
+		const files = [...(event.dataTransfer?.files ?? [])];
+		if (files.length === 0) return;
+		event.preventDefault();
+		void editor.addFiles(files, editor.screenToPage(local(event)));
 	}
 
 	function onkey(event: KeyboardEvent, name: 'down' | 'up') {
@@ -275,6 +319,8 @@
 		const element = surface;
 		if (!element) return;
 		element.addEventListener('wheel', onwheel, { passive: false });
+		// The size is known at once, not only when the observer first reports.
+		editor.viewport.set({ w: element.clientWidth, h: element.clientHeight });
 		const observer = new ResizeObserver(([entry]) =>
 			editor.viewport.set({ w: entry.contentRect.width, h: entry.contentRect.height })
 		);
@@ -295,6 +341,8 @@
 	oncopy={(event) => oncopy(event)}
 	oncut={(event) => oncopy(event, true)}
 	{onpaste}
+	ondragover={(event) => event.preventDefault()}
+	{ondrop}
 >
 	<ContextMenu>
 		<!-- The surface is one widget (role=application) that takes the pointer and the keys itself. -->
@@ -319,13 +367,13 @@
 					style:--kd-grid-size="{24 * camera.z}px"
 					style:--kd-grid-x="{camera.x}px"
 					style:--kd-grid-y="{camera.y}px"
-					data-grid={camera.z >= 0.5 ? 'on' : 'off'}
+					data-grid={editor.grid.get().show && camera.z >= 0.5 ? 'on' : 'off'}
 				>
 					<div
 						class="kd-world"
 						style:transform="translate({camera.x}px, {camera.y}px) scale({camera.z})"
 					>
-						{#each editor.getShapeIds() as id (id)}
+						{#each shown as id (id)}
 							<ShapeView {id} {editor} {views} />
 						{/each}
 					</div>
@@ -333,7 +381,7 @@
 				</div>
 			{/snippet}
 		</ContextMenuTrigger>
-		<ContextMenuContent><CanvasMenu {editor} {labels} /></ContextMenuContent>
+		<ContextMenuContent><CanvasMenu {editor} {labels} canvas={surface} /></ContextMenuContent>
 	</ContextMenu>
 	{@render children?.()}
 </div>

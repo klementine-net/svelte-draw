@@ -52,6 +52,25 @@
 	const snaps = $derived(
 		editor.snapLines.get().map(({ from, to }) => ({ from: toScreen(from), to: toScreen(to) }))
 	);
+	// The other people on this page: their pointer, and a thin outline around what they picked.
+	const peers = $derived(
+		editor.peers
+			.get()
+			.filter((peer) => peer.pageId === editor.pageId.get())
+			.map((peer) => ({
+				...peer,
+				at: toScreen(peer.cursor),
+				picked: peer.selection.flatMap((id) => {
+					const shape = editor.getShape(id);
+					return shape ? [shape] : [];
+				})
+			}))
+	);
+	const trail = (points: readonly Vec[]) =>
+		points
+			.map(toScreen)
+			.map(({ x, y }) => `${x},${y}`)
+			.join(' ');
 	const brush = $derived.by(() => {
 		const b = editor.brush.get();
 		if (!b) return undefined;
@@ -97,4 +116,29 @@
 	{#if brush}
 		<rect class="kd-brush" x={brush.x} y={brush.y} width={brush.w} height={brush.h} />
 	{/if}
+	{#if editor.lasso.get().length > 1}
+		<polyline class="kd-lasso" points={trail(editor.lasso.get())} />
+	{/if}
+	{#if editor.laser.get().length > 0}
+		<polyline class="kd-laser" points={trail(editor.laser.get())} />
+	{/if}
+	{#each peers as peer (peer.id)}
+		{#if peer.laser && peer.laser.length > 0}
+			<polyline class="kd-laser" style:stroke={peer.color} points={trail(peer.laser)} />
+		{/if}
+		{#each peer.picked as shape (shape.id)}
+			{@const origin = editor.getShapePageOrigin(shape)}
+			{@const turned = (editor.getShapePageRotation(shape) * 180) / Math.PI}
+			<path
+				class="kd-outline"
+				style:stroke={peer.color}
+				d={editor.util(shape.kind).outline(shape)}
+				transform="translate({camera.x} {camera.y}) scale({camera.z}) translate({origin.x} {origin.y}) rotate({turned})"
+			/>
+		{/each}
+		<g class="kd-peer" transform="translate({peer.at.x} {peer.at.y})" style:--kd-peer={peer.color}>
+			<path d="M0,0L0,16L4.5,12L8,19L10.5,18L7,11L13,11Z" />
+			<text x="14" y="26">{peer.name}</text>
+		</g>
+	{/each}
 </svg>

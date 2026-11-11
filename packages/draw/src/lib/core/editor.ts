@@ -10,6 +10,8 @@ import { byIndex, indexBetween } from './indexing.ts';
 import {
 	createId,
 	DEFAULT_STYLE,
+	SCHEMA_VERSION,
+	type AssetRecord,
 	type DrawRecord,
 	type PageRecord,
 	type ShapeRecord,
@@ -36,6 +38,50 @@ export interface EditorOptions {
 	store?: Store<DrawRecord>;
 	/** The tool that is active first. `select` by default. */
 	initialTool?: string;
+	/** Where files (images) are kept. By default they stay in the document as data URLs. */
+	assets?: AssetStore;
+}
+
+/**
+ * Where the files of a document are kept. `upload` stores a file and answers what an `<img>`
+ * can show it from. The default keeps the file in the document itself, as a data URL: nothing
+ * to set up, and it is saved and synced with the rest. An app with a file store of its own
+ * (Convex storage, a bucket) passes an `upload` that puts the file there and answers its link.
+ */
+export interface AssetStore {
+	upload(file: Blob): Promise<string>;
+}
+
+/** The default asset store: the file itself, as a data URL. Browser only. */
+export const inlineAssets: AssetStore = {
+	upload: (file) =>
+		new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(String(reader.result));
+			reader.onerror = () => reject(reader.error);
+			reader.readAsDataURL(file);
+		})
+};
+
+/** Someone else looking at the document: who, where their pointer is, what they have picked. */
+export interface Peer {
+	id: string;
+	name: string;
+	/** A CSS colour for their cursor. */
+	color: string;
+	/** The page they are on. */
+	pageId: string;
+	cursor: Vec;
+	selection: readonly string[];
+	/** The trail of their laser pointer, if they are pointing something out. */
+	laser?: readonly Vec[];
+}
+
+/** A document as it is saved to a file or handed to another editor. */
+export interface DocumentFile {
+	/** The version of the record shapes (`SCHEMA_VERSION` when it was written). */
+	version: number;
+	records: DrawRecord[];
 }
 
 /** Screen = page × z + (x, y). */
@@ -86,6 +132,11 @@ const DRAG_DISTANCE = 4;
 const HIT_MARGIN = 6;
 /** How far above the selection (screen px) the handle that turns it sits. */
 const ROTATE_HANDLE_DISTANCE = 24;
+/** How close to the canvas's edge (screen px) a drag starts to move the view, and how fast. */
+const EDGE_ZONE = 24;
+const EDGE_SPEED = 14;
+/** The grid's step, in page units. */
+export const GRID_SIZE = 24;
 /** How close (screen px) an edge must come to another shape's to snap to it. */
 const SNAP_DISTANCE = 7;
 
@@ -113,6 +164,9 @@ export class Editor {
 	readonly store: Store<DrawRecord>;
 	readonly history: History<DrawRecord>;
 	readonly root: StateNode;
+	readonly assets: AssetStore;
+	/** True while the document may be looked at but not changed (see `setReadOnly`). */
+	readonly readOnly = atom(false);
 
 	readonly camera = atom<Camera>({ x: 0, y: 0, z: 1 });
 	/** The canvas's size on screen. */
@@ -134,6 +188,18 @@ export class Editor {
 	readonly focusedGroup = atom<string | null>(null);
 	/** The guides shown while a move or a resize snaps to other shapes. */
 	readonly snapLines = atom<readonly SnapLine[]>([]);
+	/** The path of a lasso selection while it is drawn (page space). */
+	readonly lasso = atom<readonly Vec[]>([]);
+	/** The dot grid: whether it shows, and whether moved shapes land on it. This screen's own. */
+	readonly grid = atom({ show: true, snap: false });
+	/** The trail of the laser pointer (page space): shown for a moment, never part of the document. */
+	readonly laser = atom<readonly Vec[]>([]);
+	/** False while every shape must be on screen at once (a picture is being made of the page). */
+	readonly culling = atom(true);
+	/** Where this user's pointer is on the page (for the others to see). */
+	readonly pointerPage = atom<Vec>({ x: 0, y: 0 });
+	/** The other people looking at this document right now (see persist.ts). */
+	readonly peers = atom<readonly Peer[]>([]);
 	/** What was copied last, for a paste where the system clipboard cannot be read. */
 	clipboard: ShapeRecord[] = [];
 	/** The active path of the tool tree, like `select.idle`. */
@@ -164,6 +230,7 @@ export class Editor {
 	constructor(options: EditorOptions) {
 		this.store = options.store ?? new Store<DrawRecord>();
 		this.history = new History(this.store);
+		this.assets = options.assets ?? inlineAssets;
 		this.root = new RootState(this);
 
 		for (const plugin of options.plugins) {
@@ -176,13 +243,7 @@ export class Editor {
 				this.#shortcuts.set(key, tool);
 		}
 
-		// A document always has a page. Made as a remote change, so it is not an undo step.
-		let page = this.store.snapshot().find((r): r is PageRecord => r.type === 'page');
-		if (!page) {
-			page = { id: 'page:main', type: 'page', name: 'Page 1', index: indexBetween() };
-			this.store.put([page], 'remote');
-		}
-		this.pageId.set(page.id);
+		this.pageId.set(this.#firstPage().id);
 
 		this.#refreshShapeIds();
 		this.store.listen((diff) => {
@@ -199,11 +260,146 @@ export class Editor {
 				if (editing && gone.includes(editing)) this.stopEditing();
 				const focused = this.focusedGroup.peek();
 				if (focused && gone.includes(focused)) this.focusedGroup.set(null);
+				// The page being looked at is gone (deleted in another tab, or by an undo).
+				if (gone.includes(this.pageId.peek())) this.setPage(this.#firstPage().id);
 			}
 		});
 
 		this.root.enter(undefined);
 		this.setTool(options.initialTool ?? 'select');
+	}
+
+	// ── Document and pages ──────────────────────────────────────────────────────────────────
+
+	/** The first page. A document always has one: it is made here if there is none. */
+	#firstPage(): PageRecord {
+		const [first] = this.getPages();
+		if (first) return first;
+		// Made as a remote change, so it is not an undo step. Its id is fixed, so two tabs that
+		// both start empty make the same page.
+		const page: PageRecord = {
+			id: 'page:main',
+			type: 'page',
+			name: 'Page 1',
+			index: indexBetween()
+		};
+		this.store.put([page], 'remote');
+		return page;
+	}
+
+	/** The document's pages, in order. */
+	getPages(): PageRecord[] {
+		return this.store
+			.all()
+			.filter((record): record is PageRecord => record.type === 'page')
+			.sort(byIndex);
+	}
+
+	/** The page being looked at. */
+	getPage(): PageRecord | undefined {
+		const page = this.store.get(this.pageId.get());
+		return page?.type === 'page' ? page : undefined;
+	}
+
+	#cameras = new Map<string, Camera>();
+
+	/** Shows another page. What was going on is dropped; each page keeps its own view. */
+	setPage(id: string) {
+		const page = this.store.get(id);
+		if (page?.type !== 'page' || id === this.pageId.peek()) return;
+		if (this.editing.peek()) this.stopEditing();
+		this.dispatch({ type: 'cancel' });
+		this.selection.set([]);
+		this.hovered.set(null);
+		this.focusedGroup.set(null);
+		this.#cameras.set(this.pageId.peek(), this.camera.peek());
+		this.pageId.set(id);
+		this.camera.set(this.#cameras.get(id) ?? { x: 0, y: 0, z: 1 });
+		this.#refreshShapeIds();
+	}
+
+	/** Adds a page after the last one and shows it. */
+	createPage(name?: string): PageRecord {
+		if (this.readOnly.peek()) return this.getPage()!;
+		const pages = this.getPages();
+		const page: PageRecord = {
+			id: createId('page'),
+			type: 'page',
+			name: name ?? `Page ${pages.length + 1}`,
+			index: indexBetween(pages.at(-1)?.index)
+		};
+		this.history.mark();
+		this.store.put([page]);
+		this.history.mark();
+		this.setPage(page.id);
+		return page;
+	}
+
+	renamePage(id: string, name: string) {
+		if (this.readOnly.peek()) return;
+		const page = this.store.get(id);
+		if (page?.type !== 'page' || !name.trim() || name === page.name) return;
+		this.history.mark();
+		this.store.put([{ ...page, name: name.trim() }]);
+		this.history.mark();
+	}
+
+	/** Removes a page and everything on it. The last page stays. */
+	deletePage(id: string) {
+		if (this.readOnly.peek()) return;
+		const pages = this.getPages();
+		const at = pages.findIndex((page) => page.id === id);
+		if (at < 0 || pages.length < 2) return;
+		// Everything on the page: what names it as parent, and what sits in that.
+		const doomed = new Set([id]);
+		let grew = true;
+		const shapes = this.store.snapshot().filter((record) => record.type === 'shape');
+		while (grew) {
+			grew = false;
+			for (const shape of shapes)
+				if (doomed.has(shape.parentId) && !doomed.has(shape.id)) {
+					doomed.add(shape.id);
+					grew = true;
+				}
+		}
+		if (id === this.pageId.peek()) this.setPage((pages[at + 1] ?? pages[at - 1]).id);
+		this.history.mark();
+		this.store.remove([...doomed]);
+		this.history.mark();
+	}
+
+	/** The whole document, to save to a file or hand to another editor. */
+	getDocument(): DocumentFile {
+		return { version: SCHEMA_VERSION, records: this.store.snapshot() };
+	}
+
+	/**
+	 * Replaces the document with `records`. What is loaded is not an undo step. As `remote`
+	 * (what storage held: the other tabs loaded it too) nothing is saved or sent for it; as
+	 * `user` (a file this user opened) it is saved and sent like any other change.
+	 */
+	loadDocument(records: readonly DrawRecord[], source: 'user' | 'remote' = 'remote') {
+		if (this.editing.peek()) this.stopEditing();
+		this.dispatch({ type: 'cancel' });
+		this.store.transact(() => {
+			this.store.remove(
+				this.store.snapshot().map((record) => record.id),
+				source
+			);
+			this.store.put([...records], source);
+		}, source);
+		this.history.clear();
+		this.#cameras.clear();
+		this.selection.set([]);
+		this.focusedGroup.set(null);
+		this.pageId.set(this.#firstPage().id);
+		this.#refreshShapeIds();
+	}
+
+	/** While read-only, tools other than select and hand are refused and nothing can be changed. */
+	setReadOnly(readOnly: boolean) {
+		this.readOnly.set(readOnly);
+		if (readOnly) this.setTool('hand');
 	}
 
 	// ── Tools ───────────────────────────────────────────────────────────────────────────────
@@ -215,6 +411,8 @@ export class Editor {
 
 	/** Switches tool. `path` may reach into the tool (`select.resizing`), `info` goes with it. */
 	setTool(path: string, info?: unknown) {
+		// Read-only: the view can be moved, nothing else.
+		if (this.readOnly.peek() && path.split('.')[0] !== 'hand') return;
 		this.root.transition(path, info);
 	}
 
@@ -278,7 +476,8 @@ export class Editor {
 			if (event.name === 'up') {
 				inputs.isDown = false;
 				inputs.isDragging = false;
-			}
+				this.#stopEdgeScroll();
+			} else if (event.name === 'move' && inputs.isDragging) this.#edgeScroll(event);
 			return;
 		}
 
@@ -299,13 +498,57 @@ export class Editor {
 			inputs.isDown = false;
 			inputs.isDragging = false;
 			this.#panning = false;
+			this.#stopEdgeScroll();
 		}
 		this.root.handleEvent(event);
+	}
+
+	#edgeTimer: ReturnType<typeof setInterval> | undefined;
+
+	/** How fast the view should move (screen px per tick) for a pointer this close to its edge. */
+	#edgeSpeed(): Vec {
+		const { w, h } = this.viewport.peek();
+		const { x, y } = this.inputs.screen;
+		const along = (at: number, size: number) => {
+			if (size === 0) return 0;
+			if (at < EDGE_ZONE) return Math.min(1, (EDGE_ZONE - at) / EDGE_ZONE) * EDGE_SPEED;
+			if (at > size - EDGE_ZONE)
+				return -Math.min(1, (at - size + EDGE_ZONE) / EDGE_ZONE) * EDGE_SPEED;
+			return 0;
+		};
+		return { x: along(x, w), y: along(y, h) };
+	}
+
+	/**
+	 * A drag that reaches the edge of the canvas moves the view, so what is dragged can go
+	 * further than the screen. The tool sees it as the pointer moving over the page.
+	 */
+	#edgeScroll(event: PointerInfo) {
+		const speed = this.#edgeSpeed();
+		// Only for the select tool's drags (a new shape is dragged out by it too): a pen stroke
+		// or the eraser near the edge should not move the view.
+		if (this.#edgeTimer !== undefined || this.tool !== 'select' || (speed.x === 0 && speed.y === 0))
+			return;
+		this.#edgeTimer = setInterval(() => {
+			const now = this.#edgeSpeed();
+			if (!this.inputs.isDown || (now.x === 0 && now.y === 0)) return this.#stopEdgeScroll();
+			this.pan(now.x, now.y);
+			this.#movePointer(this.inputs.screen);
+			this.root.handleEvent({ ...event, point: this.inputs.screen });
+		}, 16);
+		(this.#edgeTimer as { unref?: () => void }).unref?.();
+	}
+
+	#stopEdgeScroll() {
+		if (this.#edgeTimer === undefined) return;
+		clearInterval(this.#edgeTimer);
+		this.#edgeTimer = undefined;
 	}
 
 	#movePointer(screen: Vec) {
 		this.inputs.screen = screen;
 		this.inputs.page = this.screenToPage(screen);
+		this.pointerPage.set(this.inputs.page);
 	}
 
 	// ── Measured sizes ──────────────────────────────────────────────────────────────────────
@@ -641,6 +884,7 @@ export class Editor {
 	}
 
 	#restack(ids: readonly string[], where: 'front' | 'back' | 'forward' | 'backward') {
+		if (this.readOnly.peek()) return;
 		const moving = this.getShapes().filter((shape) => ids.includes(shape.id));
 		const up = where === 'front' || where === 'forward';
 		if (up === (where === 'forward')) moving.reverse();
@@ -684,7 +928,8 @@ export class Editor {
 	#refreshShapeIds() {
 		const byParent = new Map<string, ShapeRecord[]>();
 		for (const record of this.store.snapshot()) {
-			if (record.type !== 'shape') continue;
+			// A kind no plugin here knows (a document from a newer app) is left out, not a crash.
+			if (record.type !== 'shape' || !this.#utils.has(record.kind)) continue;
 			const list = byParent.get(record.parentId);
 			if (list) list.push(record);
 			else byParent.set(record.parentId, [record]);
@@ -860,6 +1105,7 @@ export class Editor {
 	}
 
 	deleteSelection() {
+		if (this.readOnly.peek()) return;
 		const ids = this.getSelectedShapes()
 			.filter((shape) => !this.isLocked(shape))
 			.map((shape) => shape.id);
@@ -903,15 +1149,30 @@ export class Editor {
 			});
 	}
 
+	/** The asset records the shapes show (an image's file), for a clipboard that leaves the tab. */
+	getContentAssets(content: readonly ShapeRecord[]): AssetRecord[] {
+		const ids = new Set(
+			content.flatMap((shape) =>
+				this.hasUtil(shape.kind) ? this.util(shape.kind).assets(shape) : []
+			)
+		);
+		return [...ids].flatMap((id) => {
+			const record = this.store.get(id);
+			return record?.type === 'asset' ? [record] : [];
+		});
+	}
+
 	/**
 	 * Adds content (from `getContent`) to the page as new shapes and selects them. With `at`
 	 * its middle lands on that page point; otherwise it lands `offset` down and right of where
-	 * it came from.
+	 * it came from. `assets` are the files the shapes show, added where this document lacks them.
 	 */
 	putContent(
 		content: readonly ShapeRecord[],
-		options: { at?: Vec; offset?: number } = {}
+		options: { at?: Vec; offset?: number; assets?: readonly AssetRecord[] } = {}
 	): ShapeRecord[] {
+		const missing = (options.assets ?? []).filter((asset) => !this.store.has(asset.id));
+		if (missing.length > 0) this.store.put(missing);
 		const shapes = content.filter((shape) => this.hasUtil(shape.kind));
 		const ids = new Map(shapes.map((shape) => [shape.id, createId('shape')]));
 		const roots = shapes.filter((shape) => !ids.has(shape.parentId));
@@ -952,6 +1213,7 @@ export class Editor {
 
 	/** Copies the selection a little down and right (or `offset` away), and selects the copies. */
 	duplicateSelection(offset = 16) {
+		if (this.readOnly.peek()) return;
 		const roots = this.getSelectionRoots();
 		if (roots.length === 0) return;
 		this.history.mark();
@@ -966,16 +1228,21 @@ export class Editor {
 	}
 
 	cut(): ShapeRecord[] {
+		if (this.readOnly.peek()) return [];
 		const content = this.copy();
 		this.deleteSelection();
 		return content;
 	}
 
 	/** Pastes content (the editor's own clipboard by default), its middle at `at` if given. */
-	paste(content: readonly ShapeRecord[] = this.clipboard, at?: Vec) {
-		if (content.length === 0) return;
+	paste(
+		content: readonly ShapeRecord[] = this.clipboard,
+		at?: Vec,
+		assets?: readonly AssetRecord[]
+	) {
+		if (content.length === 0 || this.readOnly.peek()) return;
 		this.history.mark();
-		const made = this.putContent(content, at ? { at } : {});
+		const made = this.putContent(content, { at, assets });
 		this.settle(made.map((shape) => shape.id));
 		this.history.mark();
 	}
@@ -985,6 +1252,7 @@ export class Editor {
 	 * from text (`ShapeUtil.fromText`) makes it. Nothing happens when no kind does.
 	 */
 	pasteText(text: string, at: Vec) {
+		if (this.readOnly.peek()) return;
 		for (const [kind, util] of this.#utils) {
 			const props = util.fromText(text);
 			if (!props) continue;
@@ -1000,6 +1268,55 @@ export class Editor {
 		}
 	}
 
+	/**
+	 * Adds dropped, pasted or picked files as shapes around `at`: for each file, the first kind
+	 * that says it is made from it (`ShapeUtil.fromFile`) makes the shape. Other files are
+	 * passed over. All of it is one undo step.
+	 */
+	async addFiles(files: readonly Blob[], at: Vec): Promise<ShapeRecord[]> {
+		if (this.readOnly.peek()) return [];
+		const made: { kind: string; props: Record<string, unknown>; assets: AssetRecord[] }[] = [];
+		for (const file of files)
+			for (const [kind, util] of this.#utils) {
+				const result = await util.fromFile(file);
+				if (!result) continue;
+				made.push({ kind, ...result });
+				break;
+			}
+		if (made.length === 0) return [];
+		this.history.mark();
+		let shapes: ShapeRecord[] = [];
+		this.store.transact(() => {
+			this.store.put(made.flatMap((item) => item.assets));
+			// Each a little down and right of the one before, the first centred on the point.
+			shapes = this.createShapes(
+				made.map(({ kind, props }, i) => {
+					const { w = 0, h = 0 } = props as { w?: number; h?: number };
+					return { kind, x: at.x - w / 2 + i * 24, y: at.y - h / 2 + i * 24, props };
+				})
+			);
+		});
+		this.settle(shapes.map((shape) => shape.id));
+		this.history.mark();
+		this.setTool('select');
+		this.select(shapes.map((shape) => shape.id));
+		return shapes;
+	}
+
+	/** Flips a switch (`ShapeUtil.toggles`) on every selected shape that has it. */
+	toggleSelection(id: string) {
+		if (this.readOnly.peek()) return;
+		const patches = this.getSelectedShapes().flatMap((shape) => {
+			if (this.isLocked(shape)) return [];
+			const patch = this.util(shape.kind).toggle(shape, id);
+			return patch ? [{ id: shape.id, ...patch }] : [];
+		});
+		if (patches.length === 0) return;
+		this.history.mark();
+		this.updateShapes(patches);
+		this.history.mark();
+	}
+
 	/** The change that moves `shape` by `d`, a distance on the page. */
 	#moved(shape: ShapeRecord, d: Vec): { id: string; x: number; y: number } {
 		const parent = this.getShape(shape.parentId);
@@ -1009,6 +1326,7 @@ export class Editor {
 
 	/** Moves the selection by a step (the arrow keys). */
 	nudgeSelection(dx: number, dy: number) {
+		if (this.readOnly.peek()) return;
 		const ids = this.getSelectionRoots().map((shape) => shape.id);
 		if (ids.length === 0) return;
 		this.history.mark();
@@ -1018,6 +1336,7 @@ export class Editor {
 
 	/** Lines the selected shapes up along one edge (or the middle) of the box around them. */
 	alignSelection(edge: AlignEdge) {
+		if (this.readOnly.peek()) return;
 		const shapes = this.getSelectionRoots();
 		const bounds = box.union(shapes.map((shape) => this.getShapePageBounds(shape)));
 		if (shapes.length < 2 || !bounds) return;
@@ -1040,6 +1359,7 @@ export class Editor {
 
 	/** Spreads three or more selected shapes so the gaps between them are equal. */
 	distributeSelection(axis: 'x' | 'y') {
+		if (this.readOnly.peek()) return;
 		const size = axis === 'x' ? 'w' : 'h';
 		const items = this.getSelectionRoots()
 			.map((shape) => ({ shape, bounds: this.getShapePageBounds(shape) }))
@@ -1064,6 +1384,7 @@ export class Editor {
 
 	/** Mirrors the selection left to right (`x`) or top to bottom (`y`) within its box. */
 	flipSelection(axis: 'x' | 'y') {
+		if (this.readOnly.peek()) return;
 		const roots = this.getSelectionRoots();
 		const bounds = box.union(roots.map((shape) => this.getShapePageBounds(shape)));
 		// Only what stands upright mirrors cleanly in an upright box.
@@ -1086,6 +1407,7 @@ export class Editor {
 
 	/** Locks the selection, or unlocks it when all of it is locked. A locked shape lets go. */
 	toggleLock() {
+		if (this.readOnly.peek()) return;
 		const shapes = this.getSelectedShapes();
 		if (shapes.length === 0) return;
 		const locked = !shapes.every((shape) => shape.locked);
@@ -1112,6 +1434,7 @@ export class Editor {
 
 	/** Makes the selected shapes one group, in the place of the topmost of them. */
 	groupSelection() {
+		if (this.readOnly.peek()) return;
 		const kind = this.#groupKind();
 		if (!kind || !this.canGroupSelection()) return;
 		const picked = new Set(this.getSelectionRoots().map((shape) => shape.id));
@@ -1143,6 +1466,7 @@ export class Editor {
 
 	/** Takes the selected groups apart; what was in them stays where it shows. */
 	ungroupSelection() {
+		if (this.readOnly.peek()) return;
 		const groups = this.getSelectedShapes().filter((shape) => this.util(shape.kind).group);
 		if (groups.length === 0) return;
 		const freed: string[] = [];
@@ -1184,39 +1508,53 @@ export class Editor {
 		const frames = this.getShapes().filter((shape) => this.util(shape.kind).frame);
 		if (frames.length === 0) return;
 		const tops = new Map<string, string | undefined>();
-		const patches: ({ id: string } & ShapePatch)[] = [];
-		for (const id of ids) {
-			const shape = this.getShape(id);
-			if (!shape || this.util(shape.kind).frame) continue;
-			// Only what sits on the page or in a frame moves between them; a group keeps its own.
-			const parent = this.getShape(shape.parentId);
-			if (parent && !this.util(parent.kind).frame) continue;
-			const middle = box.center(this.getShapePageBounds(shape));
-			let home: ShapeRecord | undefined;
-			for (let i = frames.length - 1; i >= 0 && !home; i--) {
-				const frame = frames[i];
-				if (box.contains(this.util(frame.kind).bounds(frame), this.pageToShape(frame, middle)))
-					home = frame;
-			}
-			const homeId = home?.id ?? this.pageId.peek();
-			if (homeId === shape.parentId) continue;
-			const origin = this.getShapePageOrigin(shape);
-			const place = home ? this.pageToShape(home, origin) : origin;
-			if (!tops.has(homeId)) tops.set(homeId, this.#topIndex(homeId));
-			const index = indexBetween(tops.get(homeId));
-			tops.set(homeId, index);
-			patches.push({
-				id,
-				parentId: homeId,
-				index,
-				x: place.x,
-				y: place.y,
-				rotation: tidyAngle(
-					this.getShapePageRotation(shape) - (home ? this.getShapePageRotation(home) : 0)
-				)
-			});
+		// One at a time, so a frame that just moved into another is not then given that one.
+		this.store.transact(() => {
+			for (const id of ids) this.#settleOne(id, frames, tops);
+		});
+	}
+
+	#settleOne(id: string, frames: ShapeRecord[], tops: Map<string, string | undefined>) {
+		const shape = this.getShape(id);
+		if (!shape) return;
+		// Only what sits on the page or in a frame moves between them; a group keeps its own.
+		const parent = this.getShape(shape.parentId);
+		if (parent && !this.util(parent.kind).frame) return;
+		const middle = box.center(this.getShapePageBounds(shape));
+		let home: ShapeRecord | undefined;
+		for (let i = frames.length - 1; i >= 0 && !home; i--) {
+			// Read anew: a frame settled a moment ago has a new parent.
+			const frame = this.getShape(frames[i].id);
+			// A frame can sit in another frame, but not in itself or in what it holds.
+			if (!frame || frame.id === id || this.#isInside(frame, id)) continue;
+			if (box.contains(this.util(frame.kind).bounds(frame), this.pageToShape(frame, middle)))
+				home = frame;
 		}
-		if (patches.length > 0) this.updateShapes(patches);
+		const homeId = home?.id ?? this.pageId.peek();
+		if (homeId === shape.parentId) return;
+		const origin = this.getShapePageOrigin(shape);
+		const place = home ? this.pageToShape(home, origin) : origin;
+		if (!tops.has(homeId)) tops.set(homeId, this.#topIndex(homeId));
+		const index = indexBetween(tops.get(homeId));
+		tops.set(homeId, index);
+		this.updateShape(id, {
+			parentId: homeId,
+			index,
+			x: place.x,
+			y: place.y,
+			rotation: tidyAngle(
+				this.getShapePageRotation(shape) - (home ? this.getShapePageRotation(home) : 0)
+			)
+		});
+	}
+
+	/** Whether `shape` sits somewhere inside the shape `ancestorId`. */
+	#isInside(shape: ShapeRecord, ancestorId: string): boolean {
+		for (let parent = this.getShape(shape.parentId); parent;) {
+			if (parent.id === ancestorId) return true;
+			parent = this.getShape(parent.parentId);
+		}
+		return false;
 	}
 
 	/** The places other shapes offer to snap to: their edges and middles, on each axis. */
@@ -1265,6 +1603,11 @@ export class Editor {
 		};
 		const x = nearest([moving.x, moving.x + moving.w / 2, moving.x + moving.w], stops.xs);
 		const y = nearest([moving.y, moving.y + moving.h / 2, moving.y + moving.h], stops.ys);
+		// Where no shape is near, the grid catches the top left corner, if it is switched on.
+		const onGrid = (value: number) => Math.round(value / GRID_SIZE) * GRID_SIZE - value;
+		const snapToGrid = this.grid.peek().snap && moving.w + moving.h > 0;
+		const gridX = !x && snapToGrid ? onGrid(moving.x) : 0;
+		const gridY = !y && snapToGrid ? onGrid(moving.y) : 0;
 		const moved = box.translate(moving, { x: x?.d ?? 0, y: y?.d ?? 0 });
 		const lines: SnapLine[] = [];
 		if (x) {
@@ -1276,7 +1619,7 @@ export class Editor {
 			lines.push({ from: { x: span.x, y: y.at }, to: { x: span.x + span.w, y: y.at } });
 		}
 		this.snapLines.set(lines);
-		return { x: x?.d ?? 0, y: y?.d ?? 0 };
+		return { x: x?.d ?? gridX, y: y?.d ?? gridY };
 	}
 
 	/** `point` moved onto another shape's edge or middle where one is near, on the given axes. */
@@ -1290,6 +1633,7 @@ export class Editor {
 
 	/** Sets a style on the selection (on what is in a selected group) and for the next shape. */
 	setStyle(patch: Partial<ShapeStyle>) {
+		if (this.readOnly.peek()) return;
 		this.style.set({ ...this.style.peek(), ...patch });
 		const leaves = this.getLeaves(this.getSelectedShapes()).filter((leaf) => !this.isLocked(leaf));
 		if (leaves.length === 0) return;
@@ -1356,6 +1700,29 @@ export class Editor {
 		this.camera.set({ x: w / 2 - centre.x * z, y: h / 2 - centre.y * z, z });
 	}
 
+	/** Brings a box on the page into view, as large as fits. */
+	zoomToBounds(bounds: Box, padding = 32) {
+		const { w, h } = this.viewport.peek();
+		if (w === 0 || h === 0) return;
+		const z = Math.max(
+			MIN_ZOOM,
+			Math.min(
+				MAX_ZOOM,
+				(w - padding * 2) / Math.max(1, bounds.w),
+				(h - padding * 2) / Math.max(1, bounds.h)
+			)
+		);
+		const centre = box.center(bounds);
+		this.camera.set({ x: w / 2 - centre.x * z, y: h / 2 - centre.y * z, z });
+	}
+
+	/** The part of the page that is on screen. */
+	getViewportPageBounds(): Box {
+		const { w, h } = this.viewport.get();
+		const { x, y, z } = this.camera.get();
+		return { x: -x / z, y: -y / z, w: w / z, h: h / z };
+	}
+
 	/** Brings the selection into view, as large as fits (never past 100%). */
 	zoomToSelection() {
 		const bounds = this.getSelectionBounds();
@@ -1379,12 +1746,14 @@ export class Editor {
 	// ── History ─────────────────────────────────────────────────────────────────────────────
 
 	undo() {
+		if (this.readOnly.peek()) return;
 		this.stopEditing();
 		this.dispatchCancelIfBusy();
 		this.history.undo();
 	}
 
 	redo() {
+		if (this.readOnly.peek()) return;
 		this.stopEditing();
 		this.dispatchCancelIfBusy();
 		this.history.redo();

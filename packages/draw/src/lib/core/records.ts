@@ -12,13 +12,26 @@ export interface PageRecord extends BaseRecord {
 }
 
 /** The named colours a shape can take; the renderer maps them to theme values. */
-export const COLORS = ['ink', 'grey', 'red', 'yellow', 'green', 'blue', 'violet'] as const;
+export const COLORS = [
+	'ink',
+	'grey',
+	'white',
+	'yellow',
+	'red',
+	'green',
+	'blue',
+	'violet',
+	'light-red',
+	'light-green',
+	'light-blue',
+	'light-violet'
+] as const;
 export type ColorName = (typeof COLORS)[number];
 
-export const FILLS = ['none', 'tint', 'solid'] as const;
+export const FILLS = ['none', 'tint', 'solid', 'pattern'] as const;
 export type FillName = (typeof FILLS)[number];
 
-export const SIZES = ['s', 'm', 'l'] as const;
+export const SIZES = ['s', 'm', 'l', 'xl'] as const;
 export type SizeName = (typeof SIZES)[number];
 
 /**
@@ -36,6 +49,10 @@ export type FontName = (typeof FONTS)[number];
 export const ALIGNS = ['start', 'middle', 'end'] as const;
 export type AlignName = (typeof ALIGNS)[number];
 
+/** Where a shape's text sits in the shape's height. */
+export const VALIGNS = ['top', 'middle', 'bottom'] as const;
+export type VAlignName = (typeof VALIGNS)[number];
+
 /** The steps the style panel offers for how see-through a shape is. */
 export const OPACITIES = [0.1, 0.25, 0.5, 0.75, 1] as const;
 
@@ -46,6 +63,7 @@ export interface ShapeStyle {
 	look: LookName;
 	font: FontName;
 	align: AlignName;
+	valign: VAlignName;
 	/** 0 (invisible) to 1 (solid). */
 	opacity: number;
 }
@@ -59,14 +77,15 @@ export const DEFAULT_STYLE: ShapeStyle = {
 	look: 'sketch',
 	font: 'hand',
 	align: 'middle',
+	valign: 'middle',
 	opacity: 1
 };
 
 /** Stroke width in page units for each size. */
-export const STROKE_WIDTH: Record<SizeName, number> = { s: 2, m: 3.5, l: 6 };
+export const STROKE_WIDTH: Record<SizeName, number> = { s: 2, m: 3.5, l: 6, xl: 10 };
 
 /** Text size in page units for each size. */
-export const FONT_SIZE: Record<SizeName, number> = { s: 18, m: 24, l: 36 };
+export const FONT_SIZE: Record<SizeName, number> = { s: 18, m: 24, l: 36, xl: 52 };
 
 /** The dash pattern of a broken line, for a stroke of `width`; undefined for an unbroken one. */
 export function dashArray(look: LookName, width: number): string | undefined {
@@ -99,12 +118,30 @@ export interface ShapeRecord<
 	props: Props;
 }
 
-export type DrawRecord = PageRecord | ShapeRecord;
+/**
+ * A file a shape shows (an image). The shape holds only the asset's id, so moving the shape
+ * never re-sends the file. `src` is whatever the app's asset store answered: a data URL by
+ * default, a link once the app keeps files elsewhere.
+ */
+export interface AssetRecord extends BaseRecord {
+	type: 'asset';
+	name: string;
+	mime: string;
+	/** The picture's own size in pixels. */
+	w: number;
+	h: number;
+	src: string;
+}
+
+export type DrawRecord = PageRecord | ShapeRecord | AssetRecord;
+
+/** The version of the record shapes above. Kept with every saved document (see persist.ts). */
+export const SCHEMA_VERSION = 1;
 
 let counter = 0;
 
-/** A new record id, `shape:…` or `page:…`. */
-export function createId(type: 'shape' | 'page'): string {
+/** A new record id: `shape:…`, `page:…` or `asset:…`. */
+export function createId(type: 'shape' | 'page' | 'asset'): string {
 	const random =
 		typeof crypto !== 'undefined' && 'randomUUID' in crypto
 			? crypto.randomUUID().replaceAll('-', '').slice(0, 16)

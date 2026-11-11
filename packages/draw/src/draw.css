@@ -25,6 +25,11 @@
 	--kd-green: light-dark(#2e9455, #6ac88c);
 	--kd-blue: light-dark(#2f6bd8, #74a5f5);
 	--kd-violet: light-dark(#7d4fd6, #b494f2);
+	--kd-white: light-dark(#ffffff, #fbfaf6);
+	--kd-light-red: light-dark(#f08a84, #ffb9b3);
+	--kd-light-green: light-dark(#6ccf96, #abe7c2);
+	--kd-light-blue: light-dark(#6ea8f5, #aecffb);
+	--kd-light-violet: light-dark(#b59af0, #d6c6f9);
 	--kd-select: var(--color-focus);
 
 	/* The typefaces of a shape's text. `hand` wants a handwriting font loaded by the app. */
@@ -309,4 +314,201 @@
 	height: 10px;
 	box-shadow: none;
 	opacity: var(--kd-opacity);
+}
+
+/* A picture. */
+.kd-image {
+	display: block;
+	max-width: none;
+	user-select: none;
+	-webkit-user-drag: none;
+}
+.kd-image-missing {
+	background: color-mix(in oklab, var(--kd-ink) 8%, transparent);
+	border: 1px dashed var(--line-strong);
+	box-sizing: border-box;
+}
+
+/* The words on a line: at its middle, on a patch of canvas. */
+.kd-line-label {
+	width: max-content;
+	max-width: 240px;
+	padding: 0 6px;
+	transform: translate(-50%, -50%);
+	background: var(--canvas-ground);
+	border-radius: 4px;
+}
+
+/* Someone else's pointer, in their colour, with their name. */
+.kd-peer path {
+	fill: var(--kd-peer);
+	stroke: var(--canvas-ground);
+	stroke-width: 1px;
+}
+.kd-peer text {
+	fill: var(--kd-peer);
+	font: 600 11px var(--kd-font-sans);
+	paint-order: stroke;
+	stroke: var(--canvas-ground);
+	stroke-width: 3px;
+}
+
+.kd-shape[data-color='white'] {
+	--kd-color: var(--kd-white);
+}
+.kd-swatch[data-color='white'] {
+	background: var(--kd-white);
+}
+.kd-shape[data-color='light-red'] {
+	--kd-color: var(--kd-light-red);
+}
+.kd-swatch[data-color='light-red'] {
+	background: var(--kd-light-red);
+}
+.kd-shape[data-color='light-green'] {
+	--kd-color: var(--kd-light-green);
+}
+.kd-swatch[data-color='light-green'] {
+	background: var(--kd-light-green);
+}
+.kd-shape[data-color='light-blue'] {
+	--kd-color: var(--kd-light-blue);
+}
+.kd-swatch[data-color='light-blue'] {
+	background: var(--kd-light-blue);
+}
+.kd-shape[data-color='light-violet'] {
+	--kd-color: var(--kd-light-violet);
+}
+.kd-swatch[data-color='light-violet'] {
+	background: var(--kd-light-violet);
+}
+
+/* The laser pointer's trail. */
+.kd-laser {
+	fill: none;
+	stroke: var(--kd-red);
+	stroke-width: 4px;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	opacity: 0.8;
+}
+
+/* The minimap: shapes as blocks in their colour, the view as a frame. */
+.kd-minimap {
+	display: block;
+	cursor: pointer;
+	touch-action: none;
+}
+.kd-minimap-shape {
+	fill: var(--kd-ink);
+	opacity: 0.55;
+}
+.kd-minimap-shape[data-color='grey'] {
+	fill: var(--kd-grey);
+}
+.kd-minimap-shape[data-color='red'] {
+	fill: var(--kd-red);
+}
+.kd-minimap-shape[data-color='yellow'] {
+	fill: var(--kd-yellow);
+}
+.kd-minimap-shape[data-color='green'] {
+	fill: var(--kd-green);
+}
+.kd-minimap-shape[data-color='blue'] {
+	fill: var(--kd-blue);
+}
+.kd-minimap-shape[data-color='violet'] {
+	fill: var(--kd-violet);
+}
+.kd-minimap-shape[data-color='white'] {
+	fill: var(--kd-white);
+}
+.kd-minimap-shape[data-color='light-red'] {
+	fill: var(--kd-light-red);
+}
+.kd-minimap-shape[data-color='light-green'] {
+	fill: var(--kd-light-green);
+}
+.kd-minimap-shape[data-color='light-blue'] {
+	fill: var(--kd-light-blue);
+}
+.kd-minimap-shape[data-color='light-violet'] {
+	fill: var(--kd-light-violet);
+}
+.kd-minimap-view {
+	fill: color-mix(in oklab, var(--kd-select) 10%, transparent);
+	stroke: var(--kd-select);
+	stroke-width: 1.5px;
+	vector-effect: non-scaling-stroke;
+}
+
+/* A hatched fill's lines. */
+.kd-hatch {
+	stroke: var(--kd-color);
+	stroke-width: 2px;
+	opacity: 0.6;
+}
+
+/* A link: a card with where it leads, or a player. Live only while it is being used. */
+.kd-link {
+	box-sizing: border-box;
+	overflow: hidden;
+	border: 1px solid var(--line-strong);
+	border-radius: 10px;
+	background: color-mix(in oklab, var(--canvas-ground) 90%, var(--kd-ink));
+	font-family: var(--kd-font-sans);
+}
+.kd-link[data-live] {
+	pointer-events: auto;
+	box-shadow: 0 0 0 2px var(--kd-select);
+}
+.kd-link iframe {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	display: block;
+}
+.kd-link a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 2px;
+	height: 100%;
+	padding: 0 16px;
+	color: var(--kd-ink);
+	text-decoration: none;
+}
+.kd-link-host {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 15px;
+	font-weight: 600;
+}
+.kd-link-url {
+	overflow: hidden;
+	font-size: 12px;
+	opacity: 0.6;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* The line of a lasso selection. */
+.kd-lasso {
+	fill: none;
+	stroke: var(--kd-select);
+	stroke-width: 1.5px;
+	stroke-dasharray: 4 4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+/* Where the words sit in a shape's height. */
+.kd-geo-label[data-valign='top'] {
+	justify-content: flex-start;
+}
+.kd-geo-label[data-valign='bottom'] {
+	justify-content: flex-end;
 }

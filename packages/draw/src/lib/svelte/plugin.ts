@@ -16,6 +16,9 @@ import Hand from 'phosphor-svelte/lib/Hand';
 import Heart from 'phosphor-svelte/lib/Heart';
 import Hexagon from 'phosphor-svelte/lib/Hexagon';
 import Highlighter from 'phosphor-svelte/lib/Highlighter';
+import ImageSquare from 'phosphor-svelte/lib/ImageSquare';
+import Flashlight from 'phosphor-svelte/lib/Flashlight';
+import NoteBlank from 'phosphor-svelte/lib/NoteBlank';
 import LineSegment from 'phosphor-svelte/lib/LineSegment';
 import PencilSimple from 'phosphor-svelte/lib/PencilSimple';
 import Square from 'phosphor-svelte/lib/Square';
@@ -28,6 +31,10 @@ import {
 	framePlugin as frameCore,
 	geoPlugin as geoCore,
 	groupPlugin,
+	imagePlugin as imageCore,
+	laserPlugin as laserCore,
+	linkPlugin as linkCore,
+	notePlugin as noteCore,
 	handPlugin as handCore,
 	linePlugin as lineCore,
 	selectPlugin as selectCore,
@@ -39,6 +46,9 @@ import {
 import DrawView from './draw-view.svelte';
 import GeoView from './geo-view.svelte';
 import FrameView from './frame-view.svelte';
+import ImageView from './image-view.svelte';
+import LinkView from './link-view.svelte';
+import NoteView from './note-view.svelte';
 import LineView from './line-view.svelte';
 import TextView from './text-view.svelte';
 
@@ -67,10 +77,33 @@ export interface ToolbarItem {
 	group?: string;
 }
 
+/** A button in the toolbar that does something at once, instead of picking a tool. */
+export interface ToolbarAction {
+	id: string;
+	label: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	icon: Component<any>;
+	run: (editor: Editor) => void;
+}
+
 export interface DrawSveltePlugin extends DrawPlugin {
 	/** Shape kind → the component that draws it. */
 	views?: Record<string, ShapeView>;
 	toolbar?: ToolbarItem[];
+	actions?: ToolbarAction[];
+}
+
+/** Opens the file picker and adds the picked files in the middle of the view. */
+export function pickFiles(editor: Editor, accept = 'image/*') {
+	const input = document.createElement('input');
+	input.type = 'file';
+	input.accept = accept;
+	input.multiple = true;
+	input.onchange = () => {
+		const { w, h } = editor.viewport.peek();
+		void editor.addFiles([...(input.files ?? [])], editor.screenToPage({ x: w / 2, y: h / 2 }));
+	};
+	input.click();
 }
 
 export const selectPlugin: DrawSveltePlugin = {
@@ -89,6 +122,13 @@ export const drawPlugin: DrawSveltePlugin = {
 	toolbar: [
 		{ tool: 'draw', label: 'Draw', icon: PencilSimple, shortcut: 'D', group: 'pen' },
 		{ tool: 'highlight', label: 'Highlight', icon: Highlighter, shortcut: 'M', group: 'pen' }
+	]
+};
+
+export const laserPlugin: DrawSveltePlugin = {
+	...laserCore,
+	toolbar: [
+		{ tool: 'laser', label: 'Laser pointer', icon: Flashlight, shortcut: 'K', group: 'pen' }
 	]
 };
 
@@ -127,6 +167,20 @@ export const textPlugin: DrawSveltePlugin = {
 	toolbar: [{ tool: 'text', label: 'Text', icon: TextT, shortcut: 'T' }]
 };
 
+export const notePlugin: DrawSveltePlugin = {
+	...noteCore,
+	views: { note: NoteView },
+	toolbar: [{ tool: 'note', label: 'Note', icon: NoteBlank, shortcut: 'N' }]
+};
+
+export const imagePlugin: DrawSveltePlugin = {
+	...imageCore,
+	views: { image: ImageView },
+	actions: [{ id: 'image', label: 'Image', icon: ImageSquare, run: (editor) => pickFiles(editor) }]
+};
+
+export const linkPlugin: DrawSveltePlugin = { ...linkCore, views: { link: LinkView } };
+
 export const framePlugin: DrawSveltePlugin = {
 	...frameCore,
 	views: { frame: FrameView },
@@ -137,10 +191,14 @@ export const defaultPlugins: DrawSveltePlugin[] = [
 	selectPlugin,
 	handPlugin,
 	drawPlugin,
+	laserPlugin,
 	eraserPlugin,
 	geoPlugin,
 	linePlugin,
+	linkPlugin,
 	textPlugin,
+	notePlugin,
+	imagePlugin,
 	framePlugin,
 	groupPlugin
 ];

@@ -37,6 +37,7 @@
 {#if shape && View}
 	<div
 		class="kd-shape"
+		data-id={shape.id}
 		data-kind={shape.kind}
 		data-color={shape.style.color}
 		style:transform="translate({origin.x}px, {origin.y}px) rotate({rotation}rad)"
