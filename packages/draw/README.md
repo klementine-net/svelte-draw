@@ -1,7 +1,9 @@
 # Klementine Draw
 
-An infinite canvas for Svelte: draw, drag out shapes, select, move, resize, undo. Shapes and
-tools are plugins, so the same engine can be a whiteboard today and a design tool later.
+An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, group,
+frame, turn, snap, copy and paste, undo. Shapes and tools are plugins, so the same engine can be
+a whiteboard today and a design tool later. What is built and what is not:
+[FEATURES.md](../../FEATURES.md).
 
 ```svelte
 <script lang="ts">
@@ -18,17 +20,19 @@ tools are plugins, so the same engine can be a whiteboard today and a design too
 ```
 
 The controls are composed from klementine.ui (`@klementine/ui`: Toolbar, ToggleGroup, Tooltip,
-Kbd) and the canvas is drawn on its theme tokens; it is a peer dependency the app brings.
+Kbd, DropdownMenu, ContextMenu) and the canvas is drawn on its theme tokens; it is a peer
+dependency the app brings. Hand-drawn text wants a handwriting font: load one and name it in
+`--kd-font-hand` (the example loads Caveat).
 
 ## How it is built
 
 Two layers. The core never imports Svelte.
 
-| Layer                         | Import                    | What                                                                            |
-| ----------------------------- | ------------------------- | ------------------------------------------------------------------------------- |
-| Core (`src/lib/core`)         | `@klementine/draw`        | the store, undo, the editor, the base classes for shapes and tools              |
-| Built-ins (`shapes`, `tools`) | `@klementine/draw`        | select, hand, draw, rectangle, ellipse, line, arrow: plugins like any other     |
-| Svelte (`src/lib/svelte`)     | `@klementine/draw/svelte` | `Canvas`, the views of the built-in shapes, `DrawToolbar`, `StylePanel`, `Draw` |
+| Layer                         | Import                    | What                                                                             |
+| ----------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
+| Core (`src/lib/core`)         | `@klementine/draw`        | the store, undo, the editor, the base classes for shapes and tools               |
+| Built-ins (`shapes`, `tools`) | `@klementine/draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
+| Svelte (`src/lib/svelte`)     | `@klementine/draw/svelte` | `Canvas`, the views of the built-in shapes, `DrawToolbar`, `StylePanel`, `Draw`  |
 
 The core in five ideas:
 
@@ -39,7 +43,9 @@ The core in five ideas:
    calls `mark()` before an interaction, so a whole drag undoes as one. Remote changes are never
    recorded.
 3. **A shape kind is a `ShapeUtil`** (`shape-util.ts`): default props, bounds, hit test, outline,
-   resize. No rendering: the Svelte layer pairs each kind with a view.
+   resize, and what else the kind is (`canEdit`, its own `handles`, its `styles`, whether it is
+   a `group` or a `frame`, what it is tied to). No rendering: the Svelte layer pairs each kind
+   with a view. The editor asks the util and never names a kind.
 4. **A tool is a state machine** (`state-node.ts`). States nest (`select` → `idle`,
    `translating`, `resizing`, `brushing`); an event walks down the active path. No flags.
 5. **The editor ties them together** (`editor.ts`): camera, selection, hit testing, `dispatch`.
@@ -110,18 +116,25 @@ Records are whole documents keyed by id, which is the shape a Convex table wants
 record, last write wins per record; stacking order is a fractional index, so two people can
 reorder at once). `tests/core.test.ts` runs two editors against each other this way.
 
-## Not built yet
+## How the bigger pieces work
 
-- Arrows that stay attached to shapes (bindings) and dragging a line by its ends (it resizes by
-  its box for now), a text shape of its own, rich text, frames (the data model has `parentId`; no shape uses
-  it yet), images, eraser, copy and paste, rotation, snapping, export.
-- The Convex adapter and presence (other people's cursors).
-- Field-level merging: a diff carries whole records, so two people changing the same shape at
-  the same moment (or an undo after someone else's edit to it) overwrite each other's fields.
-  The Convex adapter has to decide this (patch per field, or a version check).
-- No app uses the package yet: it is only run by its own example and tests.
-- Two-finger pan and pinch on touch screens (a trackpad's pinch works; it arrives as a wheel).
-- The Svelte layer's own words are English with a `labels` prop to translate them.
+- **Place and turn.** A shape has `x`, `y` and `rotation` in its parent's space (a page, a
+  group, a frame). `editor.shapeToPage` and `pageToShape` are the only way between spaces; hit
+  tests, attached arrows and clipping all go through them.
+- **Attached lines.** A line keeps the id of the shape an end is tied to and works the end out
+  when it is read (`lineEnds`), aimed at the shape's middle and stopped at its outline
+  (`ShapeUtil.edgePoint`). Moving the shape writes nothing to the line. When a tied shape is
+  moved alone, copied or loses its target, the editor calls `retie`, and the end stays where it
+  shows.
+- **Groups** are shapes with no picture; `editor.getSelectable` turns a click on a child into
+  the group, `focusedGroup` is the group that was stepped into. Resizing works on the leaves.
+- **Frames** take in what is dropped on them (`editor.settle`, called at the end of a move, a
+  resize or a new shape) and the view cuts their children off with a `clip-path`.
+- **Snapping** is `editor.snapBox` and `snapPoint`: other shapes' edges and middles, with the
+  guides in `editor.snapLines`.
+- **Clipboard.** `editor.getContent` gives records that stand on their own (on the page, tied
+  only to each other); `putContent` adds them with new ids. The canvas puts them on the system
+  clipboard as JSON under `application/x-klementine-draw`.
 
 ## Where the ideas come from
 

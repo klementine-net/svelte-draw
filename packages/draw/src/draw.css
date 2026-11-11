@@ -26,6 +26,12 @@
 	--kd-blue: light-dark(#2f6bd8, #74a5f5);
 	--kd-violet: light-dark(#7d4fd6, #b494f2);
 	--kd-select: var(--color-focus);
+
+	/* The typefaces of a shape's text. `hand` wants a handwriting font loaded by the app. */
+	--kd-font-hand: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
+	--kd-font-sans: var(--font-sans, system-ui, sans-serif);
+	--kd-font-serif: Georgia, 'Times New Roman', serif;
+	--kd-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 .kd-surface {
@@ -168,4 +174,139 @@
 	-webkit-user-select: text;
 	cursor: text;
 	outline: none;
+}
+
+/* A shape turns around its origin. */
+.kd-shape {
+	transform-origin: 0 0;
+}
+/* Fingers on the canvas are the canvas's: no page scroll, no browser zoom. */
+.kd-surface {
+	touch-action: none;
+}
+
+/* A highlighter's stroke: wide, even, see-through. */
+.kd-highlight {
+	fill: none;
+	stroke: var(--kd-color);
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	opacity: 0.35;
+}
+
+/* The words of a shape: typeface, size and alignment come from its style. */
+.kd-label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-sizing: border-box;
+	color: var(--kd-color);
+	font-family: var(--kd-font-sans);
+	font-size: var(--kd-font-size, 24px);
+	line-height: 1.25;
+	text-align: center;
+}
+.kd-label[data-font='hand'] {
+	font-family: var(--kd-font-hand);
+	font-weight: 600;
+	/* Handwriting runs small for its size. */
+	font-size: calc(var(--kd-font-size, 24px) * 1.2);
+	line-height: 1.1;
+}
+.kd-label[data-font='serif'] {
+	font-family: var(--kd-font-serif);
+}
+.kd-label[data-font='mono'] {
+	font-family: var(--kd-font-mono);
+}
+.kd-label[data-align='start'] {
+	text-align: left;
+}
+.kd-label[data-align='end'] {
+	text-align: right;
+}
+/* On a full fill the shape's own colour would not read: the words go to ink. */
+.kd-label[data-fill='solid'] {
+	color: var(--kd-ink);
+}
+.kd-text {
+	display: block;
+	min-width: 1ch;
+	max-width: 100%;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+/* In a geo shape the words sit in the middle of the box. */
+.kd-geo-label {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 8px 12px;
+}
+.kd-text-shape .kd-text {
+	max-width: none;
+}
+
+/* A frame: a sheet on the canvas, its name above its corner. */
+.kd-frame {
+	box-sizing: border-box;
+	border: 1px solid var(--line-strong);
+	border-radius: 2px;
+	background: color-mix(in oklab, var(--canvas-ground) 92%, var(--kd-ink));
+}
+.kd-frame-name {
+	position: absolute;
+	left: 0;
+	bottom: 100%;
+	padding-bottom: 4px;
+	color: color-mix(in oklab, var(--kd-ink) 65%, transparent);
+	font-family: var(--kd-font-sans);
+	font-size: 13px;
+	line-height: 1.3;
+	white-space: nowrap;
+}
+.kd-frame-name .kd-text {
+	white-space: nowrap;
+}
+
+/* The stem of the handle that turns the selection, and the guides of a snap. */
+.kd-stem {
+	stroke: var(--kd-select);
+	stroke-width: 1px;
+}
+.kd-snap {
+	stroke: var(--kd-red);
+	stroke-width: 1px;
+}
+
+/* In the style panel: a dashed or dotted line, a typeface's sample, an opacity's dot. */
+.kd-dash-icon {
+	width: 1em;
+	height: 1em;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.4;
+	stroke-linecap: round;
+}
+.kd-font-sample {
+	font-family: var(--kd-font-sans);
+	font-size: 13px;
+	line-height: 1;
+}
+.kd-font-sample[data-font='hand'] {
+	font-family: var(--kd-font-hand);
+	font-weight: 600;
+	font-size: 16px;
+}
+.kd-font-sample[data-font='serif'] {
+	font-family: var(--kd-font-serif);
+}
+.kd-font-sample[data-font='mono'] {
+	font-family: var(--kd-font-mono);
+}
+.kd-swatch.kd-opacity {
+	width: 10px;
+	height: 10px;
+	box-shadow: none;
+	opacity: var(--kd-opacity);
 }

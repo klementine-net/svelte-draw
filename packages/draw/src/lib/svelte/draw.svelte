@@ -27,7 +27,7 @@
 	const labels = $derived(props.labels ?? defaultLabels);
 </script>
 
-<Canvas {editor} {plugins} label={labels.canvas}>
+<Canvas {editor} {plugins} {labels} label={labels.canvas}>
 	<StylePanel {editor} {labels} class="absolute top-3 right-3" />
 	<ZoomControl {editor} {labels} class="absolute bottom-3 left-3" />
 	<DrawToolbar {editor} {plugins} {labels} class="absolute bottom-3 left-1/2 -translate-x-1/2" />

@@ -21,21 +21,59 @@ export type FillName = (typeof FILLS)[number];
 export const SIZES = ['s', 'm', 'l'] as const;
 export type SizeName = (typeof SIZES)[number];
 
-/** `sketch` draws like a pen on paper; `precise` draws exact vector lines. */
-export const LOOKS = ['sketch', 'precise'] as const;
+/**
+ * `sketch` draws like a pen on paper; the others draw exact vector lines: `precise` unbroken,
+ * `dashed` and `dotted` broken.
+ */
+export const LOOKS = ['sketch', 'precise', 'dashed', 'dotted'] as const;
 export type LookName = (typeof LOOKS)[number];
+
+/** The typeface of a shape's text; the renderer maps the names to fonts (`--kd-font-*`). */
+export const FONTS = ['hand', 'sans', 'serif', 'mono'] as const;
+export type FontName = (typeof FONTS)[number];
+
+/** How the lines of a shape's text sit: at the start, in the middle, at the end. */
+export const ALIGNS = ['start', 'middle', 'end'] as const;
+export type AlignName = (typeof ALIGNS)[number];
+
+/** The steps the style panel offers for how see-through a shape is. */
+export const OPACITIES = [0.1, 0.25, 0.5, 0.75, 1] as const;
 
 export interface ShapeStyle {
 	color: ColorName;
 	fill: FillName;
 	size: SizeName;
 	look: LookName;
+	font: FontName;
+	align: AlignName;
+	/** 0 (invisible) to 1 (solid). */
+	opacity: number;
 }
 
-export const DEFAULT_STYLE: ShapeStyle = { color: 'ink', fill: 'none', size: 'm', look: 'sketch' };
+export type StyleKey = keyof ShapeStyle;
+
+export const DEFAULT_STYLE: ShapeStyle = {
+	color: 'ink',
+	fill: 'none',
+	size: 'm',
+	look: 'sketch',
+	font: 'hand',
+	align: 'middle',
+	opacity: 1
+};
 
 /** Stroke width in page units for each size. */
 export const STROKE_WIDTH: Record<SizeName, number> = { s: 2, m: 3.5, l: 6 };
+
+/** Text size in page units for each size. */
+export const FONT_SIZE: Record<SizeName, number> = { s: 18, m: 24, l: 36 };
+
+/** The dash pattern of a broken line, for a stroke of `width`; undefined for an unbroken one. */
+export function dashArray(look: LookName, width: number): string | undefined {
+	if (look === 'dashed') return `${width * 2.5} ${width * 2.5}`;
+	if (look === 'dotted') return `0.1 ${width * 2.2}`;
+	return undefined;
+}
 
 // `any` so a util's own shape type (GeoShape, a plugin's) is a ShapeRecord without a cast.
 export interface ShapeRecord<
@@ -53,6 +91,10 @@ export interface ShapeRecord<
 	/** Position in the parent's space. */
 	x: number;
 	y: number;
+	/** How far the shape is turned around its origin, in radians. Not there means not turned. */
+	rotation?: number;
+	/** A locked shape cannot be picked, moved or erased until it is unlocked. */
+	locked?: boolean;
 	style: ShapeStyle;
 	props: Props;
 }

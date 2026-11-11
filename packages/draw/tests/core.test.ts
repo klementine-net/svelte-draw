@@ -4,7 +4,10 @@ import {
 	BoxTool,
 	corePlugins,
 	Editor,
+	GEO_KINDS,
+	geoPoints,
 	indexBetween,
+	lineEnds,
 	pointer,
 	ShapeUtil,
 	Store,
@@ -13,6 +16,7 @@ import {
 	type DrawRecord,
 	type DrawShape,
 	type GeoShape,
+	type LineShape,
 	type ShapeRecord
 } from '../src/lib/index.ts';
 
@@ -343,6 +347,7 @@ test('editing: double click or Enter starts it, Escape or a press elsewhere ends
 	class CardTool extends BoxTool {
 		static override id = 'card';
 		shape = { kind: 'card' };
+		override edit = true;
 	}
 	const editor = makeEditor([
 		...corePlugins,
@@ -362,13 +367,7 @@ test('editing: double click or Enter starts it, Escape or a press elsewhere ends
 		});
 
 	const card = editor.createShape({ kind: 'card', x: 100, y: 100, props: { text: 'old' } });
-	const geo = editor.createShape({
-		kind: 'geo',
-		x: 400,
-		y: 100,
-		props: { w: 100, h: 100 },
-		style: { fill: 'solid' }
-	});
+	const geo = editor.createShape({ kind: 'line', x: 400, y: 150, props: { dx: 100, dy: 0 } });
 	editor.history.clear();
 
 	// A shape that holds no text is not edited.
@@ -418,4 +417,527 @@ test('editing: double click or Enter starts it, Escape or a press elsewhere ends
 	editor.store.remove([made], 'remote');
 	assert.equal(editor.editing.peek(), null);
 	assert.equal(editor.toolPath.peek(), 'select.idle');
+});
+
+test('arrows attach: the end follows its shape, lets go when moved alone, survives a delete', () => {
+	const editor = makeEditor();
+	const solid = { fill: 'solid' } as const;
+	const a = editor.createShape({
+		kind: 'geo',
+		x: 100,
+		y: 100,
+		props: { w: 100, h: 100 },
+		style: solid
+	});
+	const b = editor.createShape({
+		kind: 'geo',
+		x: 400,
+		y: 100,
+		props: { w: 100, h: 100 },
+		style: solid
+	});
+	const ends = (id: string) => {
+		const shape = editor.getShape<LineShape>(id)!;
+		const { start, end } = lineEnds(editor, shape);
+		return [start.x + shape.x, start.y + shape.y, end.x + shape.x, end.y + shape.y].map(Math.round);
+	};
+
+	// Drawn from inside one shape to inside the other: attached at both ends.
+	editor.setTool('arrow');
+	drag(editor, [150, 150], [450, 150]);
+	const arrow = editor.getShapes().find((shape) => shape.kind === 'line')!;
+	assert.deepEqual([arrow.props.start, arrow.props.end], [a.id, b.id]);
+	// It runs between the two facing edges (with a small gap), not centre to centre.
+	const [x1, y1, x2, y2] = ends(arrow.id);
+	assert.ok(x1 > 200 && x1 < 215 && x2 < 400 && x2 > 385, `${x1} ${x2}`);
+	assert.deepEqual([y1, y2], [150, 150]);
+	assert.equal(editor.hovered.peek(), null);
+
+	// Move the target: the arrow reads differently, and nothing was written to it.
+	const before = editor.getShape(arrow.id);
+	editor.updateShape(b.id, { y: 400 });
+	assert.equal(editor.getShape(arrow.id), before);
+	assert.ok(ends(arrow.id)[3] > 390);
+	editor.updateShape(b.id, { y: 100 });
+
+	// The one selected line shows its two ends instead of a resize box.
+	editor.select([arrow.id]);
+	assert.equal(editor.canResizeSelection(), false);
+	assert.equal(editor.getShapeHandles()?.handles.length, 2);
+
+	// Drag the end off the shape: it lets go there. Back onto it: attached again.
+	drag(editor, [x2, y2], [300, 300]);
+	assert.equal(editor.getShape(arrow.id)?.props.end, null);
+	assert.deepEqual(ends(arrow.id).slice(2), [300, 300]);
+	drag(editor, [300, 300], [450, 150]);
+	assert.equal(editor.getShape(arrow.id)?.props.end, b.id);
+	// With Ctrl or Command held it stays free, even over a shape.
+	editor.undo();
+	drag(editor, [300, 300], [450, 150], { meta: true });
+	assert.equal(editor.getShape(arrow.id)?.props.end, null);
+	editor.undo();
+	editor.redo();
+	editor.undo();
+	editor.redo();
+	editor.undo();
+	editor.undo();
+	assert.equal(editor.getShape(arrow.id)?.props.end, b.id);
+
+	// A copy made alone lets go; a copy made with its shapes is attached to their copies.
+	editor.select([arrow.id]);
+	editor.duplicateSelection();
+	const alone = editor.getShape(editor.selection.peek()[0])!;
+	assert.deepEqual([alone.props.start, alone.props.end], [null, null]);
+	assert.deepEqual(
+		ends(alone.id),
+		ends(arrow.id).map((n) => n + 16)
+	);
+	editor.undo();
+	editor.select([a.id, b.id, arrow.id]);
+	editor.duplicateSelection();
+	const copies = editor.getSelectedShapes();
+	const copied = copies.find((shape) => shape.kind === 'line')!;
+	assert.notEqual(copied.props.start, a.id);
+	assert.ok(copies.some((shape) => shape.id === copied.props.start));
+	editor.undo();
+
+	// Moved alone, the arrow lets go of both and moves; moved with its shapes it stays attached.
+	editor.select([a.id, b.id, arrow.id]);
+	editor.nudgeSelection(0, 10);
+	assert.equal(editor.getShape(arrow.id)?.props.start, a.id);
+	editor.undo();
+	const was = ends(arrow.id);
+	editor.select([arrow.id]);
+	editor.nudgeSelection(0, 10);
+	assert.deepEqual(
+		[editor.getShape(arrow.id)?.props.start, editor.getShape(arrow.id)?.props.end],
+		[null, null]
+	);
+	assert.deepEqual(ends(arrow.id), [was[0], was[1] + 10, was[2], was[3] + 10]);
+	editor.undo();
+
+	// Deleting a shape leaves the arrow where it showed; undo attaches it again.
+	editor.select([b.id]);
+	editor.deleteSelection();
+	assert.equal(editor.getShape(arrow.id)?.props.end, null);
+	assert.deepEqual(ends(arrow.id), was);
+	editor.undo();
+	assert.equal(editor.getShape(arrow.id)?.props.end, b.id);
+	assert.ok(editor.getShape(b.id));
+});
+
+test('an arrow attached to an ellipse stops at the curve', () => {
+	const editor = makeEditor();
+	const circle = editor.createShape({
+		kind: 'geo',
+		x: 300,
+		y: 300,
+		props: { geo: 'ellipse', w: 200, h: 200 }
+	});
+	const arrow = editor.createShape({
+		kind: 'line',
+		x: 100,
+		y: 100,
+		props: { dx: 0, dy: 0, arrow: true, end: circle.id }
+	});
+	const { end } = lineEnds(editor, editor.getShape<LineShape>(arrow.id)!);
+	// From the top left towards the centre: on the circle (radius 100, less the gap), not on its box.
+	const fromCentre = Math.hypot(end.x + 100 - 400, end.y + 100 - 400);
+	assert.ok(fromCentre > 100 && fromCentre < 112, String(fromCentre));
+});
+
+const near = (actual: number, expected: number, slack = 0.01) =>
+	assert.ok(Math.abs(actual - expected) <= slack, `${actual} is not ${expected}`);
+const solid = { fill: 'solid' } as const;
+const rect = (editor: Editor, x: number, y: number, w = 100, h = 100) =>
+	editor.createShape({ kind: 'geo', x, y, props: { w, h }, style: solid });
+const click = (editor: Editor, x: number, y: number, options = {}) => {
+	editor.dispatch(pointer('down', { x, y }, options));
+	editor.dispatch(pointer('up', { x, y }, options));
+};
+
+test('geo kinds: every outline fills its box; a star is hit on its points, not between them', () => {
+	for (const geo of GEO_KINDS) {
+		if (geo === 'ellipse') continue;
+		const points = geoPoints(geo, 200, 100);
+		assert.ok(points.length >= 3, geo);
+		near(Math.min(...points.map((p) => p.x)), 0, 0.5);
+		near(Math.max(...points.map((p) => p.x)), 200, 0.5);
+		near(Math.min(...points.map((p) => p.y)), 0, 0.5);
+		near(Math.max(...points.map((p) => p.y)), 100, 0.5);
+	}
+	const editor = makeEditor();
+	editor.setTool('star');
+	drag(editor, [100, 100], [300, 300]);
+	const [star] = editor.getShapes();
+	assert.equal(star.props.geo, 'star');
+	editor.updateShape(star.id, { style: solid });
+	assert.equal(editor.getShapeAtPoint({ x: 200, y: 210 })?.id, star.id);
+	// The top left of its box is between two points: empty.
+	assert.equal(editor.getShapeAtPoint({ x: 115, y: 115 }), undefined);
+	// An arrow to it stops at the tip of its top point, not at the box.
+	const arrow = editor.createShape({ kind: 'line', x: 200, y: 0, props: { end: star.id } });
+	const { end } = lineEnds(editor, editor.getShape<LineShape>(arrow.id)!);
+	assert.ok(end.y > 85 && end.y < 100, String(end.y));
+});
+
+test('the text tool: a click starts a text; nothing typed leaves no trace; typed is one undo step', () => {
+	const editor = makeEditor();
+	editor.setTool('text');
+	click(editor, 200, 200);
+	const id = editor.editing.peek()!;
+	assert.equal(editor.getShape(id)?.kind, 'text');
+	editor.dispatch(key('Escape'));
+	assert.equal(editor.getShapes().length, 0);
+	assert.equal(editor.history.canUndo.peek(), false);
+
+	editor.setTool('text');
+	click(editor, 200, 200);
+	const text = editor.editing.peek()!;
+	editor.updateShape(text, { props: { text: 'Hello', w: 80, h: 30 } });
+	click(editor, 600, 600);
+	assert.equal(editor.editing.peek(), null);
+	assert.equal(editor.getShape(text)?.props.text, 'Hello');
+	editor.undo();
+	assert.equal(editor.getShapes().length, 0);
+
+	// What a screen measures is the text's size there, and writes nothing: no undo step.
+	editor.pasteText('Pasted', { x: 300, y: 300 });
+	const [pasted] = editor.getSelectedShapes();
+	assert.equal(pasted.props.text, 'Pasted');
+	editor.history.clear();
+	editor.setMeasured(pasted.id, { w: 120, h: 40 });
+	assert.deepEqual(editor.getShapePageBounds(pasted), { x: pasted.x, y: pasted.y, w: 120, h: 40 });
+	assert.equal(editor.history.canUndo.peek(), false);
+	assert.equal(editor.getShape(pasted.id), pasted);
+});
+
+test('the eraser removes what it is dragged over, in one undo step; the highlighter marks', () => {
+	const editor = makeEditor();
+	rect(editor, 100, 100);
+	rect(editor, 300, 100);
+	rect(editor, 500, 100);
+	editor.history.clear();
+	editor.setTool('eraser');
+	editor.dispatch(pointer('down', { x: 150, y: 150 }));
+	editor.dispatch(pointer('move', { x: 360, y: 150 }));
+	assert.equal(editor.erasing.peek().length, 2);
+	assert.equal(editor.getShapes().length, 3);
+	editor.dispatch(pointer('up', { x: 360, y: 150 }));
+	assert.equal(editor.getShapes().length, 1);
+	assert.equal(editor.tool, 'eraser');
+	editor.undo();
+	assert.equal(editor.getShapes().length, 3);
+	// Escape during the drag keeps everything.
+	editor.dispatch(pointer('down', { x: 150, y: 150 }));
+	editor.dispatch(key('Escape'));
+	assert.equal(editor.getShapes().length, 3);
+	assert.deepEqual(editor.erasing.peek(), []);
+
+	editor.setTool('highlight');
+	drag(editor, [100, 400], [300, 400]);
+	const stroke = editor.getShapes().at(-1)!;
+	assert.deepEqual([stroke.kind, stroke.props.highlight], ['draw', true]);
+});
+
+test('turning: the handle turns a shape around its middle; hit, resize and arrows follow', () => {
+	const editor = makeEditor();
+	const shape = rect(editor, 100, 100, 200, 100);
+	editor.select([shape.id]);
+	const handle = editor.getRotateHandle()!;
+	assert.deepEqual([handle.x, handle.y], [200, 76]);
+	// From above the middle to its right: a quarter turn.
+	drag(editor, [200, 76], [300, 150]);
+	const turned = editor.getShape(shape.id)!;
+	near(turned.rotation!, Math.PI / 2);
+	const bounds = editor.getShapePageBounds(turned);
+	[bounds.x, bounds.y, bounds.w, bounds.h].forEach((n, i) => near(n, [150, 50, 100, 200][i]));
+	// What was beside the shape is now outside it, what was above is inside.
+	assert.equal(editor.getShapeAtPoint({ x: 110, y: 150 }), undefined);
+	assert.equal(editor.getShapeAtPoint({ x: 200, y: 60 })?.id, shape.id);
+	// One undo turns it back.
+	editor.undo();
+	assert.equal(editor.getShape(shape.id)?.rotation ?? 0, 0);
+	editor.redo();
+
+	// Its box is turned with it: the "right" edge is now at the bottom. Drag it down by 50.
+	assert.equal(editor.getHandleAt({ x: 200, y: 250 }), 'right');
+	drag(editor, [200, 250], [200, 300]);
+	assert.deepEqual(
+		[editor.getShape(shape.id)!.props.w, editor.getShape(shape.id)!.props.h].map(Math.round),
+		[250, 100]
+	);
+	near(editor.getShapePageBounds(editor.getShape(shape.id)!).y, 50);
+	near(editor.getShapePageBounds(editor.getShape(shape.id)!).h, 250);
+
+	// Shift turns in steps of 15 degrees.
+	const at = editor.getRotateHandle()!;
+	drag(editor, [at.x, at.y], [at.x - 7, at.y + 40], { shift: true });
+	const steps = editor.getShape(shape.id)!.rotation! / (Math.PI / 12);
+	near(steps, Math.round(steps), 1e-6);
+
+	// A line turns by moving its ends: it has no turn of its own.
+	const line = editor.createShape({ kind: 'line', x: 500, y: 500, props: { dx: 100, dy: 0 } });
+	const other = rect(editor, 500, 600, 100, 100);
+	editor.select([line.id, other.id]);
+	const top = editor.getRotateHandle()!;
+	drag(editor, [top.x, top.y], [top.x + 124, top.y + 124]);
+	const moved = editor.getShape(line.id)!;
+	assert.equal(moved.rotation ?? 0, 0);
+	near(moved.props.dx, 0, 0.5);
+	near(moved.props.dy, 100, 0.5);
+});
+
+test('groups: picked, moved and resized as one; stepped into by a double click; taken apart', () => {
+	const editor = makeEditor();
+	const a = rect(editor, 100, 100);
+	const b = rect(editor, 300, 100);
+	const c = rect(editor, 600, 100);
+	editor.history.clear();
+	editor.select([a.id, b.id]);
+	assert.equal(editor.canGroupSelection(), true);
+	editor.dispatch(key('g', { meta: true }));
+	const [groupId] = editor.selection.peek();
+	const group = editor.getShape(groupId)!;
+	assert.equal(group.kind, 'group');
+	assert.equal(editor.getShape(a.id)?.parentId, groupId);
+	assert.deepEqual(editor.getShapePageBounds(group), { x: 100, y: 100, w: 300, h: 100 });
+	// Nothing moved on the page.
+	assert.deepEqual(editor.getShapePageOrigin(editor.getShape(b.id)!), { x: 300, y: 100 });
+
+	// A click on one of them picks the group; a drag moves both.
+	editor.select([]);
+	click(editor, 150, 150);
+	assert.deepEqual(editor.selection.peek(), [groupId]);
+	drag(editor, [150, 150], [150, 350]);
+	assert.deepEqual(editor.getShapePageOrigin(editor.getShape(b.id)!), { x: 300, y: 300 });
+	// Resizing the group resizes what is in it.
+	drag(editor, [400, 400], [700, 500]);
+	assert.deepEqual(editor.getShapePageBounds(editor.getShape(b.id)!), {
+		x: 500,
+		y: 300,
+		w: 200,
+		h: 200
+	});
+	assert.deepEqual(editor.getShapePageBounds(editor.getShape(a.id)!), {
+		x: 100,
+		y: 300,
+		w: 200,
+		h: 200
+	});
+
+	// A double click steps in: now a click picks the one shape. Escape steps out again.
+	editor.dispatch({ ...pointer('down', { x: 150, y: 350 }), type: 'double_click' });
+	assert.equal(editor.focusedGroup.peek(), groupId);
+	assert.deepEqual(editor.selection.peek(), [a.id]);
+	editor.dispatch(key('Escape'));
+	assert.deepEqual([editor.focusedGroup.peek(), editor.selection.peek()], [null, [groupId]]);
+
+	// A marquee over one of them takes the group; select all counts it once.
+	editor.selectAll();
+	assert.deepEqual([...editor.selection.peek()].sort(), [groupId, c.id].sort());
+
+	// Turned, then taken apart: each shape stays where it shows, turned.
+	editor.select([groupId]);
+	const before = editor.getShapePageBounds(editor.getShape(b.id)!);
+	const handle = editor.getRotateHandle()!;
+	drag(editor, [handle.x, handle.y], [handle.x + 100, handle.y + 60]);
+	const turnedBounds = editor.getShapePageBounds(editor.getShape(b.id)!);
+	assert.notDeepEqual(turnedBounds, before);
+	editor.dispatch(key('G', { meta: true, shift: true }));
+	assert.equal(editor.getShape(groupId), undefined);
+	assert.deepEqual([...editor.selection.peek()].sort(), [a.id, b.id].sort());
+	const after = editor.getShapePageBounds(editor.getShape(b.id)!);
+	[after.x, after.y, after.w, after.h].forEach((n, i) =>
+		near(n, [turnedBounds.x, turnedBounds.y, turnedBounds.w, turnedBounds.h][i])
+	);
+	assert.equal(editor.getShape(b.id)?.parentId, editor.pageId.peek());
+	// Grouping, moving, resizing, turning and ungrouping each undo on their own.
+	for (let i = 0; i < 5; i++) editor.undo();
+	assert.deepEqual(editor.getShapePageBounds(editor.getShape(b.id)!), {
+		x: 300,
+		y: 100,
+		w: 100,
+		h: 100
+	});
+	assert.equal(editor.getShape(groupId), undefined);
+});
+
+test('frames take in what is dropped on them, move it with them, and cut it off', () => {
+	const editor = makeEditor();
+	editor.setTool('frame');
+	drag(editor, [100, 100], [500, 400]);
+	const frame = editor.getShapes()[0];
+	assert.equal(frame.kind, 'frame');
+	assert.equal(editor.editing.peek(), null);
+	const shape = rect(editor, 600, 150);
+	editor.history.clear();
+
+	// Dropped on the frame: it is the frame's now, and still where it was dropped.
+	editor.select([shape.id]);
+	drag(editor, [650, 200], [350, 200]);
+	assert.equal(editor.getShape(shape.id)?.parentId, frame.id);
+	assert.deepEqual(editor.getShapePageOrigin(editor.getShape(shape.id)!), { x: 300, y: 150 });
+	// Above the frame in the pile, so a click finds it and not the frame.
+	click(editor, 350, 200);
+	assert.deepEqual(editor.selection.peek(), [shape.id]);
+
+	// The frame is picked by its edge or its name; dragged by its name, it moves what is in it.
+	click(editor, 100, 250);
+	assert.deepEqual(editor.selection.peek(), [frame.id]);
+	drag(editor, [150, 90], [150, 190]);
+	assert.deepEqual(editor.getShapePageOrigin(editor.getShape(shape.id)!), { x: 300, y: 250 });
+
+	// Half out of the frame: the part outside is cut off, so it is not hit there.
+	editor.updateShape(shape.id, { x: 350 });
+	assert.equal(editor.getShapeAtPoint({ x: 480, y: 300 })?.id, shape.id);
+	assert.equal(editor.getShapeAtPoint({ x: 530, y: 300 }), undefined);
+
+	// Dragged out again: the page's. A new shape drawn inside is the frame's from the start.
+	editor.select([shape.id]);
+	drag(editor, [480, 300], [780, 300]);
+	assert.equal(editor.getShape(shape.id)?.parentId, editor.pageId.peek());
+	editor.setTool('rectangle');
+	drag(editor, [150, 250], [250, 350]);
+	assert.equal(editor.getSelectedShapes()[0].parentId, frame.id);
+	// A marquee drawn inside the frame takes what is in it, not the frame; around it, both.
+	editor.setTool('select');
+	drag(editor, [120, 220], [300, 400]);
+	assert.deepEqual(
+		editor.getSelectedShapes().map((s) => s.kind),
+		['geo']
+	);
+	drag(editor, [50, 150], [600, 560]);
+	assert.ok(editor.selection.peek().includes(frame.id));
+	// Deleting the frame deletes what is in it.
+	editor.select([frame.id]);
+	editor.deleteSelection();
+	assert.deepEqual(
+		editor.getShapes().map((s) => s.id),
+		[shape.id]
+	);
+});
+
+test('clipboard: copy and paste at a point, cut, and Alt-drag leaves a copy behind', () => {
+	const editor = makeEditor();
+	const a = rect(editor, 100, 100);
+	const b = rect(editor, 300, 100);
+	const arrow = editor.createShape({
+		kind: 'line',
+		x: 0,
+		y: 0,
+		props: { arrow: true, start: a.id, end: b.id }
+	});
+	editor.history.clear();
+	editor.select([a.id, b.id, arrow.id]);
+	const content = JSON.parse(JSON.stringify(editor.copy()));
+	assert.equal(content.length, 3);
+	editor.paste(content, { x: 250, y: 600 });
+	const pasted = editor.getSelectedShapes();
+	assert.equal(pasted.length, 3);
+	assert.deepEqual(editor.getSelectionBounds(), { x: 100, y: 550, w: 300, h: 100 });
+	// The pasted arrow is attached to the pasted shapes.
+	const copy = pasted.find((shape) => shape.kind === 'line')!;
+	assert.ok(pasted.some((shape) => shape.id === copy.props.start && shape.id !== a.id));
+	editor.undo();
+	assert.equal(editor.getShapes().length, 3);
+
+	editor.select([a.id]);
+	editor.cut();
+	assert.equal(editor.getShape(a.id), undefined);
+	assert.equal(editor.getShape(arrow.id)?.props.start, null);
+	editor.undo();
+	assert.equal(editor.getShape(arrow.id)?.props.start, a.id);
+
+	// Alt held while dragging: the shape stays, a copy moves, and it is one undo step.
+	editor.select([b.id]);
+	drag(editor, [350, 150], [350, 350], { alt: true });
+	assert.deepEqual(editor.getShapePageOrigin(editor.getShape(b.id)!), { x: 300, y: 100 });
+	assert.deepEqual(editor.getShapePageOrigin(editor.getSelectedShapes()[0]), { x: 300, y: 300 });
+	assert.equal(editor.getShapes().length, 4);
+	editor.undo();
+	assert.equal(editor.getShapes().length, 3);
+});
+
+test('arrange: align, space evenly, flip, one step in the pile, lock', () => {
+	const editor = makeEditor();
+	const a = rect(editor, 100, 100, 50, 50);
+	const b = rect(editor, 300, 180, 100, 100);
+	const c = rect(editor, 700, 120, 60, 60);
+	const xs = () => [a, b, c].map((shape) => editor.getShape(shape.id)!.x);
+	const ys = () => [a, b, c].map((shape) => editor.getShape(shape.id)!.y);
+	editor.selectAll();
+	editor.alignSelection('top');
+	assert.deepEqual(ys(), [100, 100, 100]);
+	editor.alignSelection('middle');
+	assert.deepEqual(ys(), [125, 100, 120]);
+	editor.distributeSelection('x');
+	// 660 wide, 210 taken: two gaps of 225.
+	assert.deepEqual(xs(), [100, 375, 700]);
+	editor.flipSelection('x');
+	assert.deepEqual(xs(), [710, 385, 100]);
+
+	// One step: a goes above b, not above c.
+	const order = () => editor.getShapes().map((shape) => shape.id);
+	assert.deepEqual(order(), [a.id, b.id, c.id]);
+	editor.bringForward([a.id]);
+	assert.deepEqual(order(), [b.id, a.id, c.id]);
+	editor.sendBackward([c.id]);
+	assert.deepEqual(order(), [b.id, c.id, a.id]);
+
+	// A locked shape is not picked by a click, a marquee or select all, and not erased.
+	editor.select([b.id]);
+	editor.toggleLock();
+	assert.deepEqual(editor.selection.peek(), []);
+	click(editor, 400, 150);
+	assert.deepEqual(editor.selection.peek(), []);
+	editor.selectAll();
+	assert.deepEqual([...editor.selection.peek()].sort(), [a.id, c.id].sort());
+	// Picked on purpose (the right-click menu does this), it still does not move or go away.
+	editor.select([b.id]);
+	editor.nudgeSelection(10, 0);
+	editor.deleteSelection();
+	assert.equal(editor.getShape(b.id)?.x, 385);
+	editor.toggleLock();
+	assert.equal(editor.getShape(b.id)?.locked, false);
+});
+
+test('snapping: a moved shape catches on another shape\u2019s edge; Ctrl or Command lets it pass', () => {
+	const editor = makeEditor();
+	const still = rect(editor, 100, 100);
+	const moving = rect(editor, 400, 300);
+	editor.select([moving.id]);
+	// Dragged so its left edge is 3 px off the other's right edge: it lands on it.
+	editor.dispatch(pointer('down', { x: 450, y: 350 }));
+	editor.dispatch(pointer('move', { x: 300, y: 350 }));
+	editor.dispatch(pointer('move', { x: 253, y: 350 }));
+	assert.equal(editor.getShape(moving.id)?.x, 200);
+	assert.equal(editor.snapLines.peek().length, 1);
+	editor.dispatch(pointer('move', { x: 253, y: 350 }, { meta: true }));
+	assert.equal(editor.getShape(moving.id)?.x, 203);
+	editor.dispatch(pointer('up', { x: 253, y: 350 }, { meta: true }));
+	assert.deepEqual(editor.snapLines.peek(), []);
+	assert.ok(still);
+});
+
+test('an arrow to a shape in a group stays attached when it moves with the group', () => {
+	const editor = makeEditor();
+	const a = rect(editor, 100, 100);
+	const b = rect(editor, 300, 100);
+	editor.select([a.id, b.id]);
+	editor.groupSelection();
+	const [groupId] = editor.selection.peek();
+	const arrow = editor.createShape({
+		kind: 'line',
+		x: 600,
+		y: 600,
+		props: { arrow: true, end: b.id }
+	});
+	editor.select([groupId, arrow.id]);
+	editor.nudgeSelection(0, 10);
+	assert.equal(editor.getShape(arrow.id)?.props.end, b.id);
+	// Moved without the group, it lets go.
+	editor.select([arrow.id]);
+	editor.nudgeSelection(0, 10);
+	assert.equal(editor.getShape(arrow.id)?.props.end, null);
 });

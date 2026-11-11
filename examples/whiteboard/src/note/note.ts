@@ -22,6 +22,7 @@ export function noteTilt(id: string): number {
 
 class NoteShapeUtil extends ShapeUtil<NoteShape> {
 	static override kind = 'note';
+	override readonly styles = ['color', 'opacity'] as const;
 
 	defaultProps() {
 		return { w: 180, h: 180, text: '' };
@@ -61,6 +62,8 @@ class NoteShapeUtil extends ShapeUtil<NoteShape> {
 class NoteTool extends BoxTool {
 	static override id = 'note';
 	shape = { kind: 'note', style: { color: 'ink' as const } };
+	// A new note is typed into straight away.
+	override edit = true;
 }
 
 export const notePlugin: DrawSveltePlugin = {

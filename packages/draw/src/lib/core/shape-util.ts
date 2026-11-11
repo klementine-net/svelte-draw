@@ -8,8 +8,8 @@
  */
 
 import { box, type Box, type Vec } from './geometry.ts';
-import type { ShapeRecord } from './records.ts';
-import type { Editor } from './editor.ts';
+import type { ShapeRecord, StyleKey } from './records.ts';
+import type { Editor, ShapePatch } from './editor.ts';
 
 export interface ShapeUtilConstructor {
 	new (editor: Editor): ShapeUtil<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -23,11 +23,30 @@ export interface ResizeResult<S extends ShapeRecord> {
 	props: S['props'];
 }
 
+/** A handle of a shape's own (a line's end), in the shape's space. */
+export interface ShapeHandle {
+	id: string;
+	x: number;
+	y: number;
+}
+
 export abstract class ShapeUtil<S extends ShapeRecord = ShapeRecord> {
 	/** The `kind` of the records this util owns. */
 	static kind: string;
 
 	readonly editor: Editor;
+
+	/** The styles this kind shows; the style panel offers only these for it. */
+	readonly styles: readonly StyleKey[] = ['color', 'fill', 'size', 'look', 'opacity'];
+	/**
+	 * True for a kind that is nothing but what is in it (a group): a click on anything in it
+	 * picks the whole, and resizing it resizes what is in it.
+	 */
+	readonly group: boolean = false;
+	/**
+	 * True for a kind that takes in what is dropped on it and cuts it off at its edge (a frame).
+	 */
+	readonly frame: boolean = false;
 
 	constructor(editor: Editor) {
 		this.editor = editor;
@@ -58,8 +77,69 @@ export abstract class ShapeUtil<S extends ShapeRecord = ShapeRecord> {
 		return false;
 	}
 
+	/**
+	 * The props of a shape of this kind made from pasted plain text. Undefined for a kind that
+	 * is not made from text.
+	 */
+	fromText(_text: string): S['props'] | undefined {
+		return undefined;
+	}
+
+	/** Called when typing into the shape ends (a text with no words left removes itself). */
+	onEditEnd(_shape: S): void {}
+
 	canResize(_shape: S): boolean {
 		return true;
+	}
+
+	/**
+	 * The change when the shape is turned by `angle` around `pivot` (page space), for a kind
+	 * that does not simply turn around its origin (a line moves its two ends instead).
+	 * Undefined for the usual turn.
+	 */
+	rotate(_shape: S, _angle: number, _pivot: Vec): ShapePatch | undefined {
+		return undefined;
+	}
+
+	/**
+	 * Handles of the shape's own, like a line's two ends. A shape with any shows these instead
+	 * of the resize box while it is the only one selected.
+	 */
+	handles(_shape: S): ShapeHandle[] {
+		return [];
+	}
+
+	/** The change to the shape when its handle `handle` is dragged to `point` (page space). */
+	dragHandle(_shape: S, _handle: string, _point: Vec): ShapePatch | undefined {
+		return undefined;
+	}
+
+	/** Whether a line's end can attach to this shape. */
+	canBind(_shape: S): boolean {
+		return true;
+	}
+
+	/**
+	 * Where a line coming from `from` towards `to` (both in the shape's own space, `to` inside
+	 * the shape) meets the shape's edge: where an attached arrow stops.
+	 */
+	edgePoint(shape: S, from: Vec, to: Vec): Vec {
+		return box.entry(this.bounds(shape), from, to);
+	}
+
+	/** The ids of the other shapes this one is tied to (the shapes a line is attached to). */
+	ties(_shape: S): string[] {
+		return [];
+	}
+
+	/**
+	 * The change that re-ties the shape: `map` gives, for each shape it is tied to, the id to
+	 * tie to instead, or null to cut the tie. A cut tie leaves the shape where it shows now.
+	 * Undefined when nothing changes. The editor calls this when a tied shape is moved alone,
+	 * copied, or loses the shape it was tied to.
+	 */
+	retie(_shape: S, _map: (id: string) => string | null): ShapePatch | undefined {
+		return undefined;
 	}
 
 	/**

@@ -1,7 +1,10 @@
 # Klementine Draw
 
-An infinite canvas for Svelte: draw, drag out shapes, select, move, resize, undo. Shapes and
-tools are plugins, so the same engine can be a whiteboard today and a design tool later.
+An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, group,
+frame, turn, snap, copy and paste, undo. Shapes and tools are plugins, so the same engine can be
+a whiteboard today and a design tool later.
+
+What is built and what is not, line by line against tldraw: [FEATURES.md](FEATURES.md).
 
 | Folder                | Package                          | What                                                              |
 | --------------------- | -------------------------------- | ----------------------------------------------------------------- |
@@ -16,8 +19,7 @@ pnpm dev      # http://localhost:5196
 pnpm check && pnpm test && pnpm lint
 ```
 
-How it is built, how to write a plugin, the collaboration seam and what is not built yet:
-`packages/draw/README.md`.
+How it is built, how to write a plugin and the collaboration seam: `packages/draw/README.md`.
 
 ## klementine.ui
 

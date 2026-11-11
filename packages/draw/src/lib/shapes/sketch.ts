@@ -71,23 +71,43 @@ function edgePath(points: InkPoint[], size: number): string {
 
 /** A rectangle's edge, walked like a hand would: corners a little off, sides a little bowed. */
 export function sketchRectangle(w: number, h: number, size: number, seed: string): string {
+	return sketchPolygon(
+		[
+			{ x: 0, y: 0 },
+			{ x: w, y: 0 },
+			{ x: w, y: h },
+			{ x: 0, y: h }
+		],
+		size,
+		seed
+	);
+}
+
+/** The edge of any shape with corners, walked side by side like a hand would. */
+export function sketchPolygon(
+	vertices: { x: number; y: number }[],
+	size: number,
+	seed: string
+): string {
 	const random = seededRandom(seed);
-	const wobble = Math.min(size * 0.7, 3, Math.min(w, h) * 0.08);
+	const n = vertices.length;
+	const shortest = Math.min(
+		...vertices.map((a, i) => {
+			const b = vertices[(i + 1) % n];
+			return Math.hypot(b.x - a.x, b.y - a.y);
+		})
+	);
+	const wobble = Math.min(size * 0.7, 3, shortest * 0.08);
 	const jitter = () => (random() - 0.5) * 2 * wobble;
-	const corners = [
-		[0, 0],
-		[w, 0],
-		[w, h],
-		[0, h]
-	].map(([x, y]) => [x + jitter(), y + jitter()]);
-	const radius = Math.min(size * 1.5, w / 4, h / 4);
+	const corners = vertices.map(({ x, y }) => [x + jitter(), y + jitter()]);
+	const radius = Math.min(size * 1.5, shortest / 4);
 
 	const points: InkPoint[] = [];
 	const pressure = () => 0.5 + (random() - 0.5) * 0.25;
-	// Four sides, then a little of the first again, so the stroke closes over its own start.
-	for (let side = 0; side < 5; side++) {
-		const a = corners[side % 4];
-		const b = corners[(side + 1) % 4];
+	// Every side, then a little of the first again, so the stroke closes over its own start.
+	for (let side = 0; side <= n; side++) {
+		const a = corners[side % n];
+		const b = corners[(side + 1) % n];
 		const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
 		if (length === 0) continue;
 		const ux = (b[0] - a[0]) / length;
@@ -95,7 +115,7 @@ export function sketchRectangle(w: number, h: number, size: number, seed: string
 		const bow = jitter() * 0.6;
 		// Every side starts and ends a corner's radius in; the last pass only overlaps the start.
 		const from = Math.min(radius, length / 2);
-		const to = side === 4 ? from + Math.min(length * 0.2, size * 4) : length - from;
+		const to = side === n ? from + Math.min(length * 0.2, size * 4) : length - from;
 		const steps = Math.max(2, Math.round((to - from) / 14));
 		for (let i = 0; i <= steps; i++) {
 			const t = from + ((to - from) * i) / steps;
@@ -105,6 +125,43 @@ export function sketchRectangle(w: number, h: number, size: number, seed: string
 		}
 	}
 	return edgePath(points, size);
+}
+
+/** A closed curve (a heart, a cloud) in one sweep that runs a little past its start. */
+export function sketchLoop(points: { x: number; y: number }[], size: number, seed: string): string {
+	const random = seededRandom(seed);
+	const n = points.length;
+	if (n < 3) return '';
+	const cx = points.reduce((sum, p) => sum + p.x, 0) / n;
+	const cy = points.reduce((sum, p) => sum + p.y, 0) / n;
+	const reach = Math.max(1, ...points.map((p) => Math.hypot(p.x - cx, p.y - cy)));
+	const wobble = Math.min(0.025, (size * 0.5) / reach);
+	const phase = random() * Math.PI * 2;
+	const extra = Math.max(2, Math.round(n * 0.04));
+	const stroke: InkPoint[] = [];
+	for (let i = 0; i <= n + extra; i++) {
+		const p = points[i % n];
+		const scale = 1 + wobble * Math.sin((i / n) * Math.PI * 4 + phase);
+		stroke.push([cx + (p.x - cx) * scale, cy + (p.y - cy) * scale, 0.5 + (random() - 0.5) * 0.25]);
+	}
+	return edgePath(stroke, size);
+}
+
+/** A few joined straight strokes (a tick, one arm of a cross), drawn by hand. */
+export function sketchPolyline(
+	points: { x: number; y: number }[],
+	size: number,
+	seed: string
+): string {
+	const random = seededRandom(seed);
+	const stroke: InkPoint[] = [];
+	for (let i = 0; i < points.length; i++) {
+		const a = points[i];
+		stroke.push([a.x, a.y, 0.5 + (random() - 0.5) * 0.2]);
+		const b = points[i + 1];
+		if (b) stroke.push([(a.x + b.x) / 2, (a.y + b.y) / 2, 0.55]);
+	}
+	return edgePath(stroke, size);
 }
 
 /** An ellipse's edge in one sweep that overshoots its start a little. */

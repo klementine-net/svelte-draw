@@ -1,7 +1,7 @@
 /* The draw shape: one freehand stroke, and the tool that makes it. */
 
 import { vec, type Box, type Vec } from '../core/geometry.ts';
-import { STROKE_WIDTH, type ShapeRecord } from '../core/records.ts';
+import { STROKE_WIDTH, type ShapeRecord, type StyleKey } from '../core/records.ts';
 import { ShapeUtil, type ResizeResult } from '../core/shape-util.ts';
 import { StateNode } from '../core/state-node.ts';
 import type { PointerInfo } from '../core/events.ts';
@@ -14,17 +14,24 @@ export type DrawProps = {
 	pen: boolean;
 	/** False while the stroke is still being drawn. */
 	done: boolean;
+	/** True for a highlighter's stroke: wide, even and see-through. */
+	highlight?: boolean;
 };
 
 export type DrawShape = ShapeRecord<'draw', DrawProps>;
 
 /** The width of a freehand stroke at full pressure, for each stroke width. */
 export function inkSize(shape: DrawShape): number {
-	return STROKE_WIDTH[shape.style.size] * 2;
+	return STROKE_WIDTH[shape.style.size] * (shape.props.highlight ? 6 : 2);
 }
 
 export class DrawShapeUtil extends ShapeUtil<DrawShape> {
 	static override kind = 'draw';
+	override readonly styles: readonly StyleKey[] = ['color', 'size', 'opacity'];
+
+	override canBind() {
+		return false;
+	}
 
 	defaultProps(): DrawProps {
 		return { points: [], pen: false, done: false };
@@ -105,7 +112,12 @@ class Drawing extends StateNode {
 			kind: 'draw',
 			x: page.x,
 			y: page.y,
-			props: { points: this.#points, pen: isPen, done: false }
+			props: {
+				points: this.#points,
+				pen: isPen,
+				done: false,
+				highlight: (this.parent as DrawTool).highlight
+			}
 		}).id;
 	}
 
@@ -122,6 +134,7 @@ class Drawing extends StateNode {
 
 	override onPointerUp() {
 		this.editor.updateShape(this.#id, { props: { done: true } });
+		this.editor.settle([this.#id]);
 		this.editor.history.mark();
 		this.parent!.transition('idle');
 	}
@@ -136,4 +149,12 @@ export class DrawTool extends StateNode {
 	static override id = 'draw';
 	static override initial = 'idle';
 	static override children = () => [Idle, Drawing];
+
+	/** Whether the strokes this tool makes are a highlighter's. */
+	highlight = false;
+}
+
+export class HighlightTool extends DrawTool {
+	static override id = 'highlight';
+	override highlight = true;
 }

@@ -55,7 +55,11 @@ class Pointing extends StateNode {
 			style
 		});
 		editor.select([shape.id]);
-		editor.setTool('select.resizing', { handle: 'bottom_right', creating: true });
+		editor.setTool('select.resizing', {
+			handle: 'bottom_right',
+			creating: true,
+			edit: (this.parent as BoxTool).edit
+		});
 	}
 
 	override onPointerUp() {
@@ -76,10 +80,10 @@ class Pointing extends StateNode {
 			props,
 			style
 		});
+		editor.settle([shape.id]);
 		editor.history.mark();
 		editor.select([shape.id]);
-		// A new shape that holds text is typed into straight away.
-		if (editor.canEdit(shape.id)) editor.startEditing(shape.id);
+		if ((this.parent as BoxTool).edit) editor.startEditing(shape.id);
 		else editor.setTool('select');
 	}
 
@@ -95,4 +99,7 @@ export abstract class BoxTool extends StateNode {
 
 	/** The shape this tool makes. */
 	abstract shape: BoxToolShape;
+
+	/** True when the new shape is typed into straight away (a sticky note). */
+	edit = false;
 }
