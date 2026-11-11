@@ -60,8 +60,11 @@
 		};
 	}
 
+	/** Whether the event is inside a shape's text field: then it is the field's, not the canvas's. */
+	const inTextField = (event: Event) => (event.target as HTMLElement).isContentEditable;
+
 	function onpointerdown(event: PointerEvent) {
-		if (activePointer !== null) return;
+		if (activePointer !== null || inTextField(event)) return;
 		activePointer = event.pointerId;
 		surface.focus({ preventScroll: true });
 		surface.setPointerCapture(event.pointerId);
@@ -88,7 +91,10 @@
 		// the toolbar), except where the focused control needs them itself: typing in a field, or
 		// moving and pressing within a bar.
 		const target = event.target as HTMLElement;
-		if (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+		if (/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+		// A shape's text field keeps its keys too; only Escape (not one that ends an IME
+		// composition) goes on to the editor, which ends the edit.
+		if (target.isContentEditable && (event.key !== 'Escape' || event.isComposing)) return;
 		if (target !== surface && /^(Arrow|Home|End|Enter| |Tab)/.test(event.key)) return;
 		const info: DrawEvent = {
 			type: 'key',
@@ -105,6 +111,19 @@
 			event.preventDefault();
 		editor.dispatch(info);
 	}
+
+	// When an edit ends, the focus goes back to the surface, so the canvas's keys keep working.
+	// Unless it has already gone to a control (a click on the toolbar ended the edit).
+	let wasEditing = false;
+	$effect(() => {
+		const editing = editor.editing.get() !== null;
+		if (wasEditing && !editing) {
+			const focused = document.activeElement;
+			if (!focused || focused === document.body || focused.closest('.kd-world'))
+				surface.focus({ preventScroll: true });
+		}
+		wasEditing = editing;
+	});
 
 	$effect(() => {
 		// Not passive: the wheel must not scroll or zoom the page around the canvas.
@@ -161,7 +180,21 @@
 			activePointer = null;
 			editor.dispatch({ type: 'cancel' });
 		}}
-		oncontextmenu={(event) => event.preventDefault()}
+		ondblclick={(event) => {
+			if (inTextField(event) || event.button !== 0) return;
+			editor.dispatch({
+				type: 'double_click',
+				name: 'down',
+				point: local(event),
+				button: 0,
+				pressure: 0.5,
+				isPen: false,
+				...modifiers(event)
+			});
+		}}
+		oncontextmenu={(event) => {
+			if (!inTextField(event)) event.preventDefault();
+		}}
 	>
 		<div class="kd-world" style:transform="translate({camera.x}px, {camera.y}px) scale({camera.z})">
 			{#each editor.getShapeIds() as id (id)}

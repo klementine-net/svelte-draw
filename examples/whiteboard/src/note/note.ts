@@ -24,7 +24,7 @@ class NoteShapeUtil extends ShapeUtil<NoteShape> {
 	static override kind = 'note';
 
 	defaultProps() {
-		return { w: 180, h: 180, text: 'Sticky note' };
+		return { w: 180, h: 180, text: '' };
 	}
 
 	bounds(shape: NoteShape): Box {
@@ -43,6 +43,10 @@ class NoteShapeUtil extends ShapeUtil<NoteShape> {
 			return `${w / 2 + dx * cos - dy * sin},${h / 2 + dx * sin + dy * cos}`;
 		};
 		return `M${corner(0, 0)}L${corner(w, 0)}L${corner(w, h)}L${corner(0, h)}Z`;
+	}
+
+	override canEdit() {
+		return true;
 	}
 
 	resize(shape: NoteShape, target: Box) {

@@ -78,7 +78,9 @@ class Pointing extends StateNode {
 		});
 		editor.history.mark();
 		editor.select([shape.id]);
-		editor.setTool('select');
+		// A new shape that holds text is typed into straight away.
+		if (editor.canEdit(shape.id)) editor.startEditing(shape.id);
+		else editor.setTool('select');
 	}
 
 	override onCancel() {

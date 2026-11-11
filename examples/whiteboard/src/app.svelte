@@ -23,7 +23,13 @@
 		props: { w: 200, h: 110 },
 		style: { color: 'green', fill: 'solid', look: 'precise' }
 	});
-	editor.createShape({ kind: 'note', x: 660, y: 110, style: { color: 'ink' } });
+	editor.createShape({
+		kind: 'note',
+		x: 660,
+		y: 110,
+		props: { text: 'Double click to write' },
+		style: { color: 'ink' }
+	});
 	editor.createShape({
 		kind: 'note',
 		x: 790,

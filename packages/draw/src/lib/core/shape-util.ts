@@ -50,6 +50,14 @@ export abstract class ShapeUtil<S extends ShapeRecord = ShapeRecord> {
 		return `M${b.x},${b.y}h${b.w}v${b.h}h${-b.w}z`;
 	}
 
+	/**
+	 * Whether the shape holds content to type into (a note's text). A double click or Enter
+	 * then sets `editor.editing` to the shape, and its view shows the text field.
+	 */
+	canEdit(_shape: S): boolean {
+		return false;
+	}
+
 	canResize(_shape: S): boolean {
 		return true;
 	}

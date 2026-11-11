@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '@fontsource/caveat/600.css';
-	import type { ShapeViewProps } from '@klementine/draw/svelte';
+	import { editText, type ShapeViewProps } from '@klementine/draw/svelte';
 	import { noteTilt, type NoteShape } from './note.ts';
 
 	/**
@@ -9,7 +9,11 @@
 	 * note lands when it is stuck on by hand. It is paper, so it keeps its colour and dark
 	 * writing in both themes. A view may be plain HTML; it need not be SVG.
 	 */
-	let { shape }: ShapeViewProps<NoteShape> = $props();
+	let { shape, editor }: ShapeViewProps<NoteShape> = $props();
+
+	// A double click (or Enter) on the note makes its writing a text field.
+	const editing = $derived(editor.editing.get() === shape.id);
+	const write = (text: string) => editor.updateShape(shape.id, { props: { ...shape.props, text } });
 
 	// Only the picture (and its outline) tilts; the shape's bounds stay upright.
 	const tilt = $derived(noteTilt(shape.id));
@@ -50,7 +54,13 @@
 	style:height="{shape.props.h}px"
 	style:rotate="{tilt}deg"
 >
-	<p bind:this={paragraph}>{shape.props.text}</p>
+	<p bind:this={paragraph}>
+		{#if editing}
+			<span use:editText={{ editor, text: shape.props.text, onchange: write }}></span>
+		{:else}
+			<span>{shape.props.text}</span>
+		{/if}
+	</p>
 </div>
 
 <style>
@@ -101,10 +111,16 @@
 		overflow: hidden;
 		text-align: center;
 		text-wrap: balance;
-		overflow-wrap: anywhere;
 		font:
 			600 34px/1.05 'Caveat',
 			'Bradley Hand',
 			cursive;
+	}
+	span {
+		/* A block of its own inside the centring box, so line breaks and the caret behave. */
+		min-width: 1ch;
+		max-width: 100%;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
 	}
 </style>

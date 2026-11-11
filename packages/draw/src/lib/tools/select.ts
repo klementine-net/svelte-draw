@@ -5,6 +5,7 @@
  *   idle ─ press a handle ──────────────→ resizing
  *        ─ press a shape or selection ──→ pointing_shape ─ drag → translating
  *        ─ press the canvas ────────────→ pointing_canvas ─ drag → brushing
+ *        ─ double click, or Enter ──────→ editing (shapes whose util says `canEdit`)
  */
 
 import { box, type Box, type Vec } from '../core/geometry.ts';
@@ -76,10 +77,21 @@ class Idle extends StateNode {
 		this.parent!.transition('pointing_canvas');
 	}
 
+	override onDoubleClick() {
+		const { editor } = this;
+		const hit = editor.getShapeAtPoint(editor.inputs.page);
+		if (hit) editor.startEditing(hit.id);
+	}
+
 	override onKeyDown(event: KeyInfo) {
 		const { editor } = this;
 		const step = event.shift ? 10 : 1;
 		switch (event.key) {
+			case 'Enter': {
+				const selection = editor.selection.peek();
+				if (selection.length === 1) editor.startEditing(selection[0]);
+				return;
+			}
 			case 'Delete':
 			case 'Backspace':
 				return editor.deleteSelection();
@@ -211,6 +223,7 @@ export interface ResizingInfo {
 class Resizing extends StateNode {
 	static override id = 'resizing';
 	#handle: Handle = 'bottom_right';
+	#creating = false;
 	#bounds: Box = { x: 0, y: 0, w: 0, h: 0 };
 	#start: { shape: ShapeRecord; bounds: Box; parentOrigin: Vec }[] = [];
 
@@ -219,6 +232,7 @@ class Resizing extends StateNode {
 		const { handle, creating } = info as ResizingInfo;
 		if (!creating) editor.history.mark();
 		this.#handle = handle;
+		this.#creating = !!creating;
 		this.#bounds = editor.getSelectionBounds() ?? { x: 0, y: 0, w: 0, h: 0 };
 		this.#start = editor.getSelectedShapes().map((shape) => {
 			const origin = editor.getShapePageOrigin(shape);
@@ -297,12 +311,47 @@ class Resizing extends StateNode {
 	}
 
 	override onPointerUp() {
-		this.editor.history.mark();
+		const { editor } = this;
+		editor.history.mark();
+		// A new shape that holds text is typed into straight away.
+		const selection = editor.selection.peek();
+		if (this.#creating && selection.length === 1 && editor.canEdit(selection[0]))
+			return editor.startEditing(selection[0]);
 		this.parent!.transition('idle');
 	}
 
 	override onCancel() {
 		this.editor.history.bail();
+		this.parent!.transition('idle');
+	}
+}
+
+/**
+ * A shape's content is being typed into. The typing itself happens in the shape's view; this
+ * state only holds the canvas still meanwhile and makes the whole edit one undo step.
+ */
+class Editing extends StateNode {
+	static override id = 'editing';
+
+	override onEnter(info: unknown) {
+		const { editor } = this;
+		editor.history.mark();
+		editor.editing.set((info as { id: string }).id);
+		editor.cursor.set('default');
+	}
+
+	override onExit() {
+		this.editor.editing.set(null);
+		this.editor.history.mark();
+	}
+
+	/** A press outside the text ends the edit, and then counts as the press it is. */
+	override onPointerDown(event: PointerInfo) {
+		this.parent!.transition('idle');
+		this.parent!.current.peek()?.handleEvent(event);
+	}
+
+	override onCancel() {
 		this.parent!.transition('idle');
 	}
 }
@@ -352,6 +401,7 @@ export class SelectTool extends StateNode {
 		PointingCanvas,
 		Translating,
 		Resizing,
+		Editing,
 		Brushing
 	];
 }

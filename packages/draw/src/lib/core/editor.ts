@@ -101,6 +101,8 @@ export class Editor {
 	readonly cursor = atom('default');
 	/** The style the next shape gets. */
 	readonly style = atom<ShapeStyle>(DEFAULT_STYLE);
+	/** The shape whose content is being typed into, if any (see `startEditing`). */
+	readonly editing = atom<string | null>(null);
 	/** The active path of the tool tree, like `select.idle`. */
 	readonly toolPath = atom('');
 
@@ -159,6 +161,8 @@ export class Editor {
 					this.selection.set(selection.filter((id) => !gone.includes(id)));
 				const hovered = this.hovered.peek();
 				if (hovered && gone.includes(hovered)) this.hovered.set(null);
+				const editing = this.editing.peek();
+				if (editing && gone.includes(editing)) this.stopEditing();
 			}
 		});
 
@@ -197,7 +201,14 @@ export class Editor {
 			return;
 		}
 
-		if (event.type === 'pointer' || event.type === 'double_click') {
+		// A double click comes after its two presses and releases: it is no press of its own.
+		if (event.type === 'double_click') {
+			this.#movePointer(event.point);
+			this.root.handleEvent(event);
+			return;
+		}
+
+		if (event.type === 'pointer') {
 			const previous = inputs.screen;
 			this.#movePointer(event.point);
 			inputs.pressure = event.pressure;
@@ -235,6 +246,9 @@ export class Editor {
 			return;
 		}
 
+		// While a shape is typed into, the keys are the text's. Only Escape still ends it.
+		if (event.type === 'key' && this.editing.peek() && event.key !== 'Escape') return;
+
 		if (event.type === 'key' && event.name === 'down') {
 			const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
 			if (key === 'Escape') return this.dispatch({ type: 'cancel' });
@@ -256,6 +270,29 @@ export class Editor {
 	#movePointer(screen: Vec) {
 		this.inputs.screen = screen;
 		this.inputs.page = this.screenToPage(screen);
+	}
+
+	// ── Editing ─────────────────────────────────────────────────────────────────────────────
+
+	/** Whether the shape's content can be typed into (its util says so). */
+	canEdit(id: string): boolean {
+		const shape = this.getShape(id);
+		return !!shape && this.util(shape.kind).canEdit(shape);
+	}
+
+	/**
+	 * Starts typing into a shape: selects it and sets `editing`, which the shape's view turns
+	 * into a text field. Everything typed until `stopEditing` is one undo step.
+	 */
+	startEditing(id: string) {
+		if (!this.canEdit(id)) return;
+		this.select([id]);
+		this.setTool('select.editing', { id });
+	}
+
+	/** Ends typing and keeps what was typed. The shape stays selected. */
+	stopEditing() {
+		if (this.editing.peek()) this.setTool('select');
 	}
 
 	// ── Shapes ──────────────────────────────────────────────────────────────────────────────
@@ -592,11 +629,13 @@ export class Editor {
 	// ── History ─────────────────────────────────────────────────────────────────────────────
 
 	undo() {
+		this.stopEditing();
 		this.dispatchCancelIfBusy();
 		this.history.undo();
 	}
 
 	redo() {
+		this.stopEditing();
 		this.dispatchCancelIfBusy();
 		this.history.redo();
 	}

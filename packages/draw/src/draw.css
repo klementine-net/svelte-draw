@@ -160,3 +160,12 @@
 .kd-swatch[data-color='violet'] {
 	background: var(--kd-violet);
 }
+
+/* A shape's text while it is typed into (see `editText`): it takes the pointer and the keys. */
+.kd-editing {
+	pointer-events: auto;
+	user-select: text;
+	-webkit-user-select: text;
+	cursor: text;
+	outline: none;
+}

@@ -88,6 +88,14 @@ export const notePlugin: DrawSveltePlugin = {
 <Draw plugins={[...defaultPlugins, notePlugin]} />
 ```
 
+### Text that can be typed into
+
+A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
+`editor.editing` to the shape, and the view shows the text field with `editText`
+(`@klementine/draw/svelte`). Escape, a press elsewhere or a tool switch ends it; everything typed
+is one undo step. A new shape whose util says `canEdit` is typed into straight away. The example's
+note (`examples/whiteboard/src/note`) is the reference.
+
 ## Collaboration (the seam, not yet a server)
 
 Sync is two calls on the store: listen for `user` diffs and send them; apply what arrives as
@@ -105,7 +113,7 @@ reorder at once). `tests/core.test.ts` runs two editors against each other this 
 ## Not built yet
 
 - Arrows that stay attached to shapes (bindings) and dragging a line by its ends (it resizes by
-  its box for now), text and text editing, frames (the data model has `parentId`; no shape uses
+  its box for now), a text shape of its own, rich text, frames (the data model has `parentId`; no shape uses
   it yet), images, eraser, copy and paste, rotation, snapping, export.
 - The Convex adapter and presence (other people's cursors).
 - Field-level merging: a diff carries whole records, so two people changing the same shape at

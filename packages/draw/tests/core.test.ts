@@ -322,3 +322,100 @@ test('shift holds a new line to steps of 15 degrees', () => {
 	assert.ok(Math.abs(line.props.dy) < 1e-9);
 	assert.equal(line.props.arrow, false);
 });
+
+test('editing: double click or Enter starts it, Escape or a press elsewhere ends it, one undo step', () => {
+	type Card = ShapeRecord<'card', { w: number; h: number; text: string }>;
+	class CardUtil extends ShapeUtil<Card> {
+		static override kind = 'card';
+		defaultProps() {
+			return { w: 100, h: 100, text: '' };
+		}
+		bounds(shape: Card): Box {
+			return { x: 0, y: 0, w: shape.props.w, h: shape.props.h };
+		}
+		override canEdit() {
+			return true;
+		}
+		resize(shape: Card, target: Box) {
+			return { x: target.x, y: target.y, props: { ...shape.props, w: target.w, h: target.h } };
+		}
+	}
+	class CardTool extends BoxTool {
+		static override id = 'card';
+		shape = { kind: 'card' };
+	}
+	const editor = makeEditor([
+		...corePlugins,
+		{ name: 'card', shapes: [CardUtil], tools: [CardTool] }
+	]);
+	const doubleClick = (x: number, y: number) =>
+		editor.dispatch({ ...pointer('down', { x, y }), type: 'double_click' });
+	const key = (name: string) =>
+		editor.dispatch({
+			type: 'key',
+			name: 'down',
+			key: name,
+			repeat: false,
+			shift: false,
+			alt: false,
+			meta: false
+		});
+
+	const card = editor.createShape({ kind: 'card', x: 100, y: 100, props: { text: 'old' } });
+	const geo = editor.createShape({
+		kind: 'geo',
+		x: 400,
+		y: 100,
+		props: { w: 100, h: 100 },
+		style: { fill: 'solid' }
+	});
+	editor.history.clear();
+
+	// A shape that holds no text is not edited.
+	doubleClick(450, 150);
+	assert.equal(editor.editing.peek(), null);
+
+	doubleClick(150, 150);
+	assert.equal(editor.editing.peek(), card.id);
+	assert.deepEqual(editor.selection.peek(), [card.id]);
+	assert.equal(editor.inputs.isDown, false);
+
+	// While typing, keys are the text's: no tool switch, no delete.
+	for (const text of ['n', 'ne', 'new']) editor.updateShape(card.id, { props: { text } });
+	key('r');
+	key('Backspace');
+	assert.equal(editor.tool, 'select');
+	assert.equal(editor.getShape(card.id)?.props.text, 'new');
+
+	key('Escape');
+	assert.equal(editor.editing.peek(), null);
+	assert.deepEqual(editor.selection.peek(), [card.id]);
+	editor.undo();
+	assert.equal(editor.getShape(card.id)?.props.text, 'old');
+	editor.redo();
+	assert.equal(editor.getShape(card.id)?.props.text, 'new');
+
+	// Enter edits the one selected shape; a press on another shape ends it and selects that.
+	key('Enter');
+	assert.equal(editor.editing.peek(), card.id);
+	editor.dispatch(pointer('down', { x: 450, y: 150 }));
+	editor.dispatch(pointer('up', { x: 450, y: 150 }));
+	assert.equal(editor.editing.peek(), null);
+	assert.deepEqual(editor.selection.peek(), [geo.id]);
+
+	// A new shape that holds text is typed into straight away, clicked or dragged out.
+	editor.setTool('card');
+	editor.dispatch(pointer('down', { x: 700, y: 500 }));
+	editor.dispatch(pointer('up', { x: 700, y: 500 }));
+	assert.equal(editor.toolPath.peek(), 'select.editing');
+	editor.setTool('card');
+	assert.equal(editor.editing.peek(), null);
+	drag(editor, [100, 400], [220, 520]);
+	const made = editor.selection.peek()[0];
+	assert.equal(editor.editing.peek(), made);
+
+	// Removing the shape (an undo, someone else) ends the edit.
+	editor.store.remove([made], 'remote');
+	assert.equal(editor.editing.peek(), null);
+	assert.equal(editor.toolPath.peek(), 'select.idle');
+});
