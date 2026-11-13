@@ -7,26 +7,27 @@
 
 import type { Vec } from '../core/geometry.ts';
 
+/** The kinds, simplest first: round and square, corners by their count, the free forms, arrows clockwise, boxes with a mark. */
 export const GEO_KINDS = [
 	'rectangle',
 	'ellipse',
+	'oval',
 	'triangle',
 	'diamond',
 	'pentagon',
 	'hexagon',
 	'octagon',
 	'star',
-	'trapezoid',
-	'parallelogram',
-	'oval',
 	'heart',
 	'cloud',
-	'arrow-right',
-	'arrow-left',
+	'trapezoid',
+	'parallelogram',
 	'arrow-up',
+	'arrow-right',
 	'arrow-down',
-	'x-box',
-	'check-box'
+	'arrow-left',
+	'cross-box',
+	'tick-box'
 ] as const;
 export type GeoKind = (typeof GEO_KINDS)[number];
 
@@ -114,8 +115,8 @@ const square: Unit = [
 
 const UNITS: Partial<Record<GeoKind, () => Unit>> = {
 	rectangle: () => square,
-	'x-box': () => square,
-	'check-box': () => square,
+	'cross-box': () => square,
+	'tick-box': () => square,
 	triangle: () => [
 		[0.5, 0],
 		[1, 1],
@@ -183,10 +184,10 @@ export function geoPoints(geo: GeoKind, w: number, h: number): Vec[] {
 	return unit.map(([x, y]) => ({ x: x * w, y: y * h }));
 }
 
-/** The strokes inside the outline: the cross of an x-box, the tick of a check-box. */
+/** The strokes inside the outline: the cross of a cross-box, the tick of a tick-box. */
 export function geoMarks(geo: GeoKind, w: number, h: number): Vec[][] {
 	const at = (points: Unit) => points.map(([x, y]) => ({ x: x * w, y: y * h }));
-	if (geo === 'x-box')
+	if (geo === 'cross-box')
 		return [
 			at([
 				[0, 0],
@@ -197,7 +198,7 @@ export function geoMarks(geo: GeoKind, w: number, h: number): Vec[][] {
 				[0, 1]
 			])
 		];
-	if (geo === 'check-box')
+	if (geo === 'tick-box')
 		return [
 			at([
 				[0.25, 0.52],
