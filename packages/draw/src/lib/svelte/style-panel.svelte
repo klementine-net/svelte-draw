@@ -10,9 +10,8 @@
 	import TextAlignCenter from 'phosphor-svelte/lib/TextAlignCenter';
 	import TextAlignLeft from 'phosphor-svelte/lib/TextAlignLeft';
 	import TextAlignRight from 'phosphor-svelte/lib/TextAlignRight';
-	import { ToggleGroup, ToggleGroupItem } from '@klementine/ui/toggle-group';
 	import { TooltipProvider } from '@klementine/ui/tooltip';
-	import Hint from './hint.svelte';
+	import StyleRow from './style-row.svelte';
 	import {
 		ALIGNS,
 		COLORS,
@@ -25,6 +24,7 @@
 		VALIGNS,
 		type Editor,
 		type ShapeStyle,
+		type SizeName,
 		type StyleKey
 	} from '../index.ts';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
@@ -71,22 +71,16 @@
 		return order.filter((key) => used.has(key));
 	});
 
-	function row<K extends StyleKey>(key: K, read = (value: string) => value as ShapeStyle[K]) {
+	/** What a row needs to show its pick and to set it. */
+	function pick<K extends StyleKey>(key: K, read = (value: string) => value as ShapeStyle[K]) {
 		return {
-			get: () => String(style[key]),
-			set: (value: string) => {
-				if (value) editor.setStyle({ [key]: read(value) } as Partial<ShapeStyle>);
-			}
+			value: String(style[key]),
+			onpick: (value: string) => editor.setStyle({ [key]: read(value) } as Partial<ShapeStyle>)
 		};
 	}
-	const color = row('color');
-	const fill = row('fill');
-	const size = row('size');
-	const look = row('look');
-	const font = row('font');
-	const align = row('align');
-	const valign = row('valign');
-	const opacity = row('opacity', Number);
+	/** The choices of a row: each value with its name from the labels. */
+	const named = <T extends string>(values: readonly T[], words: Record<T, string>) =>
+		values.map((value) => ({ value: value as string, label: words[value] }));
 
 	const sizeWeight = { s: 'thin', m: 'regular', l: 'bold', xl: 'fill' } as const;
 	const percent = (value: number) => `${Math.round(value * 100)}%`;
@@ -100,185 +94,115 @@
 			class={['flex w-fit flex-col gap-1 rounded-lg bg-layer p-1.5 shadow-float', className]}
 		>
 			{#if rows.includes('color')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.color}
+				<StyleRow
+					label={labels.color}
+					options={named(COLORS, labels.colors)}
+					{...pick('color')}
 					class="grid grid-cols-4 gap-0.5"
-					bind:value={color.get, color.set}
 				>
-					{#each COLORS as name (name)}
-						<Hint label={labels.colors[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.colors[name]}>
-									<span class="kd-swatch" data-color={name}></span>
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}<span class="kd-swatch" data-color={name}></span>{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('fill')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.fill}
+				<StyleRow
+					label={labels.fill}
+					options={named(FILLS, labels.fills)}
+					{...pick('fill')}
 					class="grid grid-cols-4 gap-0.5"
-					bind:value={fill.get, fill.set}
 				>
-					{#each FILLS as name (name)}
-						<Hint label={labels.fills[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.fills[name]}>
-									{#if name === 'none'}<Circle aria-hidden="true" />
-									{:else if name === 'tint'}<CircleHalf aria-hidden="true" />
-									{:else if name === 'pattern'}<Circle weight="duotone" aria-hidden="true" />
-									{:else}<Circle weight="fill" aria-hidden="true" />{/if}
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						{#if name === 'none'}<Circle aria-hidden="true" />
+						{:else if name === 'tint'}<CircleHalf aria-hidden="true" />
+						{:else if name === 'pattern'}<Circle weight="duotone" aria-hidden="true" />
+						{:else}<Circle weight="fill" aria-hidden="true" />{/if}
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('size')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.size}
+				<StyleRow
+					label={labels.size}
+					options={named(SIZES, labels.sizes)}
+					{...pick('size')}
 					class="grid grid-cols-4 gap-0.5"
-					bind:value={size.get, size.set}
 				>
-					{#each SIZES as name (name)}
-						<Hint label={labels.sizes[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.sizes[name]}>
-									<Minus weight={sizeWeight[name]} aria-hidden="true" />
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						<Minus weight={sizeWeight[name as SizeName]} aria-hidden="true" />
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('look')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.look}
+				<StyleRow
+					label={labels.look}
+					options={named(LOOKS, labels.looks)}
+					{...pick('look')}
 					class="grid grid-cols-4 gap-0.5"
-					bind:value={look.get, look.set}
 				>
-					{#each LOOKS as name (name)}
-						<Hint label={labels.looks[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.looks[name]}>
-									{#if name === 'sketch'}<Scribble aria-hidden="true" />
-									{:else if name === 'precise'}<LineSegment aria-hidden="true" />
-									{:else}
-										<svg class="kd-dash-icon" viewBox="0 0 16 16" aria-hidden="true">
-											<path
-												d="M2,8H14"
-												stroke-dasharray={name === 'dashed' ? '3.2 2.4' : '0.1 3'}
-											/>
-										</svg>
-									{/if}
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						{#if name === 'sketch'}<Scribble aria-hidden="true" />
+						{:else if name === 'precise'}<LineSegment aria-hidden="true" />
+						{:else}
+							<svg class="kd-dash-icon" viewBox="0 0 16 16" aria-hidden="true">
+								<path d="M2,8H14" stroke-dasharray={name === 'dashed' ? '3.2 2.4' : '0.1 3'} />
+							</svg>
+						{/if}
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('font')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.font}
+				<StyleRow
+					label={labels.font}
+					options={named(FONTS, labels.fonts)}
+					{...pick('font')}
 					class="grid grid-cols-4 gap-0.5"
-					bind:value={font.get, font.set}
 				>
-					{#each FONTS as name (name)}
-						<Hint label={labels.fonts[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.fonts[name]}>
-									<span class="kd-font-sample" data-font={name} aria-hidden="true">Aa</span>
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						<span class="kd-font-sample" data-font={name} aria-hidden="true">Aa</span>
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('align')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.align}
+				<StyleRow
+					label={labels.align}
+					options={named(ALIGNS, labels.aligns)}
+					{...pick('align')}
 					class="flex gap-0.5"
-					bind:value={align.get, align.set}
 				>
-					{#each ALIGNS as name (name)}
-						<Hint label={labels.aligns[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.aligns[name]}>
-									{#if name === 'start'}<TextAlignLeft aria-hidden="true" />
-									{:else if name === 'middle'}<TextAlignCenter aria-hidden="true" />
-									{:else}<TextAlignRight aria-hidden="true" />{/if}
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						{#if name === 'start'}<TextAlignLeft aria-hidden="true" />
+						{:else if name === 'middle'}<TextAlignCenter aria-hidden="true" />
+						{:else}<TextAlignRight aria-hidden="true" />{/if}
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('valign')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.valign}
+				<StyleRow
+					label={labels.valign}
+					options={named(VALIGNS, labels.valigns)}
+					{...pick('valign')}
 					class="flex gap-0.5"
-					bind:value={valign.get, valign.set}
 				>
-					{#each VALIGNS as name (name)}
-						<Hint label={labels.valigns[name]} side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem {...props} value={name} aria-label={labels.valigns[name]}>
-									{#if name === 'top'}<AlignTop aria-hidden="true" />
-									{:else if name === 'middle'}<AlignCenterVertical aria-hidden="true" />
-									{:else}<AlignBottom aria-hidden="true" />{/if}
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(name)}
+						{#if name === 'top'}<AlignTop aria-hidden="true" />
+						{:else if name === 'middle'}<AlignCenterVertical aria-hidden="true" />
+						{:else}<AlignBottom aria-hidden="true" />{/if}
+					{/snippet}
+				</StyleRow>
 			{/if}
 			{#if rows.includes('opacity')}
-				<ToggleGroup
-					type="single"
-					variant="quiet"
-					size="icon"
-					aria-label={labels.opacity}
+				<StyleRow
+					label={labels.opacity}
+					options={OPACITIES.map((value) => ({
+						value: String(value),
+						label: `${labels.opacity} ${percent(value)}`
+					}))}
+					{...pick('opacity', Number)}
 					class="grid grid-cols-5 gap-0"
-					bind:value={opacity.get, opacity.set}
+					itemClass="w-auto min-w-0 px-0"
 				>
-					{#each OPACITIES as value (value)}
-						<Hint label="{labels.opacity} {percent(value)}" side="left">
-							{#snippet control(props)}
-								<ToggleGroupItem
-									{...props}
-									value={String(value)}
-									aria-label="{labels.opacity} {percent(value)}"
-									class="w-auto min-w-0 px-0"
-								>
-									<span class="kd-swatch kd-opacity" style:--kd-opacity={value}></span>
-								</ToggleGroupItem>
-							{/snippet}
-						</Hint>
-					{/each}
-				</ToggleGroup>
+					{#snippet item(value)}
+						<span class="kd-swatch kd-opacity" style:--kd-opacity={value}></span>
+					{/snippet}
+				</StyleRow>
 			{/if}
 		</div>
 	</TooltipProvider>

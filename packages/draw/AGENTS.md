@@ -10,6 +10,12 @@ Read README.md first (the two layers, the five ideas, what is not built).
   before an interaction and `bail()` on cancel. A new interaction is a new state, not a flag.
 - **A new shape or tool is a plugin**, also inside this package: a `ShapeUtil`, a `StateNode`,
   a view, a toolbar entry. Do not special-case a kind in the editor or the canvas.
+- **Where new code goes** (README has the map): a new editor method is a function in the
+  fitting `core/editor/*.ts` file that takes `editor`, plus a one-line method with the JSDoc on
+  the `Editor` class. Those functions call `editor.x()`, never each other's files, and import
+  the `Editor` type with `import type` (a value import would be a cycle). A new state of the
+  select tool is a file in `tools/select/`. Code that needs a browser but not Svelte goes in
+  `browser/`. A test goes in the file of its area in `tests/`.
 - **No tldraw code.** tldraw's source may be read to learn how it is designed; its editor,
   default shapes, sync and assets are under a licence that forbids production use. Write from
   the idea, never from the file, and never bring in its icons, assets or packages. Its name is

@@ -6,6 +6,7 @@ export { default as Draw } from './draw.svelte';
 export { default as Canvas } from './canvas.svelte';
 export { default as DrawToolbar } from './draw-toolbar.svelte';
 export { default as StylePanel } from './style-panel.svelte';
+export { default as StyleRow } from './style-row.svelte';
 export { default as ZoomControl } from './zoom-control.svelte';
 export { default as GeoView } from './geo-view.svelte';
 export { default as DrawView } from './draw-view.svelte';

@@ -53,7 +53,19 @@ The core in five ideas:
    `translating`, `resizing`, `brushing`); an event walks down the active path. No flags.
 5. **The editor ties them together** (`editor.ts`): camera, selection, hit testing, `dispatch`.
    The renderer turns DOM events into `DrawEvent`s and calls `dispatch`; a test or a script
-   calls the same methods (`tests/core.test.ts` drags shapes with no browser).
+   calls the same methods (the tests drag shapes with no browser).
+
+Where things are in `src/lib`:
+
+| Folder         | What                                                                                                                                                                                                                                                                 |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/`        | the store, undo, the base classes, saving (`persist.ts`), and `editor.ts`: the `Editor` class with its state, the event loop and the document writes                                                                                                                 |
+| `core/editor/` | the rest of the editor's methods, one file per concern (`space`, `tree`, `selection`, `content`, `arrange`, `groups`, `frames`, `snapping`, `view`), plus its `types` and `constants`. Each is a function that takes the editor; the class method is a one-line call |
+| `shapes/`      | one file per kind (the line's geometry and the geo outlines have a file of their own)                                                                                                                                                                                |
+| `tools/`       | one file per tool; `tools/select/` has one file per state of the select tool                                                                                                                                                                                         |
+| `browser/`     | the only engine code that needs a browser: IndexedDB storage, the channel between tabs, the default asset store                                                                                                                                                      |
+| `svelte/`      | components; `svelte/canvas/` holds the canvas's logic (input, pinch, clipboard, what is on screen)                                                                                                                                                                   |
+| `../../tests/` | one file per area (`store`, `tools`, `lines`, `shapes`, `transform`, `arrange`, `persist`) and `helpers.ts`                                                                                                                                                          |
 
 Reactivity: the core's values are `Atom`s (`signal.ts`). `svelte/reactive.ts` hooks their reads
 into Svelte with `createSubscriber`, so `editor.camera.get()` in a template is reactive, one
@@ -119,7 +131,7 @@ onReceive((diff) => editor.store.applyDiff(diff, 'remote'));
 
 Records are whole documents keyed by id, which is the shape a Convex table wants (one row per
 record, last write wins per record; stacking order is a fractional index, so two people can
-reorder at once). `tests/core.test.ts` runs two editors against each other this way.
+reorder at once). `tests/store.test.ts` runs two editors against each other this way.
 
 ## How the bigger pieces work
 

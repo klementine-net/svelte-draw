@@ -1,6 +1,7 @@
 /*
  * @klementine/draw: the core. Plain TypeScript, no UI framework: it runs in a browser, in a
- * test and on a server alike. The Svelte layer is `@klementine/draw/svelte`.
+ * test and on a server alike (only what is in `browser/` needs a browser, and only when it is
+ * called). The Svelte layer is `@klementine/draw/svelte`.
  */
 
 import type { DrawPlugin } from './core/editor.ts';
@@ -42,9 +43,10 @@ export {
 } from './core/shape-util.ts';
 export { StateNode, type StateNodeConstructor } from './core/state-node.ts';
 export type { CancelInfo, DrawEvent, KeyInfo, PointerInfo, WheelInfo } from './core/events.ts';
+export { inlineAssets } from './browser/assets.ts';
+export { broadcastChannel } from './browser/channel.ts';
+export { indexedDbStorage } from './browser/storage.ts';
 export {
-	broadcastChannel,
-	indexedDbStorage,
 	migrate,
 	persist,
 	validRecords,
@@ -59,7 +61,6 @@ export {
 	Editor,
 	GRID_SIZE,
 	HANDLES,
-	inlineAssets,
 	pointer,
 	type AlignEdge,
 	type AssetStore,

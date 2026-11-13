@@ -7,8 +7,8 @@
  *   channel   every change this user makes is posted to the other tabs, which apply it as a
  *             remote change (not in their undo history)
  *
- * The parts that touch the browser (`indexedDbStorage`, `broadcastChannel`) are thin shells
- * around these two interfaces, so the logic here runs in a test with stand-ins.
+ * The parts that touch the browser (`browser/storage.ts`, `browser/channel.ts`) are thin
+ * shells around these two interfaces, so the logic here runs in a test with stand-ins.
  */
 
 import { SCHEMA_VERSION, type DrawRecord } from './records.ts';
@@ -268,67 +268,5 @@ export function presence(
 		page.removeEventListener?.('pagehide', leave);
 		leave();
 		editor.peers.set([]);
-	};
-}
-
-/** A document kept in the browser's IndexedDB under `key`. Browser only. */
-export function indexedDbStorage(key: string): DocumentStorage {
-	// One connection, opened at the first use and kept.
-	let connection: Promise<IDBDatabase> | undefined;
-	const open = () =>
-		(connection ??= new Promise<IDBDatabase>((resolve, reject) => {
-			const request = indexedDB.open(`klementine-draw:${key}`, 1);
-			request.onupgradeneeded = () => {
-				request.result.createObjectStore('records', { keyPath: 'id' });
-				request.result.createObjectStore('meta');
-			};
-			request.onsuccess = () => resolve(request.result);
-			request.onerror = () => reject(request.error);
-		}));
-	const done = (transaction: IDBTransaction) =>
-		new Promise<void>((resolve, reject) => {
-			transaction.oncomplete = () => resolve();
-			transaction.onerror = () => reject(transaction.error);
-			transaction.onabort = () => reject(transaction.error);
-		});
-	const result = <T>(request: IDBRequest<T>) =>
-		new Promise<T>((resolve, reject) => {
-			request.onsuccess = () => resolve(request.result);
-			request.onerror = () => reject(request.error);
-		});
-
-	return {
-		async load() {
-			const db = await open();
-			const transaction = db.transaction(['records', 'meta'], 'readonly');
-			const records = await result<DrawRecord[]>(transaction.objectStore('records').getAll());
-			const version = await result<number | undefined>(
-				transaction.objectStore('meta').get('version')
-			);
-			return records.length > 0 ? { version: version ?? 1, records } : undefined;
-		},
-		async save({ version, put, remove }) {
-			const db = await open();
-			const transaction = db.transaction(['records', 'meta'], 'readwrite');
-			const records = transaction.objectStore('records');
-			for (const record of put) records.put(record);
-			for (const id of remove) records.delete(id);
-			transaction.objectStore('meta').put(version, 'version');
-			await done(transaction);
-		}
-	};
-}
-
-/** A line to the other tabs of this browser that show the document `key`. Browser only. */
-export function broadcastChannel(key: string): Channel {
-	const channel = new BroadcastChannel(`klementine-draw:${key}`);
-	return {
-		post: (message) => channel.postMessage(message),
-		listen(listener) {
-			const onmessage = (event: MessageEvent) => listener(event.data as ChannelMessage);
-			channel.addEventListener('message', onmessage);
-			return () => channel.removeEventListener('message', onmessage);
-		},
-		close: () => channel.close()
 	};
 }
