@@ -1,8 +1,13 @@
-# Klementine Draw and tldraw, feature by feature
+# Klementine Draw: what is built
 
-What tldraw offers (its SDK's default shapes, tools and documented features, read from the clone
-in `~/workspaces/references/tldraw` at commit 017ae8f, 2026-11-10) and where Klementine Draw stands. Checked
-on 2026-11-11. This is the one list of what is built and what is not; update it with the code.
+What Klementine Draw can do, measured against the feature set of tldraw (its SDK's default
+shapes, tools and documented features, as of its repository at commit 017ae8f, 2026-11-10).
+Checked on 2026-11-11. This is the one list of what is built and what is not; update it with
+the code.
+
+tldraw is a trademark of tldraw Inc. Klementine Draw is an independent project, not affiliated
+with or endorsed by tldraw, and contains none of its code. The comparison is here because
+tldraw is the most complete whiteboard SDK there is, which makes it the honest yardstick.
 
 **Yes**: built. **Partly**: the core of it works, the rest of the line says what is missing.
 **No**: not built. Yes does not mean proven in daily use: the last section says how each part
@@ -10,7 +15,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Shapes
 
-| tldraw                      | Draw   | What is there, what is missing                                                                                                                 |
+| Feature                     | Draw   | What is there, what is missing                                                                                                                 |
 | --------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Freehand drawing            | Yes    | Pen pressure, hand-drawn stroke (`perfect-freehand`).                                                                                          |
 | Highlighter                 | Yes    | Key M.                                                                                                                                         |
@@ -27,7 +32,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Tools and editing
 
-| tldraw                        | Draw   | What is there, what is missing                                                                                             |
+| Feature                       | Draw   | What is there, what is missing                                                                                             |
 | ----------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Select, move, resize, marquee | Yes    | Shift keeps proportions or one axis, Alt resizes from the middle.                                                          |
 | Lasso select                  | Yes    | Alt-drag from the empty canvas.                                                                                            |
@@ -47,7 +52,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Styles
 
-| tldraw                             | Draw | What is there, what is missing                           |
+| Feature                            | Draw | What is there, what is missing                           |
 | ---------------------------------- | ---- | -------------------------------------------------------- |
 | Colour (13)                        | Yes  | 12. No orange, on purpose.                               |
 | Fill (none, semi, solid, pattern)  | Yes  | None, light, full, hatched.                              |
@@ -59,7 +64,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Canvas
 
-| tldraw                            | Draw   | What is there, what is missing                                                                  |
+| Feature                           | Draw   | What is there, what is missing                                                                  |
 | --------------------------------- | ------ | ----------------------------------------------------------------------------------------------- |
 | Pan, zoom, fit, zoom to selection | Yes    |                                                                                                 |
 | Pinch and two-finger pan          | Partly | Built; not tried on a touch screen yet.                                                         |
@@ -77,7 +82,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Data and platform
 
-| tldraw                                  | Draw   | What is there, what is missing                                                                                                                 |
+| Feature                                 | Draw   | What is there, what is missing                                                                                                                 |
 | --------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | Reactive store, diffs, history          | Yes    |                                                                                                                                                |
 | Own shapes and tools                    | Yes    | A plugin is a list of classes.                                                                                                                 |
@@ -93,9 +98,9 @@ was checked, and nobody has worked on a board with this for a day yet.
 | Hooks before and after a change         | Partly | After: `store.listen`. Before: none.                                                                                                           |
 | Replacing parts of the UI               | Partly | Compose `Canvas`, `DrawToolbar`, `StylePanel`, `PageMenu`, `ZoomControl`, `Minimap`, `CanvasMenu` yourself. tldraw has a slot for every part.  |
 | Helpers for AI agents                   | No     |                                                                                                                                                |
-| Licence                                 | n/a    | tldraw needs a licence key in production. Draw is ours; none of tldraw's code is in it.                                                        |
+| Licence                                 | n/a    | tldraw's SDK needs a licence key in production. Klementine Draw contains none of its code; its own licence is not chosen yet.                  |
 
-## Decisions made while building (2026-11-11), for Simon to confirm or change
+## Decisions made while building (2026-11-11)
 
 1. **Files stay in the document by default.** An image is kept as a data URL in an asset
    record, so it is saved, synced and exported with everything else and needs no server. It

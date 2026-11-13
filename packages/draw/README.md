@@ -158,8 +158,12 @@ reorder at once). `tests/core.test.ts` runs two editors against each other this 
 
 ## Where the ideas come from
 
-The architecture follows tldraw's (records in a reactive store, `ShapeUtil`, tool state
-machines, a plugin as an array of classes): its source is in `~/workspaces/references/tldraw`
-for study. No tldraw code, icons or assets are in this package: its editor is under a licence
-that forbids production use without a key, and a port would inherit that. Ink strokes use
-`perfect-freehand` (MIT).
+The architecture follows the ideas of [tldraw](https://tldraw.dev) (records in a reactive
+store, a `ShapeUtil` per kind, tool state machines, a plugin as an array of classes), learned
+by reading how it is designed. No tldraw code, icons or assets are in this package and it
+depends on no tldraw package: tldraw's editor is under a licence that forbids production use
+without a key, and a port would inherit that, so this is written from scratch. tldraw is a
+trademark of tldraw Inc.; this project is not affiliated with or endorsed by it.
+
+Ink strokes use `perfect-freehand` (MIT), stacking order `fractional-indexing` (CC0), icons
+Phosphor (MIT).
