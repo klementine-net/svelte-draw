@@ -127,7 +127,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## How it was checked
 
-**Engine tests** (`packages/draw/tests`, 39, no browser) cover the store, undo, tools, every
+**Engine tests** (`packages/draw/tests`, 40, no browser) cover the store, undo, tools, every
 shape kind's geometry, attached, bent and right-angled lines, text, eraser, rotation, groups,
 frames, clipboard, arranging, snapping, the grid, pages, saving and tabs (with stand-ins for
 IndexedDB and the channel), cursors, files and assets, read-only, scrolling at the edge.

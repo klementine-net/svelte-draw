@@ -98,7 +98,22 @@ export interface PersistOptions {
 	 * change at once; a drag makes a change per pointer move, so a browser wants a few hundred.
 	 */
 	saveDelay?: number;
+	/** How long (ms) to wait for storage to answer before going on without it. 4000 by default. */
+	loadTimeout?: number;
 }
+
+/** `promise`, or a rejection when it has not settled after `ms`. */
+function within<T>(promise: Promise<T>, ms: number): Promise<T> {
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(() => reject(new Error(`No answer after ${ms} ms`)), ms);
+		promise.then(
+			(value) => (clearTimeout(timer), resolve(value)),
+			(error) => (clearTimeout(timer), reject(error))
+		);
+	});
+}
+
+const unsaved = (error: unknown) => console.warn('A change could not be saved.', error);
 
 /**
  * Loads the editor's document from `storage`, then keeps storage and the other tabs up to
@@ -106,14 +121,25 @@ export interface PersistOptions {
  * Resolves, once the document is loaded, with the function that stops it.
  */
 export async function persist(editor: Editor, options: PersistOptions): Promise<() => void> {
-	const { storage, channel } = options;
-	const saved = await storage?.load();
+	const { channel } = options;
+	let { storage } = options;
+	let saved: SavedDocument | undefined;
+	try {
+		saved = storage && (await within(storage.load(), options.loadTimeout ?? 4000));
+	} catch (error) {
+		// Storage that fails or never answers (a private window, a full disk) must not leave an
+		// empty, dead board: the session goes on without it, and nothing is kept.
+		console.warn('The board could not be read from storage, so it will not be kept.', error);
+		storage = undefined;
+	}
 	if (saved && saved.records.length > 0) editor.loadDocument(migrate(saved));
 	else {
 		options.seed?.(editor);
 		editor.history.clear();
 		// The first save: everything, once.
-		await storage?.save({ version: SCHEMA_VERSION, put: editor.store.snapshot(), remove: [] });
+		await storage
+			?.save({ version: SCHEMA_VERSION, put: editor.store.snapshot(), remove: [] })
+			.catch(unsaved);
 	}
 
 	// What waits to be written: the latest state of each changed record, or its removal.
@@ -124,7 +150,9 @@ export async function persist(editor: Editor, options: PersistOptions): Promise<
 		clearTimeout(timer);
 		timer = undefined;
 		if (put.size === 0 && remove.size === 0) return;
-		void storage?.save({ version: SCHEMA_VERSION, put: [...put.values()], remove: [...remove] });
+		storage
+			?.save({ version: SCHEMA_VERSION, put: [...put.values()], remove: [...remove] })
+			.catch(unsaved);
 		put.clear();
 		remove.clear();
 	};

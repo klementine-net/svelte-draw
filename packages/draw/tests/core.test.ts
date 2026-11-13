@@ -1371,3 +1371,47 @@ test('a file opened over a board with the same records keeps every record in sto
 	stop();
 	assert.equal((slow.records.get(shape.id) as ShapeRecord).x, 9);
 });
+
+test('storage that fails or never answers does not leave a dead board', async () => {
+	const seed = (editor: Editor) => void rect(editor, 100, 100);
+	const warn = console.warn;
+	console.warn = () => {};
+	try {
+		// It throws: the board is seeded and works, nothing is kept.
+		const broken: DocumentStorage = {
+			load: async () => {
+				throw new Error('no storage here');
+			},
+			save: async () => {
+				throw new Error('no storage here');
+			}
+		};
+		const first = makeEditor();
+		await persist(first, { storage: broken, seed });
+		assert.equal(first.getShapes().length, 1);
+		rect(first, 300, 300);
+		assert.equal(first.getShapes().length, 2);
+
+		// It never answers: after the wait, the same.
+		const silent: DocumentStorage = { load: () => new Promise(() => {}), save: async () => {} };
+		const second = makeEditor();
+		await persist(second, { storage: silent, seed, loadTimeout: 20 });
+		assert.equal(second.getShapes().length, 1);
+
+		// A save that fails later is a warning, not a crash.
+		const { storage } = fakeStorage();
+		const flaky: DocumentStorage = {
+			load: storage.load,
+			save: async () => {
+				throw new Error('disk full');
+			}
+		};
+		const third = makeEditor();
+		await persist(third, { storage: flaky, seed });
+		rect(third, 300, 300);
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		assert.equal(third.getShapes().length, 2);
+	} finally {
+		console.warn = warn;
+	}
+});
