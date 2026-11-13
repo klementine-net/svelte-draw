@@ -2,6 +2,7 @@
 	"name": "klementine-draw",
 	"private": true,
 	"type": "module",
+	"license": "MIT",
 	"description": "Klementine Draw, an infinite canvas for Svelte (whiteboards now, a design tool later), and its example apps, in one pnpm workspace.",
 	"packageManager": "pnpm@11.0.5",
 	"engines": {

@@ -98,7 +98,7 @@ was checked, and nobody has worked on a board with this for a day yet.
 | Hooks before and after a change         | Partly | After: `store.listen`. Before: none.                                                                                                           |
 | Replacing parts of the UI               | Partly | Compose `Canvas`, `DrawToolbar`, `StylePanel`, `PageMenu`, `ZoomControl`, `Minimap`, `CanvasMenu` yourself. tldraw has a slot for every part.  |
 | Helpers for AI agents                   | No     |                                                                                                                                                |
-| Licence                                 | n/a    | tldraw's SDK needs a licence key in production. Klementine Draw contains none of its code; its own licence is not chosen yet.                  |
+| Licence                                 | MIT    | tldraw's SDK needs a licence key in production. Klementine Draw contains none of its code and is under the MIT licence.                        |
 
 ## Decisions made while building (2026-11-11)
 

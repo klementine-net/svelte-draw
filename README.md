@@ -53,5 +53,4 @@ endorsed by tldraw.
 
 ## Licence
 
-No licence has been chosen yet, so all rights are reserved for now: you are welcome to read
-the code, and please ask before using it.
+[MIT](LICENSE). Use it, change it, ship it; keep the copyright notice.

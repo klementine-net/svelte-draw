@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"license": "MIT",
 	"description": "Klementine Draw: an infinite canvas for Svelte. A plain TypeScript core (record store, shape utils, tool state machines, undo) and a Svelte layer that renders it; shapes and tools come in as plugins.",
 	"engines": {
 		"node": ">=24.13.0"

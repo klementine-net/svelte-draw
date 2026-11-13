@@ -3,7 +3,8 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
-	"description": "A whiteboard on Klementine Draw: the built-in plugins plus a sticky note written as a plugin of its own. A Draw example.",
+	"license": "MIT",
+	"description": "A whiteboard on Klementine Draw, kept in the browser and in step across tabs. A Draw example.",
 	"engines": {
 		"node": ">=24.13.0"
 	},
