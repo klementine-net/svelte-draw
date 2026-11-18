@@ -5,8 +5,8 @@ pictures and links, group, frame, turn, snap, copy and paste, undo, on several p
 the document in the browser, keeps tabs in step and saves pictures and files. Shapes and tools
 are plugins, so the same engine can be a whiteboard today and a design tool later.
 
-**Documentation:** <https://klementine-net.github.io/svelte-draw/>, with a board to draw on and
-examples that run. **Demo:** <https://klementine-net.github.io/svelte-draw/demo/>. Both keep what
+**Documentation:** <https://docs.klementine.net/svelte-draw/>, with a board to draw on and
+examples that run. **Demo:** <https://docs.klementine.net/svelte-draw/demo/>. Both keep what
 you draw in your own browser; nothing is sent anywhere.
 
 What is built and what is not: [FEATURES.md](FEATURES.md).
