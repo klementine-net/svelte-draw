@@ -1,0 +1,1 @@
+.spinner.svelte-d14pyg{animation:.8s linear infinite svelte-d14pyg-spinner-turn}@media (prefers-reduced-motion:reduce){.spinner.svelte-d14pyg{animation-duration:6s}}@keyframes svelte-d14pyg-spinner-turn{to{rotate:360deg}}button.svelte-10wqbby:not([aria-busy=true]) [data-slot=spinner]{animation:none}
