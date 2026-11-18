@@ -1,14 +1,18 @@
-/* Type-checks the package on its own (an app checks it again as it uses it). */
+/*
+ * Type-checks the package on its own (an app checks it again as it uses it). Imports end in
+ * `.ts`, so Node runs the tests straight from the source; svelte-package rewrites them to `.js`
+ * in `dist`.
+ */
 {
 	"compilerOptions": {
 		"strict": true,
-		"module": "esnext",
+		"module": "NodeNext",
 		"target": "esnext",
-		"moduleResolution": "bundler",
+		"moduleResolution": "NodeNext",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
-		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true,
 		"erasableSyntaxOnly": true,
 		"skipLibCheck": true,
 		"noEmit": true,

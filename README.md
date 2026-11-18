@@ -31,9 +31,15 @@ Node 24 and pnpm 11.
 
 ```sh
 pnpm install
-pnpm dev      # http://localhost:5196
+pnpm dev      # the demo, on http://localhost:5196
+pnpm dev:site # the documentation site, on http://localhost:5197
 pnpm check && pnpm test && pnpm lint
 ```
+
+The demo and the site use the library as it ships: built, in `packages/draw/dist`
+(`pnpm --filter @klementine/draw build`). `pnpm dev`, `check` and `lint` build it first, and
+`pnpm dev` rebuilds it on every change. An app outside this workspace installs
+`packages/draw` (`file:`) once it is built.
 
 The controls (toolbar, style panel, menus, hints) are composed from klementine.ui
 (`@klementine/ui`), a peer dependency the app brings; the core (`@klementine/draw`) needs no

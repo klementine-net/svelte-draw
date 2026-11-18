@@ -11,7 +11,8 @@ pnpm dev        # the demo, on http://localhost:5196
 pnpm test       # the engine's tests, no browser needed
 ```
 
-You need Node 24 and pnpm 11.
+You need Node 24 and pnpm 11. The demo uses the library as it ships, built into
+`packages/draw/dist`: `pnpm dev` builds it first and rebuilds it as you change it.
 
 **The Svelte layer needs klementine.ui.** The toolbar, the panels and the menus are built from
 klementine.ui, a Svelte design system that is not public yet. Until it is, the demo and the

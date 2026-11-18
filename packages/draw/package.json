@@ -9,15 +9,32 @@
 		"node": ">=24.13.0"
 	},
 	"scripts": {
+		"dev": "svelte-package --watch --preserve-output",
+		"build": "svelte-package && publint",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test": "node --test 'tests/*.test.ts'",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
+	"files": [
+		"dist"
+	],
+	"sideEffects": [
+		"**/*.css",
+		"./dist/svelte/reactive.js"
+	],
 	"exports": {
-		".": "./src/lib/index.ts",
-		"./svelte": "./src/lib/svelte/index.ts",
-		"./draw.css": "./src/draw.css",
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./svelte": {
+			"types": "./dist/svelte/index.d.ts",
+			"svelte": "./dist/svelte/index.js",
+			"default": "./dist/svelte/index.js"
+		},
+		"./draw.css": "./dist/draw.css",
 		"./package.json": "./package.json"
 	},
 	"peerDependencies": {
@@ -31,7 +48,9 @@
 	},
 	"devDependencies": {
 		"@klementine/ui": "file:../../../klementine/packages/ui",
+		"@sveltejs/package": "^3.0.3",
 		"@types/node": "^24",
+		"publint": "^0.3.25",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",

@@ -9,11 +9,12 @@
 		"node": ">=24.13.0"
 	},
 	"scripts": {
-		"dev": "pnpm --filter @klementine/example-whiteboard dev",
-		"check": "pnpm -r run check",
+		"dev": "pnpm --filter @klementine/draw build && pnpm --parallel --filter @klementine/draw --filter @klementine/example-whiteboard dev",
+		"dev:site": "pnpm --filter @klementine/draw build && pnpm --parallel --filter @klementine/draw --filter @klementine/draw-site dev",
+		"check": "pnpm --filter @klementine/draw build && pnpm -r run check",
 		"test": "pnpm -r run test",
-		"lint": "prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
-		"format": "prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
+		"lint": "pnpm --filter @klementine/draw build && prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
+		"format": "pnpm --filter @klementine/draw build && prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
 		"build": "pnpm -r run build"
 	},
 	"devDependencies": {

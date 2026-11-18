@@ -5,7 +5,6 @@
 
 import type { Component } from 'svelte';
 import ArrowUpRight from 'phosphor-svelte/lib/ArrowUpRight';
-import BoundingBox from 'phosphor-svelte/lib/BoundingBox';
 import Circle from 'phosphor-svelte/lib/Circle';
 import Cloud from 'phosphor-svelte/lib/Cloud';
 import Cursor from 'phosphor-svelte/lib/Cursor';
@@ -202,6 +201,3 @@ export const defaultPlugins: DrawSveltePlugin[] = [
 	framePlugin,
 	groupPlugin
 ];
-
-/** The icon for a shape kind with no view (its plugin is missing). */
-export const MissingIcon = BoundingBox;

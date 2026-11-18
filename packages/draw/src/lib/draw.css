@@ -7,7 +7,7 @@
  * with Tailwind classes; the @source line lets Tailwind see them.
  */
 
-@source './lib';
+@source './';
 
 .kd-root {
 	position: relative;

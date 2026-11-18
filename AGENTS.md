@@ -4,7 +4,8 @@ Klementine Draw: an infinite canvas for Svelte. A pnpm workspace of its own: the
 `packages/draw`, example apps in `examples/*`. Read README.md, then `packages/draw/AGENTS.md`.
 
 - **Draw is not part of the Klementine app.** Nothing here imports Klementine's core or shell;
-  an app installs Draw from this folder (`file:`), like Desk.
+  an app installs the built package from this folder (`file:`, after
+  `pnpm --filter @klementine/draw build`), like Desk.
 - **klementine.ui is a peer** (`@klementine/ui`), installed from the monorepo checkout beside
   this one. Only `packages/draw/src/lib/svelte` and the examples may import it; after a change
   there, `pnpm install --force` here.
