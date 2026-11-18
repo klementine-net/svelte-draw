@@ -123,7 +123,8 @@ was checked, and nobody has worked on a board with this for a day yet.
 - An undo in one tab can take back something another tab changed in the same shape since.
 - Deleted pictures stay in the document as asset records (so an undo can bring them back);
   nothing cleans them up yet.
-- No app uses the package yet: it is run by its example and its tests.
+- One app uses the package so far, Klementine Tiles (its board); beyond that it is run by its
+  example, its documentation site and its tests.
 
 ## How it was checked
 
@@ -131,6 +132,11 @@ was checked, and nobody has worked on a board with this for a day yet.
 shape kind's geometry, attached, bent and right-angled lines, text, eraser, rotation, groups,
 frames, clipboard, arranging, snapping, the grid, pages, saving and tabs (with stand-ins for
 IndexedDB and the channel), cursors, files and assets, read-only, scrolling at the edge.
+
+**Browser tests** (`packages/draw/tests/browser`, 7, `pnpm test:browser`, in Chrome) cover the
+Svelte layer: typing into a note and a text shape (every key written, the caret kept), a note's
+writing fitting its paper, a text shape's measured size, the wheel, the canvas following its size,
+and a toolbar group showing the tool picked from it last.
 
 **No engine test, because the code only runs in a browser:** the minimap, links to a view, not
 drawing what is off screen, picture export and copy as a picture, saving to and opening a file,
