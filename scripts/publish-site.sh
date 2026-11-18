@@ -2,13 +2,13 @@
 # Builds the documentation site and the demo and publishes both to GitHub Pages: the gh-pages
 # branch of a remote, with the site at its root and the demo under /demo/.
 #
-#   scripts/publish-site.sh [remote]        # remote: simon-lund by default
+#   scripts/publish-site.sh [remote]        # remote: public (klementine-net/svelte-draw) by default
 #
 # Both are served from <host>/svelte-draw/ (BASE_PATH changes that). They need the klementine.ui
 # checkout this workspace installs from, so they are built here, not by GitHub.
 set -euo pipefail
 
-remote="${1:-simon-lund}"
+remote="${1:-public}"
 base="${BASE_PATH:-/svelte-draw}"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 url="$(git -C "$root" remote get-url "$remote")"

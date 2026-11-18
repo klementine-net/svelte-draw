@@ -114,4 +114,4 @@ export function locate(path: string) {
 	return { page: pages[at], previous: pages[at - 1], next: pages[at + 1] };
 }
 
-export const REPOSITORY = 'https://github.com/simon-lund/svelte-draw';
+export const REPOSITORY = 'https://github.com/klementine-net/svelte-draw';

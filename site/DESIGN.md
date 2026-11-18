@@ -1,6 +1,6 @@
 # The Draw website: design
 
-How the documentation site at `simon-lund.github.io/svelte-draw/` is decided. Written before
+How the documentation site at `docs.klementine.net/svelte-draw/` is decided. Written before
 the first line of code, after the manifest's four steps; change it here first, then the code.
 
 ## The moment

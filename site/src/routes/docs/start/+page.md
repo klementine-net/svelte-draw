@@ -4,7 +4,7 @@ Draw is not on npm yet. Clone the repository; it is a pnpm workspace with the li
 `packages/draw`, the demo in `examples/whiteboard` and this site in `site`.
 
 ```sh
-git clone https://github.com/simon-lund/svelte-draw.git
+git clone https://github.com/klementine-net/svelte-draw.git
 cd svelte-draw
 pnpm install
 pnpm dev        # the demo, on http://localhost:5196
