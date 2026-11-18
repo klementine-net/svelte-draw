@@ -58,10 +58,13 @@
 	});
 
 	// The tool a group shows: the one picked from it last (its first, until one is picked).
-	const lastPicked: Record<string, string> = $state({});
-	$effect(() => {
+	// Worked out with the picked tool, in the same render: a key that picks a tool of a group
+	// shows it in the bar at once. `memory` only records what was picked; it shows nothing itself.
+	const memory: Record<string, string> = {};
+	const lastPicked = $derived.by(() => {
 		const active = items.find((item) => item.tool === editor.tool);
-		if (active?.group) lastPicked[active.group] = active.tool;
+		if (active?.group) memory[active.group] = active.tool;
+		return { ...memory };
 	});
 	const shown = (place: { group?: string; items: ToolbarItem[] }) =>
 		place.items.find((item) => item.tool === lastPicked[place.group ?? '']) ?? place.items[0];

@@ -13,6 +13,7 @@
 		"dev:site": "pnpm --filter @klementine/draw build && pnpm --parallel --filter @klementine/draw --filter @klementine/draw-site dev",
 		"check": "pnpm --filter @klementine/draw build && pnpm -r run check",
 		"test": "pnpm -r run test",
+		"test:browser": "pnpm --filter @klementine/draw test:browser",
 		"lint": "pnpm --filter @klementine/draw build && prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
 		"format": "pnpm --filter @klementine/draw build && prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
 		"build": "pnpm -r run build"

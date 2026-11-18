@@ -21,7 +21,7 @@
 </script>
 
 {#if editing}
-	<span class="kd-text" use:editText={{ editor, text, onchange }}></span>
+	<span class="kd-text" {@attach editText({ editor, text: () => text, onchange })}></span>
 {:else}
 	<span class="kd-text">{text}</span>
 {/if}

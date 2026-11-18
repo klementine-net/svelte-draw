@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
 	import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@klementine/ui/context-menu';
 	import './reactive.ts';
 	import type { Editor } from '../index.ts';
@@ -128,24 +129,23 @@
 	// When an edit ends, the focus goes back to the surface, so the canvas's keys keep working.
 	// Unless it has already gone to a control (a click on the toolbar ended the edit).
 	let wasEditing = false;
-	$effect(() => {
+	const refocus: Attachment<HTMLElement> = (element) => {
 		const editing = editor.editing.get() !== null;
 		if (wasEditing && !editing) {
 			const focused = document.activeElement;
 			if (!focused || focused === document.body || focused.closest('.kd-world'))
-				surface?.focus({ preventScroll: true });
+				element.focus({ preventScroll: true });
 		}
 		wasEditing = editing;
-	});
+	};
 
-	$effect(() => {
+	// The wheel moves the view, and the view follows the surface's size.
+	const wheelAndSize: Attachment<HTMLElement> = (element) => {
 		// Not passive: the wheel must not scroll or zoom the page around the canvas.
 		const onwheel = (event: WheelEvent) => {
 			event.preventDefault();
 			editor.dispatch(wheelInfo(event, local(event)));
 		};
-		const element = surface;
-		if (!element) return;
 		element.addEventListener('wheel', onwheel, { passive: false });
 		// The size is known at once, not only when the observer first reports.
 		editor.viewport.set({ w: element.clientWidth, h: element.clientHeight });
@@ -157,7 +157,7 @@
 			element.removeEventListener('wheel', onwheel);
 			observer.disconnect();
 		};
-	});
+	};
 </script>
 
 <!-- Key and clipboard events bubble up here from the surface and from the controls above it. -->
@@ -187,6 +187,8 @@
 				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 				<div
 					{...props}
+					{@attach refocus}
+					{@attach wheelAndSize}
 					class="kd-surface"
 					role="application"
 					aria-label={label}

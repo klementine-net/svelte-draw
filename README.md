@@ -34,6 +34,7 @@ pnpm install
 pnpm dev      # the demo, on http://localhost:5196
 pnpm dev:site # the documentation site, on http://localhost:5197
 pnpm check && pnpm test && pnpm lint
+pnpm test:browser  # the Svelte layer, in the Chrome installed on the machine
 ```
 
 The demo and the site use the library as it ships: built, in `packages/draw/dist`

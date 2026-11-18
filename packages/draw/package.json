@@ -13,6 +13,7 @@
 		"build": "svelte-package && publint",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test": "node --test 'tests/*.test.ts'",
+		"test:browser": "vitest run",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
@@ -49,11 +50,17 @@
 	"devDependencies": {
 		"@klementine/ui": "file:../../../klementine/packages/ui",
 		"@sveltejs/package": "^3.0.3",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@types/node": "^24",
+		"@vitest/browser-playwright": "^5.1.1",
+		"playwright": "^1.64.1",
 		"publint": "^0.3.25",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
-		"typescript": "^6.0.3"
+		"typescript": "^6.0.3",
+		"vite": "^8.3.7",
+		"vitest": "^5.1.1",
+		"vitest-browser-svelte": "^3.1.0"
 	}
 }

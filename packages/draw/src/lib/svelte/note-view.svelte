@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Attachment } from 'svelte/attachments';
 	import { noteTilt, type NoteShape } from '../index.ts';
 	import { editText } from './edit-text.ts';
 	import type { ShapeViewProps } from './plugin.ts';
@@ -19,14 +20,11 @@
 	const tilt = $derived(noteTilt(shape.id));
 
 	// The writing fits the paper: as large as it can be (up to 34px) with every word still on
-	// the note, so a long text gets smaller instead of being cut off.
+	// the note, so a long text gets smaller instead of being cut off. Fitted again when the
+	// words or the paper change.
 	const MAX_SIZE = 34;
 	const MIN_SIZE = 9;
-	let paragraph: HTMLParagraphElement;
-	let size = $state(MAX_SIZE);
-
-	$effect(() => {
-		// Re-fit when the words or the paper change.
+	const fit: Attachment<HTMLElement> = (paragraph) => {
 		void [shape.props.text, shape.props.w, shape.props.h];
 		const fits = (px: number) => {
 			paragraph.style.fontSize = `${px}px`;
@@ -42,9 +40,8 @@
 			if (fits(middle)) low = middle;
 			else high = middle;
 		}
-		size = fits(MAX_SIZE) ? MAX_SIZE : low;
-		paragraph.style.fontSize = `${size}px`;
-	});
+		paragraph.style.fontSize = `${fits(MAX_SIZE) ? MAX_SIZE : low}px`;
+	};
 </script>
 
 <div
@@ -54,9 +51,9 @@
 	style:height="{shape.props.h}px"
 	style:rotate="{tilt}deg"
 >
-	<p bind:this={paragraph}>
+	<p {@attach fit}>
 		{#if editing}
-			<span use:editText={{ editor, text: shape.props.text, onchange: write }}></span>
+			<span {@attach editText({ editor, text: () => shape.props.text, onchange: write })}></span>
 		{:else}
 			<span>{shape.props.text}</span>
 		{/if}

@@ -65,7 +65,7 @@ Where things are in `src/lib`:
 | `tools/`       | one file per tool; `tools/select/` has one file per state of the select tool                                                                                                                                                                                         |
 | `browser/`     | the only engine code that needs a browser: IndexedDB storage, the channel between tabs, the default asset store                                                                                                                                                      |
 | `svelte/`      | components; `svelte/canvas/` holds the canvas's logic (input, pinch, clipboard, what is on screen)                                                                                                                                                                   |
-| `../../tests/` | one file per area (`store`, `tools`, `lines`, `shapes`, `transform`, `arrange`, `persist`) and `helpers.ts`                                                                                                                                                          |
+| `../../tests/` | the engine's, under Node (`pnpm test`): one file per area (`store`, `tools`, `lines`, `shapes`, `transform`, `arrange`, `persist`) and `helpers.ts`; `browser/`: the Svelte layer in Chrome (`pnpm test:browser`)                                                    |
 
 Reactivity: the core's values are `Atom`s (`signal.ts`). `svelte/reactive.ts` hooks their reads
 into Svelte with `createSubscriber`, so `editor.camera.get()` in a template is reactive, one
@@ -114,10 +114,17 @@ export const notePlugin: DrawSveltePlugin = {
 ### Text that can be typed into
 
 A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
-`editor.editing` to the shape, and the view shows the text field with `editText`
-(`@klementine/draw/svelte`). Escape, a press elsewhere or a tool switch ends it; everything typed
-is one undo step. A box tool with `edit = true` (the note's) starts typing as soon as the shape
-is made. The note (`svelte/note-view.svelte`) is the reference.
+`editor.editing` to the shape, and the view makes its text element the field with the
+`editText` attachment (`@klementine/draw/svelte`):
+
+```svelte
+<span {@attach editText({ editor, text: () => shape.props.text, onchange })}></span>
+```
+
+`text` is read once, as the edit starts: while someone types, the field is theirs. Escape, a
+press elsewhere or a tool switch ends it; everything typed is one undo step. A box tool with
+`edit = true` (the note's) starts typing as soon as the shape is made. The note
+(`svelte/note-view.svelte`) is the reference.
 
 ## Collaboration (the seam; tabs use it, a server does not yet)
 
