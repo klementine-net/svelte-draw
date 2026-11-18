@@ -5,20 +5,23 @@ pictures and links, group, frame, turn, snap, copy and paste, undo, on several p
 the document in the browser, keeps tabs in step and saves pictures and files. Shapes and tools
 are plugins, so the same engine can be a whiteboard today and a design tool later.
 
-**Try it:** <https://simon-lund.github.io/svelte-draw/demo/>. The board is kept in your own
-browser; nothing is sent anywhere.
+**Documentation:** <https://simon-lund.github.io/svelte-draw/>, with a board to draw on and
+examples that run. **Demo:** <https://simon-lund.github.io/svelte-draw/demo/>. Both keep what
+you draw in your own browser; nothing is sent anywhere.
 
 What is built and what is not: [FEATURES.md](FEATURES.md).
 
 ## Status
 
-Early. It was built in a few days, no app uses it yet, and much of it is tested in the engine
+Early. It was built in a few days, one app uses it (Klementine Tiles builds its board on it),
+and much of it is tested in the engine
 but not by hand ([FEATURES.md](FEATURES.md) says which parts). It is not on npm.
 
 | Folder                | Package                          | What                                                            |
 | --------------------- | -------------------------------- | --------------------------------------------------------------- |
 | `packages/draw`       | `@klementine/draw`               | the engine (plain TypeScript) and its Svelte layer: start there |
 | `examples/whiteboard` | `@klementine/example-whiteboard` | the demo: a whiteboard that is kept in the browser              |
+| `site`                | `@klementine/draw-site`          | the documentation website, with live canvases                   |
 
 How it is built, how to write a plugin and the collaboration seam: `packages/draw/README.md`.
 
@@ -39,7 +42,8 @@ only build with a checkout of it beside this repository (`../klementine/packages
 engine and its tests (`pnpm --filter @klementine/draw test`) need nothing else. After a change
 in klementine.ui, run `pnpm install --force` here (a plain install keeps the old copy).
 
-`scripts/publish-demo.sh` builds the demo and publishes it to GitHub Pages.
+`scripts/publish-site.sh` builds the documentation site (`site/`, its design in
+`site/DESIGN.md`) and the demo, and publishes both to GitHub Pages.
 
 ## Relation to tldraw
 

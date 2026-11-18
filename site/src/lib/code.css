@@ -1,0 +1,50 @@
+/*
+ * Code in ink: Shiki's tokens (the "ink" theme in vite.config.js) take the theme's ink tones.
+ * Words that make the program are ink, what it is given (strings, numbers) is a step quieter,
+ * comments the quietest.
+ */
+
+:root {
+	--code-foreground: var(--cream-ink);
+	--code-background: var(--cream-recess);
+	--code-token-keyword: var(--cream-ink);
+	--code-token-function: var(--cream-ink);
+	--code-token-constant: var(--cream-ink2);
+	--code-token-string: var(--cream-ink2);
+	--code-token-string-expression: var(--cream-ink2);
+	--code-token-parameter: var(--cream-ink);
+	--code-token-punctuation: var(--cream-ink3);
+	--code-token-link: var(--cream-ink2);
+	--code-token-comment: var(--cream-ink3);
+	--code-token-inserted: var(--cream-ink);
+	--code-token-deleted: var(--cream-ink3);
+	--code-token-changed: var(--cream-ink);
+	--code-ansi-black: var(--cream-ink);
+}
+
+pre.shiki,
+pre.code {
+	margin: 1.25rem 0;
+	padding: 1rem 1.25rem;
+	overflow-x: auto;
+	border-radius: var(--radius-md);
+	background: var(--cream-recess);
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	tab-size: 2;
+}
+
+pre.shiki code,
+pre.code code {
+	font: inherit;
+}
+
+/* What you type is what you see: no ligatures turning !== or => into other glyphs. */
+code,
+pre {
+	font-variant-ligatures: none;
+	font-feature-settings:
+		'liga' 0,
+		'calt' 0;
+}

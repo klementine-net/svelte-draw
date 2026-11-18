@@ -64,18 +64,26 @@ class RootState extends StateNode {
 }
 
 export class Editor {
+	/** Every record of the document: pages, shapes, files. */
 	readonly store: Store<DrawRecord>;
+	/** Undo and redo of this user's changes. */
 	readonly history: History<DrawRecord>;
+	/** The root of the tools' state machines; the tools are its children. */
 	readonly root: StateNode;
+	/** Where files are kept (see `EditorOptions.assets`). */
 	readonly assets: AssetStore;
 	/** True while the document may be looked at but not changed (see `setReadOnly`). */
 	readonly readOnly = atom(false);
 
+	/** The view: a point on the screen is the page point × `z` + (`x`, `y`). */
 	readonly camera = atom<Camera>({ x: 0, y: 0, z: 1 });
 	/** The canvas's size on screen. */
 	readonly viewport = atom({ w: 0, h: 0 });
+	/** The id of the page being looked at. */
 	readonly pageId = atom('');
+	/** The ids of the selected shapes. */
 	readonly selection = atom<readonly string[]>([]);
+	/** The id of the shape under the pointer, if one is outlined. */
 	readonly hovered = atom<string | null>(null);
 	/** The marquee, in page space, while one is being dragged. */
 	readonly brush = atom<Box | null>(null);

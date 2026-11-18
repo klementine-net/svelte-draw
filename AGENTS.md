@@ -12,6 +12,10 @@ Klementine Draw: an infinite canvas for Svelte. A pnpm workspace of its own: the
   they are installed through asdf, call them by the absolute path of the install: the shims
   fail outside an interactive shell.
 - **This repository is public.** No local paths, names of people or anything private in code,
-  docs or commit messages. The demo is published with `scripts/publish-demo.sh`.
+  docs or commit messages. The documentation site (`site/`) and the demo are published with
+  `scripts/publish-site.sh`.
+- **The site documents the code.** Its API reference is read from the source at build time;
+  the guides are written by hand: change the page in `site/src/routes/docs/` with the code it
+  describes. Its design is decided in `site/DESIGN.md`.
 - Commits: `<gitmoji> <type>(<scope>): <subject>`, e.g. `✨ feat(draw): …`.
 - Code, comments and docs in English.

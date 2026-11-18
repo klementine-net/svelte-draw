@@ -1,7 +1,8 @@
-# Klementine Draw and the example apps built on it.
+# Klementine Draw, the example apps built on it, and its documentation website.
 packages:
   - 'packages/*'
   - 'examples/*'
+  - 'site'
 
 # pnpm 11 refuses dependency build scripts unless they are listed here.
 allowBuilds:

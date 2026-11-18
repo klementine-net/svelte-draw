@@ -12,8 +12,8 @@
 		"dev": "pnpm --filter @klementine/example-whiteboard dev",
 		"check": "pnpm -r run check",
 		"test": "pnpm -r run test",
-		"lint": "prettier --check . '!packages' '!examples' && pnpm -r run lint",
-		"format": "prettier --write . '!packages' '!examples' && pnpm -r run format",
+		"lint": "prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
+		"format": "prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
 		"build": "pnpm -r run build"
 	},
 	"devDependencies": {

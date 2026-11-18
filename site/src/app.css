@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+@import '@klementine/ui/theme.css';
+@import '@klementine/draw/draw.css';
+@import './lib/code.css';
+@import './lib/prose.css';
+
+@source './';
+
+/*
+ * Paper and ink (DESIGN.md): the page is the theme's paper, the type its ink; colour comes only
+ * from what is drawn on a live canvas.
+ */
+:root {
+	--font-sans: 'Instrument Sans', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+	/* The handwriting on the canvases. */
+	--kd-font-hand: 'Caveat', 'Bradley Hand', cursive;
+
+	/* The site's measures (DESIGN.md, "Grid, type, colour"). */
+	--site-sidebar: 14rem;
+	--site-gap: 3rem;
+	--site-column: 42.5rem;
+	--site-max: 73.75rem;
+	--site-margin: 1.25rem;
+	--site-header: 3.5rem;
+}
+
+html {
+	background: var(--canvas-ground);
+	color: var(--cream-ink);
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	scroll-padding-top: calc(var(--site-header) + 1.5rem);
+}
+
+body {
+	margin: 0;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
+}
