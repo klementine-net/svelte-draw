@@ -9,13 +9,13 @@
 		"node": ">=24.13.0"
 	},
 	"scripts": {
-		"dev": "pnpm --filter svelte-draw build && pnpm --parallel --filter svelte-draw --filter svelte-draw-example-whiteboard dev",
-		"dev:site": "pnpm --filter svelte-draw build && pnpm --parallel --filter svelte-draw --filter svelte-draw-site dev",
-		"check": "pnpm --filter svelte-draw build && pnpm -r run check",
+		"dev": "pnpm --filter @klementine/svelte-draw build && pnpm --parallel --filter @klementine/svelte-draw --filter svelte-draw-example-whiteboard dev",
+		"dev:site": "pnpm --filter @klementine/svelte-draw build && pnpm --parallel --filter @klementine/svelte-draw --filter svelte-draw-site dev",
+		"check": "pnpm --filter @klementine/svelte-draw build && pnpm -r run check",
 		"test": "pnpm -r run test",
-		"test:browser": "pnpm --filter svelte-draw build && pnpm -r --workspace-concurrency=1 run test:browser",
-		"lint": "pnpm --filter svelte-draw build && prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
-		"format": "pnpm --filter svelte-draw build && prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
+		"test:browser": "pnpm --filter @klementine/svelte-draw build && pnpm -r --workspace-concurrency=1 run test:browser",
+		"lint": "pnpm --filter @klementine/svelte-draw build && prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
+		"format": "pnpm --filter @klementine/svelte-draw build && prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
 		"build": "pnpm -r run build"
 	},
 	"devDependencies": {

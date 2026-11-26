@@ -1,4 +1,4 @@
-@import 'svelte-draw/draw.css';
+@import '@klementine/svelte-draw/draw.css';
 @import './lib/ui/ui.css';
 
 html,

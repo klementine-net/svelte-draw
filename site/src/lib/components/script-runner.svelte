@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Play from 'phosphor-svelte/lib/Play';
-	import type { Editor } from 'svelte-draw';
+	import type { Editor } from '@klementine/svelte-draw';
 
 	/**
 	 * ScriptRunner: an example's code, and a button that runs exactly that code on the page's

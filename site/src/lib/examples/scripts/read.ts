@@ -1,4 +1,4 @@
-import type { Editor } from 'svelte-draw';
+import type { Editor } from '@klementine/svelte-draw';
 
 /** Reads the whole document: plain records, ready to save or send. */
 export default function run(editor: Editor) {

@@ -67,9 +67,9 @@ export default defineConfig({
 	// Both ship their TypeScript and Svelte sources: they are compiled with the site, never
 	// pre-bundled.
 	optimizeDeps: {
-		exclude: ['svelte-draw', 'svelte-draw-example-whiteboard']
+		exclude: ['@klementine/svelte-draw', 'svelte-draw-example-whiteboard']
 	},
 	ssr: {
-		noExternal: ['svelte-draw', 'svelte-draw-example-whiteboard']
+		noExternal: ['@klementine/svelte-draw', 'svelte-draw-example-whiteboard']
 	}
 });

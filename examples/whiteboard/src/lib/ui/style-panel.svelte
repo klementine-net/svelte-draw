@@ -26,7 +26,7 @@
 		type ShapeStyle,
 		type SizeName,
 		type StyleKey
-	} from 'svelte-draw';
+	} from '@klementine/svelte-draw';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { useScheme } from './board';
 

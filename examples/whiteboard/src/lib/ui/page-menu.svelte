@@ -1,8 +1,8 @@
 <script lang="ts">
 	import CaretDown from 'phosphor-svelte/lib/CaretDown';
 	import { DropdownMenu, Toolbar } from 'bits-ui';
-	import type { Editor } from 'svelte-draw';
-	import { download, openFile, saveFile, toPng } from 'svelte-draw/svelte';
+	import type { Editor } from '@klementine/svelte-draw';
+	import { download, openFile, saveFile, toPng } from '@klementine/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { toCanvas, useScheme } from './board';
 

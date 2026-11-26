@@ -13,9 +13,9 @@
 
 	// (The closing tag is put together, or it would end this very script.)
 	const start = `<script lang="ts">
-	import { Editor } from 'svelte-draw';
-	import { Canvas, defaultPlugins } from 'svelte-draw/svelte';
-	import 'svelte-draw/draw.css';
+	import { Editor } from '@klementine/svelte-draw';
+	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </${'script'}>
@@ -73,7 +73,7 @@
 					Install it, make an editor and show it on a canvas: that is a whiteboard, worked by its
 					keys. The toolbar and the panels are yours to build, or to copy from the example.
 				</p>
-				<pre class="code !mb-0"><code>npm install svelte-draw</code></pre>
+				<pre class="code !mb-0"><code>npm install @klementine/svelte-draw</code></pre>
 				<a href={href('/docs/start/')} class="more"
 					>Getting started<ArrowRight aria-hidden="true" /></a
 				>

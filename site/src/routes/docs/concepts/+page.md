@@ -1,10 +1,10 @@
 ## Two layers
 
-| Layer                         | Import               | What                                                               |
-| ----------------------------- | -------------------- | ------------------------------------------------------------------ |
-| Core (`src/lib/core`)         | `svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools |
-| Built-ins (`shapes`, `tools`) | `svelte-draw`        | select, pens, eraser, shapes, lines, text, notes, frames, groups   |
-| Svelte (`src/lib/svelte`)     | `svelte-draw/svelte` | the canvas, the views of the built-in shapes, the minimap          |
+| Layer                         | Import                           | What                                                               |
+| ----------------------------- | -------------------------------- | ------------------------------------------------------------------ |
+| Core (`src/lib/core`)         | `@klementine/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools |
+| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw`        | select, pens, eraser, shapes, lines, text, notes, frames, groups   |
+| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw/svelte` | the canvas, the views of the built-in shapes, the minimap          |
 
 The core never imports Svelte. It is plain TypeScript that Node runs as it is, so the tests drag
 shapes around without a browser and a server can open a board to read or change it.

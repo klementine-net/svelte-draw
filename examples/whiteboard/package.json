@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@fontsource/caveat": "^5.3.0",
 		"@fontsource/instrument-sans": "^5.3.0",
-		"svelte-draw": "workspace:*",
+		"@klementine/svelte-draw": "workspace:*",
 		"bits-ui": "^2.20.0",
 		"phosphor-svelte": "^3.1.1"
 	},

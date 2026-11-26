@@ -17,7 +17,7 @@ out="$(mktemp -d)"
 trap 'rm -rf "$out"' EXIT
 
 # The apps use the built package (packages/draw/dist).
-(cd "$root" && pnpm --filter svelte-draw build)
+(cd "$root" && pnpm --filter @klementine/svelte-draw build)
 (cd "$root/site" && BASE_PATH="$base" pnpm exec vite build)
 cp -R "$root/site/build/." "$out/"
 (cd "$root/examples/whiteboard" && pnpm exec vite build --base "$base/demo/" --outDir "$out/demo" --emptyOutDir)

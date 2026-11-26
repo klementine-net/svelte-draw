@@ -12,14 +12,14 @@ a whiteboard today and a design tool later.
 Documentation, with a board to draw on: <https://docs.simon-lund.com/svelte-draw/>.
 
 ```sh
-npm install svelte-draw
+npm install @klementine/svelte-draw
 ```
 
 ```svelte
 <script lang="ts">
-	import { Editor } from 'svelte-draw';
-	import { Canvas, defaultPlugins } from 'svelte-draw/svelte';
-	import 'svelte-draw/draw.css';
+	import { Editor } from '@klementine/svelte-draw';
+	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </script>
@@ -29,7 +29,7 @@ npm install svelte-draw
 </div>
 ```
 
-That is a whiteboard, worked by its keys. It needs Svelte 5.57 or newer and nothing else: the
+That is a whiteboard, worked by its keys. (`@klementine` is the author's organization on npm.) It needs Svelte 5.57 or newer and nothing else: the
 styles are plain CSS on a few custom properties (`--kd-ground`, `--kd-ink`, …), and the engine
 alone (without `/svelte`) is plain TypeScript. Hand-drawn text wants a handwriting font: load
 one and name it in `--kd-font-hand`.
@@ -45,11 +45,11 @@ svelte-draw is built with AI: its code, tests and documentation are written by A
 
 Two layers. The core never imports Svelte.
 
-| Layer                         | Import               | What                                                                             |
-| ----------------------------- | -------------------- | -------------------------------------------------------------------------------- |
-| Core (`src/lib/core`)         | `svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools               |
-| Built-ins (`shapes`, `tools`) | `svelte-draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
-| Svelte (`src/lib/svelte`)     | `svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `Minimap`                            |
+| Layer                         | Import                           | What                                                                             |
+| ----------------------------- | -------------------------------- | -------------------------------------------------------------------------------- |
+| Core (`src/lib/core`)         | `@klementine/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools               |
+| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
+| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `Minimap`                            |
 
 The core in five ideas:
 
@@ -129,7 +129,7 @@ export const notePlugin: DrawSveltePlugin = {
 
 A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
 `editor.editing` to the shape, and the view makes its text element the field with the
-`editText` attachment (`svelte-draw/svelte`):
+`editText` attachment (`@klementine/svelte-draw/svelte`):
 
 ```svelte
 <span {@attach editText({ editor, text: () => shape.props.text, onchange })}></span>

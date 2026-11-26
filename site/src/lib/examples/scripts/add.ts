@@ -1,4 +1,4 @@
-import type { Editor } from 'svelte-draw';
+import type { Editor } from '@klementine/svelte-draw';
 
 /** Two shapes and an arrow between them, as one undo step. */
 export default function run(editor: Editor) {

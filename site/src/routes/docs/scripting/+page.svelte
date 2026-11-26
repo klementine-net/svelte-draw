@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Editor } from 'svelte-draw';
+	import { Editor } from '@klementine/svelte-draw';
 	import {
 		defaultPlugins,
 		geoPlugin,
 		handPlugin,
 		linePlugin,
 		selectPlugin
-	} from 'svelte-draw/svelte';
+	} from '@klementine/svelte-draw/svelte';
 	import DocLayout from '#lib/components/doc-layout.svelte';
 	import LiveCanvas from '#lib/components/live-canvas.svelte';
 	import ScriptRunner from '#lib/components/script-runner.svelte';
