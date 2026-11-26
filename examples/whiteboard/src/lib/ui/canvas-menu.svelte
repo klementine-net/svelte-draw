@@ -2,8 +2,8 @@
 	import CaretRight from 'phosphor-svelte/lib/CaretRight';
 	import Check from 'phosphor-svelte/lib/Check';
 	import { ContextMenu } from 'bits-ui';
-	import type { Editor } from '@simon-lund/svelte-draw';
-	import { toPng } from '@simon-lund/svelte-draw/svelte';
+	import type { Editor } from 'svelte-draw';
+	import { toPng } from 'svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { useScheme } from './board';
 

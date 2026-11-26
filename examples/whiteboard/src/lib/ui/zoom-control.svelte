@@ -3,7 +3,7 @@
 	import Minus from 'phosphor-svelte/lib/Minus';
 	import Plus from 'phosphor-svelte/lib/Plus';
 	import { Toolbar, Tooltip } from 'bits-ui';
-	import type { Editor } from '@simon-lund/svelte-draw';
+	import type { Editor } from 'svelte-draw';
 	import Hint from './hint.svelte';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { useScheme } from './board';

@@ -1,4 +1,4 @@
-# Agents: @simon-lund/svelte-draw
+# Agents: svelte-draw
 
 Read README.md first (the two layers, the five ideas, what is not built).
 
@@ -31,4 +31,4 @@ Read README.md first (the two layers, the five ideas, what is not built).
   writes `dist`, and the demo, the site and every app use that. Source imports keep `.ts`;
   the build rewrites them to `.js`. Anything public is exported from `src/lib/index.ts` or
   `src/lib/svelte/index.ts`; nothing reaches into `dist` by path.
-- Checks: `pnpm --filter @simon-lund/svelte-draw check`, `test`, `lint`.
+- Checks: `pnpm --filter svelte-draw check`, `test`, `lint`.

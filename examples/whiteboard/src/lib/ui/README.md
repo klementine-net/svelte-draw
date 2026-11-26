@@ -10,7 +10,7 @@ It needs `bits-ui` (menus, hints and bars that work with a keyboard) and `phosph
 
 ```svelte
 <script lang="ts">
-	import '@simon-lund/svelte-draw/draw.css';
+	import 'svelte-draw/draw.css';
 	import './ui/ui.css';
 	import { Whiteboard } from './ui';
 </script>

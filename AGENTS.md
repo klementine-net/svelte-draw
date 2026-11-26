@@ -1,11 +1,11 @@
 # Agents: svelte-draw
 
 svelte-draw: an infinite canvas for Svelte, by Simon Lund. A pnpm workspace: the library in
-`packages/draw` (`@simon-lund/svelte-draw`), the example in `examples/whiteboard`, the docs site
+`packages/draw` (`svelte-draw`), the example in `examples/whiteboard`, the docs site
 in `site`. Read README.md, then `packages/draw/AGENTS.md`.
 
 - **Draw is a library on its own.** Nothing here imports an application's code; an app
-  installs the built package (`pnpm --filter @simon-lund/svelte-draw build` makes it).
+  installs the built package (`pnpm --filter svelte-draw build` makes it).
 - **The library has no controls and no framework.** `packages/draw` is the engine and the
   canvas in plain CSS, with no Tailwind class. Controls (toolbar, panels, menus) live in
   `examples/whiteboard/src/lib/ui`, for apps to copy: bits-ui primitives and one plain

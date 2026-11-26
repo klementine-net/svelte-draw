@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **The project is svelte-draw**, published as `@simon-lund/svelte-draw`.
+- **The project is svelte-draw**, published as `svelte-draw`.
 - **Breaking: no controls in the library.** `Draw`, `DrawToolbar`, `StylePanel`, `StyleRow`,
   `ZoomControl`, `PageMenu`, `CanvasMenu` and `defaultLabels` moved to the whiteboard example
   (`examples/whiteboard/src/lib/ui`), to copy. The library needs no design system and no
@@ -14,7 +14,7 @@
 
 - **Built like a Svelte library.** The package is `dist`: JavaScript, `.svelte` files and
   types, made by svelte-package and checked by publint. The import paths stay the same
-  (`@simon-lund/svelte-draw`, `@simon-lund/svelte-draw/svelte`, `@simon-lund/svelte-draw/draw.css`).
+  (`svelte-draw`, `svelte-draw/svelte`, `svelte-draw/draw.css`).
 - **Breaking: `editText` is an attachment.**
   `use:editText={{ editor, text, onchange }}` becomes
   `{@attach editText({ editor, text: () => text, onchange })}`. `text` is a function now: it is

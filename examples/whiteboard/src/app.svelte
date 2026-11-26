@@ -4,8 +4,8 @@
 	import '@fontsource/instrument-sans/400.css';
 	import '@fontsource/instrument-sans/500.css';
 	import '@fontsource/instrument-sans/600.css';
-	import { Editor } from '@simon-lund/svelte-draw';
-	import { defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import { Editor } from 'svelte-draw';
+	import { defaultPlugins } from 'svelte-draw/svelte';
 	import { Whiteboard } from './lib/ui';
 
 	const editor = new Editor({ plugins: defaultPlugins });

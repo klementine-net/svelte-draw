@@ -6,8 +6,8 @@
 import { expect, test } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { Editor, type GeoShape } from '@simon-lund/svelte-draw';
-import { defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+import { Editor, type GeoShape } from 'svelte-draw';
+import { defaultPlugins } from 'svelte-draw/svelte';
 import Board from './board.svelte';
 
 const board = async (scheme?: 'light' | 'dark') => {

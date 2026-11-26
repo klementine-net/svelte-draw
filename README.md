@@ -17,14 +17,14 @@ you draw in your own browser; nothing is sent anywhere.
 ## Install
 
 ```sh
-npm install @simon-lund/svelte-draw
+npm install svelte-draw
 ```
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@simon-lund/svelte-draw';
-	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
-	import '@simon-lund/svelte-draw/draw.css';
+	import { Editor } from 'svelte-draw';
+	import { Canvas, defaultPlugins } from 'svelte-draw/svelte';
+	import 'svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </script>
@@ -36,7 +36,7 @@ npm install @simon-lund/svelte-draw
 
 That is a whiteboard, worked by its keys (`D` draws, `R` a rectangle, `T` text, `N` a note).
 svelte-draw needs Svelte 5.57 or newer and nothing else: the styles are plain CSS, and the
-engine alone (`@simon-lund/svelte-draw` without `/svelte`) is plain TypeScript.
+engine alone (`svelte-draw` without `/svelte`) is plain TypeScript.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
 or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
@@ -51,11 +51,11 @@ browser, is listed at the end of [FEATURES.md](FEATURES.md).
 
 ## This repository
 
-| Folder                | What                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------ |
-| `packages/draw`       | the library, `@simon-lund/svelte-draw`: the engine and its Svelte layer. Start there |
-| `examples/whiteboard` | the demo: a whiteboard kept in the browser, with a full set of controls to copy      |
-| `site`                | the documentation website, with live canvases                                        |
+| Folder                | What                                                                            |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `packages/draw`       | the library, `svelte-draw`: the engine and its Svelte layer. Start there        |
+| `examples/whiteboard` | the demo: a whiteboard kept in the browser, with a full set of controls to copy |
+| `site`                | the documentation website, with live canvases                                   |
 
 How it is built, how to write a plugin and the collaboration seam: `packages/draw/README.md`.
 

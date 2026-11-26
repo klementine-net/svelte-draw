@@ -17,7 +17,7 @@ fill, a text has a typeface).
 
 ## The canvas's look
 
-The styles are one file of plain CSS, `@simon-lund/svelte-draw/draw.css`. Every class in it
+The styles are one file of plain CSS, `svelte-draw/draw.css`. Every class in it
 starts with `kd-`, and what the canvas takes from the page around it is a handful of custom
 properties on `.kd-root`. Set them after the import to fit your app:
 

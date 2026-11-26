@@ -2,13 +2,13 @@
 # Builds the documentation site and the demo and publishes both to GitHub Pages: the gh-pages
 # branch of a remote, with the site at its root and the demo under /demo/.
 #
-#   scripts/publish-site.sh [remote]        # remote: public (simon-lund/svelte-draw) by default
+#   scripts/publish-site.sh [remote]        # remote: origin (simon-lund/svelte-draw) by default
 #
 # Both are served from <host>/svelte-draw/ (BASE_PATH changes that). They are built here
 # and pushed as files.
 set -euo pipefail
 
-remote="${1:-public}"
+remote="${1:-origin}"
 base="${BASE_PATH:-/svelte-draw}"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 url="$(git -C "$root" remote get-url "$remote")"
@@ -17,7 +17,7 @@ out="$(mktemp -d)"
 trap 'rm -rf "$out"' EXIT
 
 # The apps use the built package (packages/draw/dist).
-(cd "$root" && pnpm --filter @simon-lund/svelte-draw build)
+(cd "$root" && pnpm --filter svelte-draw build)
 (cd "$root/site" && BASE_PATH="$base" pnpm exec vite build)
 cp -R "$root/site/build/." "$out/"
 (cd "$root/examples/whiteboard" && pnpm exec vite build --base "$base/demo/" --outDir "$out/demo" --emptyOutDir)

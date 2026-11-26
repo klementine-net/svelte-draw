@@ -1,6 +1,6 @@
 /*
  * svelte-draw's styles: import them once, wherever the app's styles are.
- *   @import '@simon-lund/svelte-draw/draw.css';
+ *   @import 'svelte-draw/draw.css';
  * Plain CSS, no framework. Everything is a kd-* class, and what the canvas takes from the page
  * around it is a handful of custom properties on .kd-root (below): set them to fit your app.
  * The canvas is light, dark with <Canvas scheme="dark">, and follows the system with "auto".

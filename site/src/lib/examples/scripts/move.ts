@@ -1,4 +1,4 @@
-import type { Editor } from '@simon-lund/svelte-draw';
+import type { Editor } from 'svelte-draw';
 
 /** Moves the first box down a little; the arrow attached to it follows. */
 export default function run(editor: Editor) {

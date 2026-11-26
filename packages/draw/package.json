@@ -1,5 +1,5 @@
 {
-	"name": "@simon-lund/svelte-draw",
+	"name": "svelte-draw",
 	"version": "0.1.0",
 	"type": "module",
 	"license": "MIT",
@@ -22,9 +22,6 @@
 		"directory": "packages/draw"
 	},
 	"bugs": "https://github.com/simon-lund/svelte-draw/issues",
-	"publishConfig": {
-		"access": "public"
-	},
 	"scripts": {
 		"dev": "svelte-package --watch --preserve-output",
 		"build": "svelte-package && publint",

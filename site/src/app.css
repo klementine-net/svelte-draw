@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import '@simon-lund/svelte-draw/draw.css';
+@import 'svelte-draw/draw.css';
 @import 'svelte-draw-example-whiteboard/ui.css';
 @import './lib/code.css';
 @import './lib/prose.css';

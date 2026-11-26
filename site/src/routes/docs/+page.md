@@ -18,10 +18,10 @@ Svelte component, not a fork.
 
 Two layers, imported separately:
 
-| Import                           | What it is                                                                                                  |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@simon-lund/svelte-draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
-| `@simon-lund/svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the minimap                                 |
+| Import               | What it is                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `svelte-draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
+| `svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the minimap                                 |
 
 [How it is built](./concepts/) explains the engine in five ideas.
 

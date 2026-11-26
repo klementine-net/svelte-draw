@@ -1,4 +1,4 @@
-import type { DrawSveltePlugin } from '@simon-lund/svelte-draw/svelte';
+import type { DrawSveltePlugin } from 'svelte-draw/svelte';
 import { DotTool, DotUtil } from './dot.ts';
 import DotIcon from './dot-icon.svelte';
 import DotView from './dot-view.svelte';

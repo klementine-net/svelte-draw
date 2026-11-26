@@ -26,7 +26,7 @@
 		type ShapeStyle,
 		type SizeName,
 		type StyleKey
-	} from '@simon-lund/svelte-draw';
+	} from 'svelte-draw';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { useScheme } from './board';
 

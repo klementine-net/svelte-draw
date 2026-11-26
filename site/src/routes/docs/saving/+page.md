@@ -3,7 +3,7 @@
 One function keeps a board in the browser and in step across tabs:
 
 ```ts
-import { broadcastChannel, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
+import { broadcastChannel, indexedDbStorage, persist } from 'svelte-draw';
 
 const stop = await persist(editor, {
 	storage: indexedDbStorage('my-board'),
@@ -64,7 +64,7 @@ The page menu saves the board to a file and opens one again, and saves the page 
 selection as a PNG. In code:
 
 ```ts
-import { openFile, saveFile, toPng, toSvg } from '@simon-lund/svelte-draw/svelte';
+import { openFile, saveFile, toPng, toSvg } from 'svelte-draw/svelte';
 
 const document = editor.getDocument(); // { version, records }
 editor.loadDocument(document.records, 'user');
