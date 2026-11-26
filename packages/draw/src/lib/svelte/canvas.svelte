@@ -1,14 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
-	import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@klementine/ui/context-menu';
 	import './reactive.ts';
 	import type { Editor } from '../index.ts';
 	import type { DrawSveltePlugin, ShapeView as View } from './plugin.ts';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
 	import ShapeView from './shape-view.svelte';
 	import Overlay from './overlay.svelte';
-	import CanvasMenu from './canvas-menu.svelte';
 	import { copyShapes, dropFiles, pasteInto } from './canvas/clipboard.ts';
 	import {
 		doubleClickInfo,
@@ -29,27 +26,35 @@
 	 * `children` sit above the surface (a toolbar, a panel) and do not send it events. Name the
 	 * canvas with `label`. Fills its parent: give the parent a size.
 	 *
-	 * Also the canvas's: copy, cut and paste through the system clipboard, two-finger pinch and
-	 * pan on a touch screen, and the right-click menu (`labels` translates it).
+	 * Also the canvas's: copy, cut and paste through the system clipboard, and two-finger pinch
+	 * and pan on a touch screen. The controls are the app's: the canvas brings none.
+	 *
+	 * `around` puts something around the surface, a context menu's trigger for one. It gets the
+	 * surface as a snippet and renders it, handing over the attributes and handlers it wants on
+	 * the element. The surface runs its own handler first and theirs after, unless the event was
+	 * prevented. A right click selects what is under the pointer before any menu opens.
 	 *
 	 * @example
 	 * <Canvas {editor} plugins={defaultPlugins} label="Whiteboard">
-	 *   <DrawToolbar {editor} plugins={defaultPlugins} />
+	 *   <MyToolbar {editor} />
 	 * </Canvas>
 	 */
 	let {
 		editor,
 		plugins,
 		label,
-		labels = defaultLabels,
+		around,
 		children
 	}: {
 		editor: Editor;
 		plugins: DrawSveltePlugin[];
 		label: string;
-		labels?: DrawLabels;
+		around?: Snippet<[Snippet<[SurfaceProps?]>]>;
 		children?: Snippet;
 	} = $props();
+
+	/** What a wrapper hands the surface: attributes, handlers, attachments. */
+	type SurfaceProps = Record<string | symbol, unknown>;
 
 	const views = $derived(
 		Object.assign({}, ...plugins.map((plugin) => plugin.views ?? {})) as Record<string, View>
@@ -58,7 +63,7 @@
 	// Only what is on screen (and a little around it) is drawn.
 	const shown = $derived(visibleShapeIds(editor));
 
-	let surface = $state<HTMLElement | null>(null);
+	let surface: HTMLElement | null = null;
 	/** The pointer that is down. A second finger or pen while one is down is ignored. */
 	let activePointer: number | null = null;
 	// Two fingers on a touch screen move and zoom the view, whatever the tool.
@@ -121,6 +126,30 @@
 		selectForMenu(editor, editor.screenToPage(local(event)));
 	}
 
+	// The surface's own handlers, and a wrapper's of the same name after them.
+	const own = {
+		onpointerdown,
+		onpointermove,
+		onpointerup,
+		onpointercancel,
+		ondblclick,
+		oncontextmenu
+	};
+	function merged(given: SurfaceProps = {}): SurfaceProps {
+		const props = { ...given };
+		for (const [name, handler] of Object.entries(own) as [string, (event: never) => void][]) {
+			const theirs = given[name];
+			props[name] =
+				typeof theirs === 'function'
+					? (event: Event) => {
+							handler(event as never);
+							if (!event.defaultPrevented) theirs(event);
+						}
+					: handler;
+		}
+		return props;
+	}
+
 	function onkey(event: KeyboardEvent, name: 'down' | 'up') {
 		const info = keyInfo(event, name, surface);
 		if (info) editor.dispatch(info);
@@ -160,6 +189,33 @@
 	};
 </script>
 
+{#snippet canvas(given?: SurfaceProps)}
+	<!-- The surface is one widget (role=application) that takes the pointer and the keys itself. -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	<div
+		{...merged(given)}
+		bind:this={surface}
+		{@attach refocus}
+		{@attach wheelAndSize}
+		class="kd-surface"
+		role="application"
+		aria-label={label}
+		tabindex="0"
+		style:cursor={editor.cursor.get()}
+		style:--kd-grid-size="{24 * camera.z}px"
+		style:--kd-grid-x="{camera.x}px"
+		style:--kd-grid-y="{camera.y}px"
+		data-grid={editor.grid.get().show && camera.z >= 0.5 ? 'on' : 'off'}
+	>
+		<div class="kd-world" style:transform="translate({camera.x}px, {camera.y}px) scale({camera.z})">
+			{#each shown as id (id)}
+				<ShapeView {id} {editor} {views} />
+			{/each}
+		</div>
+		<Overlay {editor} />
+	</div>
+{/snippet}
+
 <!-- Key and clipboard events bubble up here from the surface and from the controls above it. -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
@@ -172,46 +228,6 @@
 	ondragover={(event) => event.preventDefault()}
 	ondrop={(event) => dropFiles(editor, event, local(event))}
 >
-	<ContextMenu>
-		<!-- The surface is one widget (role=application) that takes the pointer and the keys itself. -->
-		<ContextMenuTrigger
-			bind:ref={surface}
-			{onpointerdown}
-			{onpointermove}
-			{onpointerup}
-			{onpointercancel}
-			{ondblclick}
-			{oncontextmenu}
-		>
-			{#snippet child({ props })}
-				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-				<div
-					{...props}
-					{@attach refocus}
-					{@attach wheelAndSize}
-					class="kd-surface"
-					role="application"
-					aria-label={label}
-					tabindex="0"
-					style:cursor={editor.cursor.get()}
-					style:--kd-grid-size="{24 * camera.z}px"
-					style:--kd-grid-x="{camera.x}px"
-					style:--kd-grid-y="{camera.y}px"
-					data-grid={editor.grid.get().show && camera.z >= 0.5 ? 'on' : 'off'}
-				>
-					<div
-						class="kd-world"
-						style:transform="translate({camera.x}px, {camera.y}px) scale({camera.z})"
-					>
-						{#each shown as id (id)}
-							<ShapeView {id} {editor} {views} />
-						{/each}
-					</div>
-					<Overlay {editor} />
-				</div>
-			{/snippet}
-		</ContextMenuTrigger>
-		<ContextMenuContent><CanvasMenu {editor} {labels} canvas={surface} /></ContextMenuContent>
-	</ContextMenu>
+	{#if around}{@render around(canvas)}{:else}{@render canvas()}{/if}
 	{@render children?.()}
 </div>

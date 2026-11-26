@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { box, type Editor } from '../index.ts';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
 
 	/**
 	 * Minimap: the whole page small, with the part on screen marked. Press or drag in it to
@@ -11,9 +10,9 @@
 	 */
 	let {
 		editor,
-		labels = defaultLabels,
+		label = 'Map of the page',
 		class: className
-	}: { editor: Editor; labels?: DrawLabels; class?: string } = $props();
+	}: { editor: Editor; label?: string; class?: string } = $props();
 
 	const WIDTH = 168;
 	const HEIGHT = 112;
@@ -48,11 +47,11 @@
 	}
 </script>
 
-<div class={['rounded-lg bg-layer p-1 shadow-float', className]}>
+<div class={['kd-minimap-frame', className]}>
 	<svg
 		class="kd-minimap"
 		role="img"
-		aria-label={labels.minimap}
+		aria-label={label}
 		width={WIDTH}
 		height={HEIGHT}
 		viewBox="{world.x} {world.y} {world.w} {world.h}"

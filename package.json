@@ -13,7 +13,7 @@
 		"dev:site": "pnpm --filter @simon-lund/svelte-draw build && pnpm --parallel --filter @simon-lund/svelte-draw --filter svelte-draw-site dev",
 		"check": "pnpm --filter @simon-lund/svelte-draw build && pnpm -r run check",
 		"test": "pnpm -r run test",
-		"test:browser": "pnpm --filter @simon-lund/svelte-draw test:browser",
+		"test:browser": "pnpm --filter @simon-lund/svelte-draw build && pnpm -r --workspace-concurrency=1 run test:browser",
 		"lint": "pnpm --filter @simon-lund/svelte-draw build && prettier --check . '!packages' '!examples' '!site' && pnpm -r run lint",
 		"format": "pnpm --filter @simon-lund/svelte-draw build && prettier --write . '!packages' '!examples' '!site' && pnpm -r run format",
 		"build": "pnpm -r run build"

@@ -1,26 +1,32 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { broadcastChannel, Editor, indexedDbStorage, persist } from '../index.ts';
-	import { defaultPlugins, type DrawSveltePlugin } from './plugin.ts';
+	import { broadcastChannel, Editor, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
+	import {
+		Canvas,
+		deepLink,
+		defaultPlugins,
+		Minimap,
+		type DrawSveltePlugin
+	} from '@simon-lund/svelte-draw/svelte';
+	import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@klementine/ui/context-menu';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import Canvas from './canvas.svelte';
+	import CanvasMenu from './canvas-menu.svelte';
 	import DrawToolbar from './draw-toolbar.svelte';
 	import StylePanel from './style-panel.svelte';
 	import ZoomControl from './zoom-control.svelte';
 	import PageMenu from './page-menu.svelte';
-	import Minimap from './minimap.svelte';
-	import { deepLink } from './deep-link.ts';
 
 	/**
-	 * Draw: the whole whiteboard in one tag: the canvas, the toolbar, the style panel, the page
-	 * menu and the zoom control. Fills its parent: give the parent a size.
+	 * Whiteboard: a whole whiteboard in one tag: the library's canvas with this example's
+	 * controls around it (toolbar, style panel, page menu, zoom control, right-click menu), and
+	 * the board kept in the browser. Fills its parent: give the parent a size.
 	 *
 	 * `plugins` decide what it can do (the built-in ones by default; add your own shapes and
 	 * tools to the list). Pass an `editor` to own it (to script it, save it, or sync its store);
-	 * otherwise Draw makes one. For another arrangement, compose `Canvas` and the parts yourself.
+	 * otherwise it makes one. For another arrangement, compose `Canvas` and the parts yourself.
 	 *
 	 * @example
-	 * <div class="h-dvh"><Draw /></div>
+	 * <div class="h-dvh"><Whiteboard persistenceKey="my-board" /></div>
 	 */
 	let props: {
 		plugins?: DrawSveltePlugin[];
@@ -50,6 +56,8 @@
 	const editor = untrack(() => props.editor ?? new Editor({ plugins }));
 	const labels = $derived(props.labels ?? defaultLabels);
 	const readOnly = $derived(editor.readOnly.get());
+	/** The canvas's surface, for the menu's copy of the selection as a picture. */
+	let surface = $state<HTMLElement | null>(null);
 
 	$effect(() => editor.setReadOnly(props.readOnly ?? false));
 	// Without storage the address is read at once; with it, once the board is loaded (below).
@@ -83,7 +91,16 @@
 	});
 </script>
 
-<Canvas {editor} {plugins} {labels} label={labels.canvas}>
+<Canvas {editor} {plugins} label={labels.canvas}>
+	<!-- The right-click menu: its trigger goes around the canvas's surface. -->
+	{#snippet around(canvas)}
+		<ContextMenu>
+			<ContextMenuTrigger bind:ref={surface}>
+				{#snippet child({ props })}{@render canvas(props)}{/snippet}
+			</ContextMenuTrigger>
+			<ContextMenuContent><CanvasMenu {editor} {labels} canvas={surface} /></ContextMenuContent>
+		</ContextMenu>
+	{/snippet}
 	{#if !props.focus}
 		<PageMenu {editor} {labels} class="absolute top-3 left-3" />
 	{/if}
@@ -95,6 +112,6 @@
 		<ZoomControl {editor} {labels} class="absolute bottom-3 left-3" />
 	{/if}
 	{#if props.minimap && !props.focus}
-		<Minimap {editor} {labels} class="absolute right-3 bottom-3" />
+		<Minimap {editor} label={labels.minimap} class="absolute right-3 bottom-3" />
 	{/if}
 </Canvas>

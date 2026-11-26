@@ -66,6 +66,10 @@ export default defineConfig({
 	server: { port: 5197, strictPort: true, fs: { allow: ['..'] } },
 	// Both ship their TypeScript and Svelte sources: they are compiled with the site, never
 	// pre-bundled.
-	optimizeDeps: { exclude: ['@klementine/ui', '@simon-lund/svelte-draw'] },
-	ssr: { noExternal: ['@klementine/ui', '@simon-lund/svelte-draw'] }
+	optimizeDeps: {
+		exclude: ['@klementine/ui', '@simon-lund/svelte-draw', 'svelte-draw-example-whiteboard']
+	},
+	ssr: {
+		noExternal: ['@klementine/ui', '@simon-lund/svelte-draw', 'svelte-draw-example-whiteboard']
+	}
 });

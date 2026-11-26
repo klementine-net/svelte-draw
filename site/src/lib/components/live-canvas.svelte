@@ -2,7 +2,9 @@
 	import type { Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { box, type Editor } from '@simon-lund/svelte-draw';
-	import { Canvas, DrawToolbar, type DrawSveltePlugin } from '@simon-lund/svelte-draw/svelte';
+	import { Canvas, type DrawSveltePlugin } from '@simon-lund/svelte-draw/svelte';
+	// The toolbar is the whiteboard example's: the library brings no controls.
+	import { DrawToolbar } from 'svelte-draw-example-whiteboard/ui';
 
 	/**
 	 * LiveCanvas: a real Draw canvas set into a page. It does not take the page's scrolling until

@@ -9,8 +9,8 @@
 		ContextMenuSubTrigger
 	} from '@klementine/ui/context-menu';
 	import { Kbd } from '@klementine/ui/kbd';
-	import type { Editor } from '../index.ts';
-	import { toPng } from './export.ts';
+	import type { Editor } from '@simon-lund/svelte-draw';
+	import { toPng } from '@simon-lund/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 
 	/**

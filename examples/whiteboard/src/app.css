@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import '@klementine/ui/theme.css';
 @import '@simon-lund/svelte-draw/draw.css';
+@import './lib/ui/ui.css';
 
 @source './';
 
@@ -9,4 +10,14 @@ body,
 #app {
 	height: 100%;
 	margin: 0;
+}
+
+/* The canvas in this app's theme: its ground, ink, lines and typeface come from the tokens. */
+.kd-root {
+	--kd-ground: var(--canvas-ground);
+	--kd-ink: var(--cream-ink);
+	--kd-line: var(--line-strong);
+	--kd-layer: var(--color-layer);
+	--kd-select: var(--color-focus);
+	--kd-font-sans: var(--font-sans);
 }

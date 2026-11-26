@@ -18,19 +18,6 @@ const board = async (size?: { width: number; height: number }) => {
 	return { editor, screen, surface };
 };
 
-test('a group in the toolbar shows the tool picked from it last, also after another tool', async () => {
-	const { editor, screen } = await board();
-	await expect.element(screen.getByLabelText('Rectangle', { exact: true })).toBeVisible();
-
-	editor.setTool('ellipse');
-	await expect.element(screen.getByLabelText('Ellipse', { exact: true })).toBeVisible();
-	await expect.element(screen.getByLabelText('Rectangle', { exact: true })).not.toBeInTheDocument();
-
-	editor.setTool('select');
-	await expect.element(screen.getByLabelText('Ellipse', { exact: true })).toBeVisible();
-	await expect.element(screen.getByLabelText('Rectangle', { exact: true })).not.toBeInTheDocument();
-});
-
 test('the canvas knows its size at once and follows it', async () => {
 	const { editor, screen } = await board({ width: 800, height: 600 });
 	expect(editor.viewport.get()).toEqual({ w: 800, h: 600 });

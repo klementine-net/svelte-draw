@@ -56,7 +56,6 @@
 		"./package.json": "./package.json"
 	},
 	"peerDependencies": {
-		"@klementine/ui": "*",
 		"svelte": "^5.57.1"
 	},
 	"dependencies": {
@@ -65,7 +64,6 @@
 		"phosphor-svelte": "^3.1.1"
 	},
 	"devDependencies": {
-		"@klementine/ui": "file:../../../klementine/packages/ui",
 		"@sveltejs/package": "^3.0.3",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@types/node": "^24",

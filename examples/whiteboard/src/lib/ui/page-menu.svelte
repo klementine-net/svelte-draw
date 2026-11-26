@@ -11,8 +11,8 @@
 	} from '@klementine/ui/dropdown-menu';
 	import { Input } from '@klementine/ui/input';
 	import { Toolbar, ToolbarButton } from '@klementine/ui/toolbar';
-	import type { Editor } from '../index.ts';
-	import { download, openFile, saveFile, toPng } from './export.ts';
+	import type { Editor } from '@simon-lund/svelte-draw';
+	import { download, openFile, saveFile, toPng } from '@simon-lund/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 
 	/**

@@ -2,12 +2,13 @@
 	// The handwriting font for hand-drawn text (`--kd-font-hand`).
 	import '@fontsource/caveat/600.css';
 	import { Editor } from '@simon-lund/svelte-draw';
-	import { defaultPlugins, Draw } from '@simon-lund/svelte-draw/svelte';
+	import { defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import { Whiteboard } from './lib/ui/index.ts';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 
 	// A first picture for a board that was never saved, made the way a script would: through
-	// the editor, not through the UI. `Draw` calls it once; after that the board is whatever
+	// the editor, not through the UI. `Whiteboard` calls it once; after that the board is whatever
 	// was drawn on it, kept in this browser and shared with its other tabs.
 	function seed(editor: Editor) {
 		const rectangle = editor.createShape({
@@ -103,5 +104,5 @@
 </script>
 
 <div class="h-full">
-	<Draw {editor} persistenceKey="whiteboard" {seed} minimap deepLinks />
+	<Whiteboard {editor} persistenceKey="whiteboard" {seed} minimap deepLinks />
 </div>

@@ -26,7 +26,7 @@
 		type ShapeStyle,
 		type SizeName,
 		type StyleKey
-	} from '../index.ts';
+	} from '@simon-lund/svelte-draw';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 
 	/**

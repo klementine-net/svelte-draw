@@ -19,9 +19,9 @@
 		ToolbarSeparator
 	} from '@klementine/ui/toolbar';
 	import { TooltipProvider } from '@klementine/ui/tooltip';
-	import type { Editor } from '../index.ts';
+	import type { Editor } from '@simon-lund/svelte-draw';
 	import Hint from './hint.svelte';
-	import type { DrawSveltePlugin, ToolbarItem } from './plugin.ts';
+	import type { DrawSveltePlugin, ToolbarItem } from '@simon-lund/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 
 	/**

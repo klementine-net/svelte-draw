@@ -1,0 +1,79 @@
+/*
+ * The styles of the example's controls that are not Tailwind classes: the colour dots, the
+ * dash and typeface samples of the style panel. They use the canvas's colours (--kd-*), so
+ * they sit inside .kd-root.
+ */
+
+/* A colour's dot in the style panel. */
+.kd-swatch {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--kd-ink);
+	box-shadow: 0 0 0 1.5px var(--color-layer);
+}
+.kd-swatch[data-color='grey'] {
+	background: var(--kd-grey);
+}
+.kd-swatch[data-color='red'] {
+	background: var(--kd-red);
+}
+.kd-swatch[data-color='yellow'] {
+	background: var(--kd-yellow);
+}
+.kd-swatch[data-color='green'] {
+	background: var(--kd-green);
+}
+.kd-swatch[data-color='blue'] {
+	background: var(--kd-blue);
+}
+.kd-swatch[data-color='violet'] {
+	background: var(--kd-violet);
+}
+
+/* In the style panel: a dashed or dotted line, a typeface's sample, an opacity's dot. */
+.kd-dash-icon {
+	width: 1em;
+	height: 1em;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.4;
+	stroke-linecap: round;
+}
+.kd-font-sample {
+	font-family: var(--kd-font-sans);
+	font-size: 13px;
+	line-height: 1;
+}
+.kd-font-sample[data-font='hand'] {
+	font-family: var(--kd-font-hand);
+	font-weight: 600;
+	font-size: 16px;
+}
+.kd-font-sample[data-font='serif'] {
+	font-family: var(--kd-font-serif);
+}
+.kd-font-sample[data-font='mono'] {
+	font-family: var(--kd-font-mono);
+}
+.kd-swatch.kd-opacity {
+	width: 10px;
+	height: 10px;
+	box-shadow: none;
+	opacity: var(--kd-opacity);
+}
+.kd-swatch[data-color='white'] {
+	background: var(--kd-white);
+}
+.kd-swatch[data-color='light-red'] {
+	background: var(--kd-light-red);
+}
+.kd-swatch[data-color='light-green'] {
+	background: var(--kd-light-green);
+}
+.kd-swatch[data-color='light-blue'] {
+	background: var(--kd-light-blue);
+}
+.kd-swatch[data-color='light-violet'] {
+	background: var(--kd-light-violet);
+}

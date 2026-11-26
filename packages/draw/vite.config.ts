@@ -9,8 +9,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [svelte()],
-	// klementine.ui ships Svelte source (.svelte.ts), which the dependency optimizer cannot bundle.
-	optimizeDeps: { exclude: ['@klementine/ui'] },
 	test: {
 		include: ['tests/browser/*.test.ts'],
 		browser: {

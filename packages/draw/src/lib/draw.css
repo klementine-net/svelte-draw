@@ -1,13 +1,10 @@
 /*
- * svelte-draw's styles, imported after the theme:
- *   @import '@klementine/ui/theme.css';
+ * svelte-draw's styles: import them once, wherever the app's styles are.
  *   @import '@simon-lund/svelte-draw/draw.css';
- * The canvas's own classes (kd-*) are plain CSS on the theme's tokens, so the canvas follows
- * light and dark with the rest of the app. The controls around it are @klementine/ui parts
- * with Tailwind classes; the @source line lets Tailwind see them.
+ * Plain CSS, no framework. Everything is a kd-* class, and what the canvas takes from the page
+ * around it is a handful of custom properties on .kd-root (below): set them to fit your app.
+ * Colours are written with light-dark(), so the canvas follows the page's `color-scheme`.
  */
-
-@source './';
 
 .kd-root {
 	position: relative;
@@ -15,10 +12,18 @@
 	height: 100%;
 	overflow: hidden;
 	isolation: isolate;
-	background: var(--canvas-ground);
+	background: var(--kd-ground);
 
-	/* The shape colours by name. */
-	--kd-ink: var(--cream-ink);
+	/* What the canvas takes from the page around it: its ground, its ink, its lines, what floats
+	   on it (the minimap), the selection and the typeface of small print (a frame's name). */
+	--kd-ground: light-dark(#f5f3ee, #1b1916);
+	--kd-ink: light-dark(#24231d, #f2efe7);
+	--kd-line: light-dark(rgb(36 35 29 / 0.18), rgb(255 248 235 / 0.16));
+	--kd-layer: light-dark(#ffffff, #2e2b26);
+	--kd-select: var(--kd-ink);
+	--kd-font-sans: system-ui, sans-serif;
+
+	/* The shape colours by name (ink is the one above). */
 	--kd-grey: light-dark(#8b877d, #9c968a);
 	--kd-red: light-dark(#cf3f3f, #f0796f);
 	--kd-yellow: light-dark(#dcb100, #f0d04f);
@@ -30,11 +35,9 @@
 	--kd-light-green: light-dark(#6ccf96, #abe7c2);
 	--kd-light-blue: light-dark(#6ea8f5, #aecffb);
 	--kd-light-violet: light-dark(#b59af0, #d6c6f9);
-	--kd-select: var(--color-focus);
 
 	/* The typefaces of a shape's text. `hand` wants a handwriting font loaded by the app. */
 	--kd-font-hand: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
-	--kd-font-sans: var(--font-sans, system-ui, sans-serif);
 	--kd-font-serif: Georgia, 'Times New Roman', serif;
 	--kd-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
@@ -48,7 +51,7 @@
 	user-select: none;
 	-webkit-user-select: none;
 	/* A dot every grid step, moving and scaling with the camera. */
-	background-image: radial-gradient(circle, var(--line-strong) 1px, transparent 1.5px);
+	background-image: radial-gradient(circle, var(--kd-line) 1px, transparent 1.5px);
 	background-size: var(--kd-grid-size) var(--kd-grid-size);
 	background-position: var(--kd-grid-x) var(--kd-grid-y);
 }
@@ -110,10 +113,10 @@
 	stroke: none;
 }
 [data-fill='tint'] > .kd-fill {
-	fill: color-mix(in oklab, var(--kd-color) 18%, var(--canvas-ground));
+	fill: color-mix(in oklab, var(--kd-color) 18%, var(--kd-ground));
 }
 [data-fill='solid'] > .kd-fill {
-	fill: color-mix(in oklab, var(--kd-color) 55%, var(--canvas-ground));
+	fill: color-mix(in oklab, var(--kd-color) 55%, var(--kd-ground));
 }
 .kd-line {
 	stroke: var(--kd-color);
@@ -135,7 +138,7 @@
 	vector-effect: non-scaling-stroke;
 }
 .kd-handle {
-	fill: var(--canvas-ground);
+	fill: var(--kd-ground);
 	stroke: var(--kd-select);
 	stroke-width: 1.5px;
 }
@@ -143,33 +146,6 @@
 	fill: color-mix(in oklab, var(--kd-select) 10%, transparent);
 	stroke: color-mix(in oklab, var(--kd-select) 50%, transparent);
 	stroke-width: 1px;
-}
-
-/* A colour's dot in the style panel. */
-.kd-swatch {
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	background: var(--kd-ink);
-	box-shadow: 0 0 0 1.5px var(--layer, var(--canvas-ground));
-}
-.kd-swatch[data-color='grey'] {
-	background: var(--kd-grey);
-}
-.kd-swatch[data-color='red'] {
-	background: var(--kd-red);
-}
-.kd-swatch[data-color='yellow'] {
-	background: var(--kd-yellow);
-}
-.kd-swatch[data-color='green'] {
-	background: var(--kd-green);
-}
-.kd-swatch[data-color='blue'] {
-	background: var(--kd-blue);
-}
-.kd-swatch[data-color='violet'] {
-	background: var(--kd-violet);
 }
 
 /* A shape's text while it is typed into (see `editText`): it takes the pointer and the keys. */
@@ -255,9 +231,9 @@
 /* A frame: a sheet on the canvas, its name above its corner. */
 .kd-frame {
 	box-sizing: border-box;
-	border: 1px solid var(--line-strong);
+	border: 1px solid var(--kd-line);
 	border-radius: 2px;
-	background: color-mix(in oklab, var(--canvas-ground) 92%, var(--kd-ink));
+	background: color-mix(in oklab, var(--kd-ground) 92%, var(--kd-ink));
 }
 .kd-frame-name {
 	position: absolute;
@@ -284,38 +260,6 @@
 	stroke-width: 1px;
 }
 
-/* In the style panel: a dashed or dotted line, a typeface's sample, an opacity's dot. */
-.kd-dash-icon {
-	width: 1em;
-	height: 1em;
-	fill: none;
-	stroke: currentColor;
-	stroke-width: 1.4;
-	stroke-linecap: round;
-}
-.kd-font-sample {
-	font-family: var(--kd-font-sans);
-	font-size: 13px;
-	line-height: 1;
-}
-.kd-font-sample[data-font='hand'] {
-	font-family: var(--kd-font-hand);
-	font-weight: 600;
-	font-size: 16px;
-}
-.kd-font-sample[data-font='serif'] {
-	font-family: var(--kd-font-serif);
-}
-.kd-font-sample[data-font='mono'] {
-	font-family: var(--kd-font-mono);
-}
-.kd-swatch.kd-opacity {
-	width: 10px;
-	height: 10px;
-	box-shadow: none;
-	opacity: var(--kd-opacity);
-}
-
 /* A picture. */
 .kd-image {
 	display: block;
@@ -325,7 +269,7 @@
 }
 .kd-image-missing {
 	background: color-mix(in oklab, var(--kd-ink) 8%, transparent);
-	border: 1px dashed var(--line-strong);
+	border: 1px dashed var(--kd-line);
 	box-sizing: border-box;
 }
 
@@ -335,53 +279,38 @@
 	max-width: 240px;
 	padding: 0 6px;
 	transform: translate(-50%, -50%);
-	background: var(--canvas-ground);
+	background: var(--kd-ground);
 	border-radius: 4px;
 }
 
 /* Someone else's pointer, in their colour, with their name. */
 .kd-peer path {
 	fill: var(--kd-peer);
-	stroke: var(--canvas-ground);
+	stroke: var(--kd-ground);
 	stroke-width: 1px;
 }
 .kd-peer text {
 	fill: var(--kd-peer);
 	font: 600 11px var(--kd-font-sans);
 	paint-order: stroke;
-	stroke: var(--canvas-ground);
+	stroke: var(--kd-ground);
 	stroke-width: 3px;
 }
 
 .kd-shape[data-color='white'] {
 	--kd-color: var(--kd-white);
 }
-.kd-swatch[data-color='white'] {
-	background: var(--kd-white);
-}
 .kd-shape[data-color='light-red'] {
 	--kd-color: var(--kd-light-red);
-}
-.kd-swatch[data-color='light-red'] {
-	background: var(--kd-light-red);
 }
 .kd-shape[data-color='light-green'] {
 	--kd-color: var(--kd-light-green);
 }
-.kd-swatch[data-color='light-green'] {
-	background: var(--kd-light-green);
-}
 .kd-shape[data-color='light-blue'] {
 	--kd-color: var(--kd-light-blue);
 }
-.kd-swatch[data-color='light-blue'] {
-	background: var(--kd-light-blue);
-}
 .kd-shape[data-color='light-violet'] {
 	--kd-color: var(--kd-light-violet);
-}
-.kd-swatch[data-color='light-violet'] {
-	background: var(--kd-light-violet);
 }
 
 /* The laser pointer's trail. */
@@ -395,6 +324,15 @@
 }
 
 /* The minimap: shapes as blocks in their colour, the view as a frame. */
+.kd-minimap-frame {
+	padding: 4px;
+	border-radius: 16px;
+	background: var(--kd-layer);
+	box-shadow:
+		0 0 0 1px var(--kd-line),
+		0 2px 6px -2px light-dark(rgb(36 35 29 / 0.1), rgb(0 0 0 / 0.4)),
+		0 16px 40px -12px light-dark(rgb(36 35 29 / 0.2), rgb(0 0 0 / 0.65));
+}
 .kd-minimap {
 	display: block;
 	cursor: pointer;
@@ -455,9 +393,9 @@
 .kd-link {
 	box-sizing: border-box;
 	overflow: hidden;
-	border: 1px solid var(--line-strong);
+	border: 1px solid var(--kd-line);
 	border-radius: 10px;
-	background: color-mix(in oklab, var(--canvas-ground) 90%, var(--kd-ink));
+	background: color-mix(in oklab, var(--kd-ground) 90%, var(--kd-ink));
 	font-family: var(--kd-font-sans);
 }
 .kd-link[data-live] {

@@ -1,10 +1,13 @@
 @import 'tailwindcss';
 @import '@klementine/ui/theme.css';
 @import '@simon-lund/svelte-draw/draw.css';
+@import 'svelte-draw-example-whiteboard/ui.css';
 @import './lib/code.css';
 @import './lib/prose.css';
 
 @source './';
+/* The live canvases' toolbar is the whiteboard example's. */
+@source '../../examples/whiteboard/src/lib/ui';
 
 /*
  * Paper and ink (DESIGN.md): the page is the theme's paper, the type its ink; colour comes only
@@ -41,4 +44,14 @@ body {
 :focus-visible {
 	outline: 2px solid var(--color-focus);
 	outline-offset: 2px;
+}
+
+/* The canvases in the site's theme: ground, ink, lines and typeface from its tokens. */
+.kd-root {
+	--kd-ground: var(--canvas-ground);
+	--kd-ink: var(--cream-ink);
+	--kd-line: var(--line-strong);
+	--kd-layer: var(--color-layer);
+	--kd-select: var(--color-focus);
+	--kd-font-sans: var(--font-sans);
 }
