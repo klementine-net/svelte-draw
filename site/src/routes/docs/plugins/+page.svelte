@@ -38,8 +38,9 @@
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -- highlighted at build time from our own file -->
 	{@html data.util}
 	<p>
-		Nothing in this file needs Svelte. To test it under Node, import the same names from
-		<code>@klementine/svelte-draw/core</code> there: the main import also brings the canvas's components,
+		Nothing in this file needs Svelte. If it should also run under plain Node, a test without a
+		build for one, the file itself has to take these names from
+		<code>@klementine/svelte-draw/core</code>: the main import also brings the canvas's components,
 		which only a Svelte build can load.
 	</p>
 
