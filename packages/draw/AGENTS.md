@@ -20,11 +20,12 @@ Read README.md first (the two layers, the five ideas, what is not built).
   default shapes, sync and assets are under a licence that forbids production use. Write from
   the idea, never from the file, and never bring in its icons, assets or packages. Its name is
   a trademark: it appears only where the two are compared or the lineage is credited.
-- The canvas's classes are `kd-*` in `src/lib/draw.css` on the theme's tokens; controls come
-  from `@klementine/ui`. Shape colours are named (`ink`, `red`, …); no orange.
-- **UI comes from klementine.ui**: before writing a control, look in
-  `../klementine/packages/ui/src/lib/registry/ui`; only what is the canvas's own (shapes,
-  selection, the colour dots) is written here.
+- The canvas's classes are `kd-*` in `src/lib/draw.css`: plain CSS, on the package's own
+  properties on `.kd-root` (`--kd-ground`, `--kd-ink`, …) with defaults. No Tailwind class and
+  no design system in this package. Shape colours are named (`ink`, `red`, …); no orange.
+- **No controls here.** Only what is the canvas's own is written in this package: shapes,
+  selection, the minimap. A toolbar, a panel or a menu goes to `examples/whiteboard/src/lib/ui`;
+  what it needs from the canvas is a prop or a snippet (`around`), never an import of a UI kit.
 - **Shipped built, like any Svelte library**: `pnpm build` (svelte-package, then publint)
   writes `dist`, and the demo, the site and every app use that. Source imports keep `.ts`;
   the build rewrites them to `.js`. Anything public is exported from `src/lib/index.ts` or

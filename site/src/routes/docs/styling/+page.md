@@ -1,7 +1,7 @@
 ## A shape's style
 
 Every shape has the same style record; each kind shows only the styles it has (a line has no
-fill, a text has a typeface), and so does the style panel.
+fill, a text has a typeface).
 
 | Style     | Values                                                                                 |
 | --------- | -------------------------------------------------------------------------------------- |
@@ -11,60 +11,74 @@ fill, a text has a typeface), and so does the style panel.
 | `look`    | `sketch` (drawn by hand), `precise`, `dashed`, `dotted`                                |
 | `font`    | `hand`, `sans`, `serif`, `mono`                                                        |
 | `align`   | `start`, `middle`, `end`; in shapes also `valign`: `top`, `middle`, `bottom`           |
-| `opacity` | from 0 to 1; the panel offers five steps                                               |
+| `opacity` | from 0 to 1                                                                            |
 
 `editor.setStyle({ color: 'blue' })` sets it on what is selected and on the next shape.
 
-## The theme
+## The canvas's look
 
-The canvas is drawn on klementine.ui's tokens, so it follows light and dark with the rest of
-the app. Its own classes start with `kd-` and live in `@simon-lund/svelte-draw/draw.css`. The colours
-of shapes are named variables you can set:
+The styles are one file of plain CSS, `@simon-lund/svelte-draw/draw.css`. Every class in it
+starts with `kd-`, and what the canvas takes from the page around it is a handful of custom
+properties on `.kd-root`. Set them after the import to fit your app:
 
 ```css
 .kd-root {
-	--kd-blue: light-dark(#2f6bd8, #74a5f5);
-	--kd-font-hand: 'Caveat', cursive;
+	--kd-ground: #fbfaf7; /* the canvas */
+	--kd-ink: #1d1c18; /* strokes and text in the colour "ink", the selection's handles */
+	--kd-line: rgb(0 0 0 / 0.16); /* the grid's dots, outlines */
+	--kd-layer: #ffffff; /* what floats on the canvas: the minimap */
+	--kd-select: #1d1c18; /* the selection and the keyboard focus */
+	--kd-font-sans: 'Inter', sans-serif; /* small print: a frame's name, a link's card */
+	--kd-font-hand: 'Caveat', cursive; /* hand-drawn text */
+	--kd-blue: #2f6bd8; /* a shape colour; there is one per colour name */
 }
 ```
 
-## Your own arrangement
+The canvas is light. `<Canvas scheme="dark">` makes it dark, and `scheme="auto"` follows the
+system; the defaults above have a value for each.
 
-`Draw` is a convenience. The parts are exported, and you compose them as you like: a canvas
-with only a toolbar, or controls of your own around it.
+## Controls around the canvas
+
+Controls are your app's. What you put inside `Canvas` lies above the surface: place it with
+your own CSS. A control reads the editor and calls it, and stays in step by itself, because
+the editor's values are reactive in a template.
 
 ```svelte
-<script lang="ts">
-	import { Editor } from '@simon-lund/svelte-draw';
-	import { Canvas, defaultPlugins, DrawToolbar, ZoomControl } from '@simon-lund/svelte-draw/svelte';
-
-	const editor = new Editor({ plugins: defaultPlugins });
-</script>
-
 <Canvas {editor} plugins={defaultPlugins} label="Whiteboard">
-	<DrawToolbar
-		{editor}
-		plugins={defaultPlugins}
-		class="absolute bottom-3 left-1/2 -translate-x-1/2"
-	/>
-	<ZoomControl {editor} class="absolute bottom-3 left-3" />
+	<div class="zoom">
+		<button onclick={() => editor.zoomOut()}>−</button>
+		<span>{Math.round(editor.camera.get().z * 100)}%</span>
+		<button onclick={() => editor.zoomIn()}>+</button>
+	</div>
 </Canvas>
 ```
 
-The toolbar shows the tools of the plugins you give it, so a smaller list makes a smaller
-toolbar. The board on this site's home page does that on a phone.
-
-## Other languages
-
-The controls' words are English. Pass `labels` to translate all of them or a few; the rest stay
-English. A plugin's tool names travel with the plugin (`toolbar[].label`).
+A right-click menu has to sit around the surface itself, because its trigger is the element
+that is clicked. `around` is for that: it gets the surface as a snippet and renders it, handing
+over the attributes and handlers the trigger wants on the element. The surface runs its own
+handler first, so a right click selects what is under the pointer before the menu opens.
 
 ```svelte
-<script lang="ts">
-	import { defaultLabels, Draw } from '@simon-lund/svelte-draw/svelte';
-
-	const labels = { ...defaultLabels, undo: 'Rückgängig', redo: 'Wiederholen' };
-</script>
-
-<Draw {labels} />
+<Canvas {editor} plugins={defaultPlugins} label="Whiteboard">
+	{#snippet around(canvas)}
+		<ContextMenu.Root>
+			<ContextMenu.Trigger>
+				{#snippet child({ props })}{@render canvas(props)}{/snippet}
+			</ContextMenu.Trigger>
+			<ContextMenu.Content>
+				<ContextMenu.Item onSelect={() => editor.duplicateSelection()}>Duplicate</ContextMenu.Item>
+			</ContextMenu.Content>
+		</ContextMenu.Root>
+	{/snippet}
+</Canvas>
 ```
+
+The
+[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
+does all of this in full: toolbar, style panel, page menu, zoom control and right-click menu.
+
+## Words
+
+The library says little itself. A plugin names its tools (`toolbar[].label`), and `Canvas` and
+`Minimap` take a `label` for screen readers. Everything else is said by your controls, in your
+app's language. The example's controls take one `labels` object with all their words.

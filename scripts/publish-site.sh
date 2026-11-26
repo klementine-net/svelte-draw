@@ -4,7 +4,7 @@
 #
 #   scripts/publish-site.sh [remote]        # remote: public (simon-lund/svelte-draw) by default
 #
-# Both are served from <host>/svelte-draw/ (BASE_PATH changes that). They need the klementine.ui
+# Both are served from <host>/svelte-draw/ (BASE_PATH changes that). The demo and the site need the UI kit
 # checkout this workspace installs from, so they are built here, not by GitHub.
 set -euo pipefail
 

@@ -17,29 +17,31 @@ you draw in your own browser; nothing is sent anywhere.
 ## Install
 
 ```sh
-npm install @simon-lund/svelte-draw @klementine/ui
+npm install @simon-lund/svelte-draw
 ```
 
 ```svelte
 <script lang="ts">
-	import { Draw } from '@simon-lund/svelte-draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import '@simon-lund/svelte-draw/draw.css';
+
+	const editor = new Editor({ plugins: defaultPlugins });
 </script>
 
-<div class="h-dvh"><Draw persistenceKey="my-board" /></div>
+<div style="height: 100dvh">
+	<Canvas {editor} plugins={defaultPlugins} label="Whiteboard" />
+</div>
 ```
 
-```css
-@import 'tailwindcss';
-@import '@klementine/ui/theme.css';
-@import '@simon-lund/svelte-draw/draw.css';
-```
+That is a whiteboard, worked by its keys (`D` draws, `R` a rectangle, `T` text, `N` a note).
+svelte-draw needs Svelte 5.57 or newer and nothing else: the styles are plain CSS, and the
+engine alone (`@simon-lund/svelte-draw` without `/svelte`) is plain TypeScript.
 
-One component is the whole whiteboard, and `persistenceKey` keeps the board in the browser.
-Draw needs Svelte 5.57 or newer and Tailwind CSS 4; its toolbar, panels and menus are parts of
-klementine.ui (`@klementine/ui`). The engine alone (`@simon-lund/svelte-draw` without `/svelte`) is
-plain TypeScript and needs none of that.
-[Getting started](https://docs.simon-lund.com/svelte-draw/docs/start/) has the rest, and
-[FEATURES.md](FEATURES.md) lists what is built and what is not.
+The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
+or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
+demo shows. [Getting started](https://docs.simon-lund.com/svelte-draw/docs/start/) has the
+rest, and [FEATURES.md](FEATURES.md) lists what is built and what is not.
 
 ## Built with AI
 
@@ -49,11 +51,11 @@ browser, is listed at the end of [FEATURES.md](FEATURES.md).
 
 ## This repository
 
-| Folder                | Package                          | What                                                            |
-| --------------------- | -------------------------------- | --------------------------------------------------------------- |
-| `packages/draw`       | `@simon-lund/svelte-draw`        | the engine (plain TypeScript) and its Svelte layer: start there |
-| `examples/whiteboard` | `svelte-draw-example-whiteboard` | the demo: a whiteboard that is kept in the browser              |
-| `site`                | `svelte-draw-site`               | the documentation website, with live canvases                   |
+| Folder                | What                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `packages/draw`       | the library, `@simon-lund/svelte-draw`: the engine and its Svelte layer. Start there |
+| `examples/whiteboard` | the demo: a whiteboard kept in the browser, with a full set of controls to copy      |
+| `site`                | the documentation website, with live canvases                                        |
 
 How it is built, how to write a plugin and the collaboration seam: `packages/draw/README.md`.
 
@@ -73,10 +75,11 @@ The demo and the site use the library as it ships: built, in `packages/draw/dist
 (`pnpm --filter @simon-lund/svelte-draw build`). `pnpm dev`, `check` and `lint` build it first, and
 `pnpm dev` rebuilds it on every change.
 
-The workspace takes klementine.ui from a checkout beside this repository
-(`../klementine/packages/ui`), which the demo, the site and the Svelte layer need; the engine
-and its tests (`pnpm --filter @simon-lund/svelte-draw test`) need nothing else. After a change in
-klementine.ui, run `pnpm install --force` here (a plain install keeps the old copy).
+The library stands alone: `pnpm --filter @simon-lund/svelte-draw` `check`, `test` and `build`
+need nothing but this repository. The example's controls and the site are built with the
+author's own UI kit (`@klementine/ui`), which is not published: those two expect a checkout of
+it beside this repository (`../klementine/packages/ui`), and after a change in it
+`pnpm install --force` here (a plain install keeps the old copy).
 
 `scripts/publish-site.sh` builds the documentation site (`site/`, its design in
 `site/DESIGN.md`) and the demo, and publishes both to GitHub Pages.

@@ -11,8 +11,8 @@
 <DocLayout>
 	<p>
 		Every kind of shape and every tool in Draw is a plugin, also the ones it comes with. A plugin is
-		a list of classes for the engine and, for the screen, a view and an entry in the toolbar. This
-		page builds one: a voting dot, as used in workshops to pick among ideas. It runs below.
+		a list of classes for the engine and, for the screen, a view and its tool's entry for a toolbar.
+		This page builds one: a voting dot, as used in workshops to pick among ideas. It runs below.
 	</p>
 
 	<div class="not-prose my-8">
@@ -49,7 +49,8 @@
 	<h2>The plugin</h2>
 	<p>
 		The plugin puts them together: the kind, the tool, the key that picks it, the view and the
-		toolbar's entry. Give it to the editor and the toolbar with the others.
+		toolbar's entry. Give it to the editor and the canvas with the others; a toolbar reads its
+		entry.
 	</p>
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -- highlighted at build time from our own file -->
 	{@html data.plugin}

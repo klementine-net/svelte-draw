@@ -8,7 +8,7 @@
 import { tick } from 'svelte';
 import { box, migrate, type DocumentFile, type Editor } from '../index.ts';
 
-/** The theme values the shapes' styles read; they are packed into the picture. */
+/** The canvas's values the shapes' styles read; they are packed into the picture. */
 const VARIABLES = [
 	'--kd-ink',
 	'--kd-grey',
@@ -23,8 +23,9 @@ const VARIABLES = [
 	'--kd-light-blue',
 	'--kd-light-violet',
 	'--kd-select',
-	'--canvas-ground',
-	'--line-strong',
+	'--kd-ground',
+	'--kd-line',
+	'--kd-layer',
 	'--kd-font-hand',
 	'--kd-font-sans',
 	'--kd-font-serif',
@@ -118,7 +119,7 @@ export async function toSvg(
 	const variables = VARIABLES.map((name) => `${name}: ${computed.getPropertyValue(name)};`).join(
 		' '
 	);
-	const ground = options.background === false ? 'transparent' : 'var(--canvas-ground)';
+	const ground = options.background === false ? 'transparent' : 'var(--kd-ground)';
 	const styles = await collectStyles();
 	const html = new XMLSerializer().serializeToString(copy);
 	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">

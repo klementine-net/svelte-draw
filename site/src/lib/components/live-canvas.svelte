@@ -73,7 +73,7 @@
 		if (!active && !event.ctrlKey) event.stopPropagation();
 	}}
 >
-	<Canvas {editor} {plugins} {label}>
+	<Canvas {editor} {plugins} {label} scheme="auto">
 		<DrawToolbar
 			{editor}
 			plugins={compact.current && tools ? tools : plugins}

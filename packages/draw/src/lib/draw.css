@@ -3,7 +3,7 @@
  *   @import '@simon-lund/svelte-draw/draw.css';
  * Plain CSS, no framework. Everything is a kd-* class, and what the canvas takes from the page
  * around it is a handful of custom properties on .kd-root (below): set them to fit your app.
- * Colours are written with light-dark(), so the canvas follows the page's `color-scheme`.
+ * The canvas is light, dark with <Canvas scheme="dark">, and follows the system with "auto".
  */
 
 .kd-root {
@@ -14,32 +14,47 @@
 	isolation: isolate;
 	background: var(--kd-ground);
 
+	/* Light or dark: a colour below is written once with both values, and these two pick one
+	   (the empty one lets its value through). `scheme` on Canvas switches them. */
+	--kd-light: initial;
+	--kd-dark: ;
+
 	/* What the canvas takes from the page around it: its ground, its ink, its lines, what floats
 	   on it (the minimap), the selection and the typeface of small print (a frame's name). */
-	--kd-ground: light-dark(#f5f3ee, #1b1916);
-	--kd-ink: light-dark(#24231d, #f2efe7);
-	--kd-line: light-dark(rgb(36 35 29 / 0.18), rgb(255 248 235 / 0.16));
-	--kd-layer: light-dark(#ffffff, #2e2b26);
+	--kd-ground: var(--kd-light, #f5f3ee) var(--kd-dark, #1b1916);
+	--kd-ink: var(--kd-light, #24231d) var(--kd-dark, #f2efe7);
+	--kd-line: var(--kd-light, rgb(36 35 29 / 0.18)) var(--kd-dark, rgb(255 248 235 / 0.16));
+	--kd-layer: var(--kd-light, #ffffff) var(--kd-dark, #2e2b26);
 	--kd-select: var(--kd-ink);
 	--kd-font-sans: system-ui, sans-serif;
 
 	/* The shape colours by name (ink is the one above). */
-	--kd-grey: light-dark(#8b877d, #9c968a);
-	--kd-red: light-dark(#cf3f3f, #f0796f);
-	--kd-yellow: light-dark(#dcb100, #f0d04f);
-	--kd-green: light-dark(#2e9455, #6ac88c);
-	--kd-blue: light-dark(#2f6bd8, #74a5f5);
-	--kd-violet: light-dark(#7d4fd6, #b494f2);
-	--kd-white: light-dark(#ffffff, #fbfaf6);
-	--kd-light-red: light-dark(#f08a84, #ffb9b3);
-	--kd-light-green: light-dark(#6ccf96, #abe7c2);
-	--kd-light-blue: light-dark(#6ea8f5, #aecffb);
-	--kd-light-violet: light-dark(#b59af0, #d6c6f9);
+	--kd-grey: var(--kd-light, #8b877d) var(--kd-dark, #9c968a);
+	--kd-red: var(--kd-light, #cf3f3f) var(--kd-dark, #f0796f);
+	--kd-yellow: var(--kd-light, #dcb100) var(--kd-dark, #f0d04f);
+	--kd-green: var(--kd-light, #2e9455) var(--kd-dark, #6ac88c);
+	--kd-blue: var(--kd-light, #2f6bd8) var(--kd-dark, #74a5f5);
+	--kd-violet: var(--kd-light, #7d4fd6) var(--kd-dark, #b494f2);
+	--kd-white: var(--kd-light, #ffffff) var(--kd-dark, #fbfaf6);
+	--kd-light-red: var(--kd-light, #f08a84) var(--kd-dark, #ffb9b3);
+	--kd-light-green: var(--kd-light, #6ccf96) var(--kd-dark, #abe7c2);
+	--kd-light-blue: var(--kd-light, #6ea8f5) var(--kd-dark, #aecffb);
+	--kd-light-violet: var(--kd-light, #b59af0) var(--kd-dark, #d6c6f9);
 
 	/* The typefaces of a shape's text. `hand` wants a handwriting font loaded by the app. */
 	--kd-font-hand: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
 	--kd-font-serif: Georgia, 'Times New Roman', serif;
 	--kd-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+.kd-root[data-scheme='dark'] {
+	--kd-light: ;
+	--kd-dark: initial;
+}
+@media (prefers-color-scheme: dark) {
+	.kd-root[data-scheme='auto'] {
+		--kd-light: ;
+		--kd-dark: initial;
+	}
 }
 
 .kd-surface {
@@ -330,8 +345,8 @@
 	background: var(--kd-layer);
 	box-shadow:
 		0 0 0 1px var(--kd-line),
-		0 2px 6px -2px light-dark(rgb(36 35 29 / 0.1), rgb(0 0 0 / 0.4)),
-		0 16px 40px -12px light-dark(rgb(36 35 29 / 0.2), rgb(0 0 0 / 0.65));
+		0 2px 6px -2px var(--kd-light, rgb(36 35 29 / 0.1)) var(--kd-dark, rgb(0 0 0 / 0.4)),
+		0 16px 40px -12px var(--kd-light, rgb(36 35 29 / 0.2)) var(--kd-dark, rgb(0 0 0 / 0.65));
 }
 .kd-minimap {
 	display: block;

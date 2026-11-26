@@ -43,12 +43,15 @@
 		editor,
 		plugins,
 		label,
+		scheme = 'light',
 		around,
 		children
 	}: {
 		editor: Editor;
 		plugins: DrawSveltePlugin[];
 		label: string;
+		/** Light or dark; `auto` follows the system. Light when left out. */
+		scheme?: 'light' | 'dark' | 'auto';
 		around?: Snippet<[Snippet<[SurfaceProps?]>]>;
 		children?: Snippet;
 	} = $props();
@@ -220,6 +223,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	class="kd-root"
+	data-scheme={scheme}
 	onkeydown={(event) => onkey(event, 'down')}
 	onkeyup={(event) => onkey(event, 'up')}
 	oncopy={(event) => copyShapes(editor, event)}

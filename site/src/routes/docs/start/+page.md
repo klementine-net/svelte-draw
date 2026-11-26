@@ -7,98 +7,114 @@
 ## Install
 
 ```sh
-npm install @simon-lund/svelte-draw @klementine/ui
+npm install @simon-lund/svelte-draw
 ```
 
-Draw needs Svelte 5.57 or newer. The toolbar, the panels and the menus are parts of
-klementine.ui (`@klementine/ui`), a design system for Svelte, and are styled with
-[Tailwind CSS 4](https://tailwindcss.com), so the app needs Tailwind set up.
+svelte-draw needs Svelte 5.57 or newer and nothing else: no CSS framework and no component kit.
+The engine alone (`@simon-lund/svelte-draw` without `/svelte`) is plain TypeScript and runs in
+Node as well as in a browser.
 
-The engine alone needs none of that. `@simon-lund/svelte-draw` without `/svelte` is plain TypeScript:
-it runs in Node as well as in a browser, and you can build your own controls on it.
+## A canvas on a page
 
-To work on Draw itself, clone
-[the repository](https://github.com/simon-lund/svelte-draw); its README says how to run the
-demo and the tests.
-
-## A whiteboard on a page
-
-One component is the whole whiteboard: the canvas, the toolbar, the style panel, the page menu
-and the zoom control. It fills its parent, so give the parent a size.
-
-```svelte
-<script lang="ts">
-	import { Draw } from '@simon-lund/svelte-draw/svelte';
-</script>
-
-<div class="h-dvh">
-	<Draw />
-</div>
-```
-
-The styles come after the design system's theme:
-
-```css
-@import 'tailwindcss';
-@import '@klementine/ui/theme.css';
-@import '@simon-lund/svelte-draw/draw.css';
-```
-
-Hand-drawn text wants a handwriting font. Load one and name it in `--kd-font-hand`; the demo
-and this site use Caveat (`@fontsource/caveat`).
-
-## Keep the board
-
-Without a name the board lasts as long as the page. Give it one and it is kept in the browser
-(IndexedDB) and stays in step with every other tab that shows the same name.
-
-```svelte
-<Draw persistenceKey="my-board" />
-```
-
-A board that was never saved can start with a first picture:
-
-```svelte
-<script lang="ts">
-	import type { Editor } from '@simon-lund/svelte-draw';
-	import { Draw } from '@simon-lund/svelte-draw/svelte';
-
-	function seed(editor: Editor) {
-		editor.createShape({ kind: 'note', x: 0, y: 0, props: { text: 'Hello' } });
-	}
-</script>
-
-<Draw persistenceKey="my-board" {seed} />
-```
-
-## Hold the editor yourself
-
-`Draw` makes an editor of its own. Make it yourself when you want to drive the board from code,
-save it somewhere else or listen to what changes. [Driving the editor](../scripting/) shows
-what it can do.
+The canvas shows an editor's shapes and turns the pointer, the wheel and the keys into the
+editor's events. It fills its parent, so give the parent a size.
 
 ```svelte
 <script lang="ts">
 	import { Editor } from '@simon-lund/svelte-draw';
-	import { defaultPlugins, Draw } from '@simon-lund/svelte-draw/svelte';
+	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import '@simon-lund/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </script>
 
-<Draw {editor} />
+<div style="height: 100dvh">
+	<Canvas {editor} plugins={defaultPlugins} label="Whiteboard" />
+</div>
 ```
 
-## What else `Draw` takes
+That is a whiteboard already, worked by its keys: `D` draws, `R` drags out a rectangle, `T`
+writes, `N` sticks a note, `V` goes back to selecting. Undo, copy and paste, the wheel and a
+pinch work as you expect.
 
-| Prop             | What it does                                                                     |
-| ---------------- | -------------------------------------------------------------------------------- |
-| `plugins`        | the kinds of shapes and the tools; `defaultPlugins` by default                   |
-| `editor`         | an editor you made; otherwise `Draw` makes one with `plugins`                    |
-| `persistenceKey` | keeps the board in the browser under this name and in step across tabs           |
-| `seed`           | fills a board that was never saved                                               |
-| `user`           | the name and colour other tabs see on this user's pointer                        |
-| `readOnly`       | the view can be moved, nothing can be changed                                    |
-| `focus`          | nothing but the canvas: no toolbar, panels or menus                              |
-| `minimap`        | a small map of the page in the bottom right corner                               |
-| `deepLinks`      | keeps the page and the view in the address, so a copied link opens where it was  |
-| `labels`         | the words of the controls, to translate them (see [Look and words](../styling/)) |
+Hand-drawn text wants a handwriting font. Load one and name it in `--kd-font-hand`; the demo
+and this site use Caveat (`@fontsource/caveat`).
+
+## Controls
+
+The library brings no toolbar, panels or menus. They belong to your app and should look like
+it. There are two ways to get them.
+
+**Build your own on the editor.** Everything a control does is a call on the editor, and every
+plugin lists its tools with a name, an icon and a key. A toolbar is a loop:
+
+```svelte
+<Canvas {editor} plugins={defaultPlugins} label="Whiteboard">
+	<div class="tools">
+		{#each defaultPlugins.flatMap((plugin) => plugin.toolbar ?? []) as item (item.tool)}
+			<button
+				aria-label={item.label}
+				aria-pressed={editor.tool === item.tool}
+				onclick={() => editor.setTool(item.tool)}
+			>
+				<item.icon />
+			</button>
+		{/each}
+	</div>
+</Canvas>
+```
+
+What sits inside `Canvas` lies above the surface and does not send it events.
+[Driving the editor](../scripting/) lists what else a control can call: styles, undo, zoom,
+pages, arranging.
+
+**Copy the example's.** The
+[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
+has a full set: a toolbar with grouped tools, a style panel, a page menu, a zoom control, a
+right-click menu, and `Whiteboard`, which puts them around the canvas and keeps the board in
+the browser. The [demo](../../demo/) is that example. Its controls are built on the author's
+own design system; take the structure and swap in your buttons and menus.
+[Look and controls](../styling/) shows the seams.
+
+## Keep the board
+
+A board lasts as long as the page. `persist` keeps it in the browser (IndexedDB) under a name
+and in step with every other tab that shows the same name.
+
+```svelte
+<script lang="ts">
+	import { broadcastChannel, Editor, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
+	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+
+	const editor = new Editor({ plugins: defaultPlugins });
+
+	$effect(() => {
+		const kept = persist(editor, {
+			storage: indexedDbStorage('my-board'),
+			channel: broadcastChannel('my-board'),
+			// A first picture for a board that was never saved.
+			seed: (editor) => editor.createShape({ kind: 'note', x: 0, y: 0, props: { text: 'Hello' } })
+		});
+		return () => void kept.then((stop) => stop());
+	});
+</script>
+
+<Canvas {editor} plugins={defaultPlugins} label="Whiteboard" />
+```
+
+[Saving and sharing](../saving/) has the rest: your own storage, files, pictures.
+
+## What `Canvas` takes
+
+| Prop       | What it does                                                                           |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `editor`   | the editor it shows and works on                                                       |
+| `plugins`  | the kinds of shapes and their views; the same list the editor was made with            |
+| `label`    | the canvas's name for a screen reader                                                  |
+| `scheme`   | `light` (the default), `dark`, or `auto` to follow the system                          |
+| `children` | what lies above the surface: your controls                                             |
+| `around`   | what goes around the surface, a context menu's trigger for one (see Look and controls) |
+
+The editor has the rest: `editor.setReadOnly(true)` shows a board without letting it be
+changed, and `Minimap` and `deepLink` (the page and the view in the address) come from
+`@simon-lund/svelte-draw/svelte`.

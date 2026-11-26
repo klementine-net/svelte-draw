@@ -21,7 +21,7 @@ Two layers, imported separately:
 | Import                           | What it is                                                                                                  |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `@simon-lund/svelte-draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
-| `@simon-lund/svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the toolbar, the panels, `Draw`             |
+| `@simon-lund/svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the minimap                                 |
 
 [How it is built](./concepts/) explains the engine in five ideas.
 
@@ -33,9 +33,10 @@ Two layers, imported separately:
   line.
 - **Built with AI.** The code, the tests and these pages are written by AI coding agents
   (Claude Code), directed by the project's maintainers.
-- **Two packages.** The engine has no dependencies beyond two small libraries. The Svelte
-  layer's toolbar, panels and menus come from **klementine.ui**, a design system for Svelte
-  that you install beside it. [Getting started](./start/) shows how.
+- **No controls of its own.** The library is the engine and the canvas, in plain CSS, with
+  three small dependencies. The toolbar, the panels and the menus are your app's: build them
+  on the editor, or copy the ones in the whiteboard example.
+  [Getting started](./start/) shows both.
 - **No server sync yet.** Tabs of one browser stay in step today. The seam for a server is two
   small interfaces, and nothing on the server side is written.
 

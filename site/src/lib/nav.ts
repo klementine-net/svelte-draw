@@ -47,7 +47,7 @@ export const sections: DocSection[] = [
 			entry(
 				'/docs/start/',
 				'Getting started',
-				'From installing it to a whiteboard on your own page.',
+				'From installing it to a canvas on your own page, and where its controls come from.',
 				'+page.md'
 			)
 		]
@@ -81,8 +81,8 @@ export const sections: DocSection[] = [
 			),
 			entry(
 				'/docs/styling/',
-				'Look and words',
-				'The styles, the theme, your own arrangement of the parts, and other languages.',
+				'Look and controls',
+				"A shape's styles, the canvas's colours, and controls of your own around it.",
 				'+page.md'
 			)
 		]

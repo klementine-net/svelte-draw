@@ -91,7 +91,8 @@
 	});
 </script>
 
-<Canvas {editor} {plugins} label={labels.canvas}>
+<!-- The theme follows the system, so the canvas does. -->
+<Canvas {editor} {plugins} label={labels.canvas} scheme="auto">
 	<!-- The right-click menu: its trigger goes around the canvas's surface. -->
 	{#snippet around(canvas)}
 		<ContextMenu>

@@ -7,10 +7,16 @@
 	let {
 		editor,
 		width = 800,
-		height = 600
-	}: { editor: Editor; width?: number; height?: number } = $props();
+		height = 600,
+		scheme
+	}: {
+		editor: Editor;
+		width?: number;
+		height?: number;
+		scheme?: 'light' | 'dark' | 'auto';
+	} = $props();
 </script>
 
 <div style:width="{width}px" style:height="{height}px">
-	<Canvas {editor} plugins={defaultPlugins} label="Board" />
+	<Canvas {editor} plugins={defaultPlugins} label="Board" {scheme} />
 </div>

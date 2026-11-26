@@ -14,12 +14,14 @@
 
 	// (The closing tag is put together, or it would end this very script.)
 	const start = `<script lang="ts">
-	import { Draw } from '@simon-lund/svelte-draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import '@simon-lund/svelte-draw/draw.css';
+
+	const editor = new Editor({ plugins: defaultPlugins });
 </${'script'}>
 
-<div class="h-dvh">
-	<Draw persistenceKey="my-board" />
-</div>`;
+<Canvas {editor} plugins={defaultPlugins} label="Whiteboard" />`;
 </script>
 
 <svelte:head>
@@ -71,11 +73,10 @@
 			<div>
 				<h2 class="text-headline font-semibold tracking-[-0.02em]">Start</h2>
 				<p class="text-cream-ink2 mt-3 leading-[1.625]">
-					Install it, and one component is a whole whiteboard: canvas, toolbar, styles, pages. Give
-					it a name and it keeps the board in the browser.
+					Install it, make an editor and show it on a canvas: that is a whiteboard, worked by its
+					keys. The toolbar and the panels are yours to build, or to copy from the example.
 				</p>
-				<pre class="code !mb-0"><code>npm install @simon-lund/svelte-draw @klementine/ui</code
-					></pre>
+				<pre class="code !mb-0"><code>npm install @simon-lund/svelte-draw</code></pre>
 				<a href={href('/docs/start/')} class="more"
 					>Getting started<ArrowRight aria-hidden="true" /></a
 				>
@@ -99,6 +100,7 @@
 			<div class="mt-4"><EarlyNotice /></div>
 			<ul class="text-cream-ink2 mt-4 flex flex-col gap-2 leading-[1.625]">
 				<li>Built with AI: coding agents write the code, the tests and the docs.</li>
+				<li>The engine and the canvas, no controls: those are your app's.</li>
 				<li>Tabs of one browser stay in step; syncing through a server is not built yet.</li>
 				<li>MIT licensed.</li>
 			</ul>

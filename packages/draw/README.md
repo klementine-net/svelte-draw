@@ -12,34 +12,34 @@ a whiteboard today and a design tool later.
 Documentation, with a board to draw on: <https://docs.simon-lund.com/svelte-draw/>.
 
 ```sh
-npm install @simon-lund/svelte-draw @klementine/ui
+npm install @simon-lund/svelte-draw
 ```
 
 ```svelte
 <script lang="ts">
-	import { Draw } from '@simon-lund/svelte-draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { Canvas, defaultPlugins } from '@simon-lund/svelte-draw/svelte';
+	import '@simon-lund/svelte-draw/draw.css';
+
+	const editor = new Editor({ plugins: defaultPlugins });
 </script>
 
-<div class="h-dvh"><Draw persistenceKey="my-board" minimap deepLinks /></div>
+<div style="height: 100dvh">
+	<Canvas {editor} plugins={defaultPlugins} label="Whiteboard" />
+</div>
 ```
 
-`persistenceKey` keeps the board in the browser and in step with its other tabs; without it the
-board lives as long as the page. `readOnly` shows it without letting it be changed.
+That is a whiteboard, worked by its keys. It needs Svelte 5.57 or newer and nothing else: the
+styles are plain CSS on a few custom properties (`--kd-ground`, `--kd-ink`, …), and the engine
+alone (without `/svelte`) is plain TypeScript. Hand-drawn text wants a handwriting font: load
+one and name it in `--kd-font-hand`.
 
-```css
-@import 'tailwindcss';
-@import '@klementine/ui/theme.css';
-@import '@simon-lund/svelte-draw/draw.css';
-```
+The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
+or copy the set in the repository's
+[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui).
 
-The controls are composed from klementine.ui (`@klementine/ui`: Toolbar, ToggleGroup, Tooltip,
-Kbd, DropdownMenu, ContextMenu) and the canvas is drawn on its theme tokens; it is a peer
-dependency, installed beside Draw, and the app needs Svelte 5.57 or newer and Tailwind CSS 4.
-Hand-drawn text wants a handwriting font: load one and name it in `--kd-font-hand` (the
-example loads Caveat).
-
-Draw is built with AI: its code, tests and documentation are written by AI coding agents
-(Claude Code), directed by the project's maintainers.
+svelte-draw is built with AI: its code, tests and documentation are written by AI coding agents
+(Claude Code), directed by its author.
 
 ## How it is built
 
@@ -49,7 +49,7 @@ Two layers. The core never imports Svelte.
 | ----------------------------- | -------------------------------- | -------------------------------------------------------------------------------- |
 | Core (`src/lib/core`)         | `@simon-lund/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools               |
 | Built-ins (`shapes`, `tools`) | `@simon-lund/svelte-draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
-| Svelte (`src/lib/svelte`)     | `@simon-lund/svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `DrawToolbar`, `StylePanel`, `Draw`  |
+| Svelte (`src/lib/svelte`)     | `@simon-lund/svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `Minimap`                            |
 
 The core in five ideas:
 
@@ -122,7 +122,7 @@ export const notePlugin: DrawSveltePlugin = {
 ```
 
 ```svelte
-<Draw plugins={[...defaultPlugins, myPlugin]} />
+<Canvas {editor} plugins={[...defaultPlugins, myPlugin]} label="Whiteboard" />
 ```
 
 ### Text that can be typed into

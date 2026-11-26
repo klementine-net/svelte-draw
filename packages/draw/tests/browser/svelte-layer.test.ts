@@ -11,12 +11,29 @@ import { Editor, type NoteShape, type TextShape } from '../../src/lib/index.ts';
 import { defaultPlugins } from '../../src/lib/svelte/index.ts';
 import Board from './board.svelte';
 
-const board = async (size?: { width: number; height: number }) => {
+const board = async (size?: { width?: number; height?: number; scheme?: 'light' | 'dark' }) => {
 	const editor = new Editor({ plugins: defaultPlugins });
 	const screen = await render(Board, { editor, ...size });
 	const surface = () => screen.container.querySelector<HTMLElement>('.kd-surface')!;
 	return { editor, screen, surface };
 };
+
+test('the canvas brings its own colours: light, and dark when asked', async () => {
+	const { editor, screen } = await board();
+	const root = () => screen.container.querySelector<HTMLElement>('.kd-root')!;
+	editor.createShape({ kind: 'geo', x: 100, y: 100, props: { w: 100, h: 80 } });
+	const ink = () => {
+		const path = screen.container.querySelector<SVGElement>('.kd-shape .kd-ink');
+		return path ? getComputedStyle(path).fill : '';
+	};
+	// No theme around it: the ground and the ink are the canvas's own.
+	expect(getComputedStyle(root()).backgroundColor).toBe('rgb(245, 243, 238)');
+	await expect.poll(ink).toBe('rgb(36, 35, 29)');
+
+	await screen.rerender({ scheme: 'dark' });
+	await expect.poll(() => getComputedStyle(root()).backgroundColor).toBe('rgb(27, 25, 22)');
+	await expect.poll(ink).toBe('rgb(242, 239, 231)');
+});
 
 test('the canvas knows its size at once and follows it', async () => {
 	const { editor, screen } = await board({ width: 800, height: 600 });

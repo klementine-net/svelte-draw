@@ -1,7 +1,6 @@
 ## A board in the browser
 
-`<Draw persistenceKey="my-board" />` is all it takes. Behind it is one function you can call
-yourself:
+One function keeps a board in the browser and in step across tabs:
 
 ```ts
 import { broadcastChannel, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
@@ -43,7 +42,7 @@ people changing the same shape in the same moment overwrite each other's fields.
 
 The channel also carries who else is there: their pointer, what they picked and their laser
 pointer, never written to the document. They are in `editor.peers`, and the canvas draws them.
-`<Draw user={{ name: 'Ada' }} />` names this user for the others.
+`persist(editor, { user: { name: 'Ada' } })` names this user for the others.
 
 ## Pictures and files
 

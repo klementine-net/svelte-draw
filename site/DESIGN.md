@@ -22,7 +22,7 @@ what someone draws on a live canvas.
   the sidebar and the column.
 - **Compact** (phones): one column, 20px side margins.
 - **Type:** Instrument Sans for text, JetBrains Mono for code, both self-hosted (no request to
-  Google). Sizes are klementine.ui's: display 30/36 for a page's title, headline 22/28 for a
+  Google). Sizes are the theme's: display 30/36 for a page's title, headline 22/28 for a
   section, title 17/23 for a subsection, body 16/24, label 13/16 for navigation and captions.
   Two weights, 400 and 600.
 - **Colour:** the theme's paper (`--canvas-ground`) and ink (`--cream-ink`, quieter

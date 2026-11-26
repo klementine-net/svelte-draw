@@ -3,6 +3,11 @@
 What svelte-draw can do, feature by feature. This is the one list of what is built and
 what is not; it changes with the code.
 
+The library is the engine and the canvas. The controls this list names (the toolbar, the style
+panel, the page menu, the zoom control, the right-click menu) are the whiteboard example's
+(`examples/whiteboard/src/lib/ui`): the demo shows them, and an app copies them or builds its
+own.
+
 **Yes**: built. **Partly**: the core of it works, the rest of the line says what is missing.
 **No**: not built. Yes does not mean proven in daily use: the last section says how each part
 was checked, and nobody has worked on a board with this for a day yet.
@@ -58,41 +63,41 @@ was checked, and nobody has worked on a board with this for a day yet.
 
 ## Canvas
 
-| Feature                           | Draw   | What is there, what is missing                                                                        |
-| --------------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
-| Pan, zoom, fit, zoom to selection | Yes    |                                                                                                       |
-| Pinch and two-finger pan          | Partly | Built; not tried on a touch screen yet.                                                               |
-| Pages                             | Yes    | The menu in the top left: go to, add, rename, delete. Each page keeps its view.                       |
-| Minimap                           | Yes    | `<Draw minimap />`. Press or drag in it to go there.                                                  |
-| Right-click menu                  | Yes    |                                                                                                       |
-| Light and dark                    | Yes    |                                                                                                       |
-| Grid                              | Yes    | Show and snap, in the right-click menu.                                                               |
-| Skipping shapes off screen        | Yes    | Only what is in or near the view is drawn.                                                            |
-| Read-only mode                    | Yes    | `<Draw readOnly />`: the view moves, nothing changes. `<Draw focus />`: nothing but the canvas.       |
-| Links to a place on the canvas    | Yes    | `<Draw deepLinks />` keeps page and view in the address.                                              |
-| Keyboard shortcuts                | Partly | Tools, clipboard, group, order, nudge. Missing: keys for the rarer commands, a list of the shortcuts. |
-| Accessibility                     | Partly | Controls are named and keyboard-reachable; shapes are not reachable without a pointer.                |
-| Languages                         | Partly | English, and a `labels` prop to translate. No translations come with it.                              |
+| Feature                           | Draw   | What is there, what is missing                                                                                                     |
+| --------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Pan, zoom, fit, zoom to selection | Yes    |                                                                                                                                    |
+| Pinch and two-finger pan          | Partly | Built; not tried on a touch screen yet.                                                                                            |
+| Pages                             | Yes    | The menu in the top left: go to, add, rename, delete. Each page keeps its view.                                                    |
+| Minimap                           | Yes    | `Minimap`, placed above the canvas. Press or drag in it to go there.                                                               |
+| Right-click menu                  | Yes    |                                                                                                                                    |
+| Light and dark                    | Yes    |                                                                                                                                    |
+| Grid                              | Yes    | Show and snap, in the right-click menu.                                                                                            |
+| Skipping shapes off screen        | Yes    | Only what is in or near the view is drawn.                                                                                         |
+| Read-only mode                    | Yes    | `editor.setReadOnly(true)`: the view moves, nothing changes. A canvas without controls is the canvas alone.                        |
+| Links to a place on the canvas    | Yes    | `deepLink(editor)` keeps page and view in the address.                                                                             |
+| Keyboard shortcuts                | Partly | Tools, clipboard, group, order, nudge. Missing: keys for the rarer commands, a list of the shortcuts.                              |
+| Accessibility                     | Partly | Controls are named and keyboard-reachable; shapes are not reachable without a pointer.                                             |
+| Languages                         | Partly | Tool names are English and travel with the plugins; the example's controls take one `labels` object. No translations come with it. |
 
 ## Data and platform
 
-| Feature                                 | Draw   | What is there, what is missing                                                                                                                            |
-| --------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Reactive store, diffs, history          | Yes    |                                                                                                                                                           |
-| Own shapes and tools                    | Yes    | A plugin is a list of classes.                                                                                                                            |
-| Bindings                                | Partly | A line keeps its ties in itself (`ties`, `retie` on a util). Missing: ties as records of their own, which a plugin could add kinds of.                    |
-| Storage in the browser                  | Yes    | `<Draw persistenceKey="…" />`: IndexedDB, written record by record.                                                                                       |
-| Sync across tabs                        | Yes    | Same key: tabs of one browser stay in step.                                                                                                               |
-| Cursors of others                       | Partly | Pointer, selection and laser of the other tabs, with the name from `<Draw user={{ name }} />`. Missing: following someone, cursor chat.                   |
-| Collaboration over a server             | No     | The seam is a `Channel` (post and listen); tabs use it today. A Convex channel and storage are not written: they need a deployed backend.                 |
-| Checking and migrating stored documents | Partly | A version is saved with every document, bad records are left out on load, `migrate` is the place for steps. No step exists yet.                           |
-| Save and load files                     | Yes    | Page menu: save to a file, open a file.                                                                                                                   |
-| Export                                  | Partly | Page menu: save as a picture (PNG of the page or the selection); `toSvg`, `toPng` in code. Pictures from other websites may be left out of it.            |
-| Assets                                  | Yes    | `AssetStore` with one method, `upload`. By default a file stays in the document as a data URL.                                                            |
-| Hooks before and after a change         | Partly | After: `store.listen`. Before: none.                                                                                                                      |
-| Replacing parts of the UI               | Partly | Compose `Canvas`, `DrawToolbar`, `StylePanel`, `PageMenu`, `ZoomControl`, `Minimap`, `CanvasMenu` yourself. Missing: a slot for every part inside `Draw`. |
-| Helpers for AI agents                   | No     |                                                                                                                                                           |
-| Licence                                 | MIT    | Free to use, change and ship, in commercial products too.                                                                                                 |
+| Feature                                 | Draw   | What is there, what is missing                                                                                                                         |
+| --------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Reactive store, diffs, history          | Yes    |                                                                                                                                                        |
+| Own shapes and tools                    | Yes    | A plugin is a list of classes.                                                                                                                         |
+| Bindings                                | Partly | A line keeps its ties in itself (`ties`, `retie` on a util). Missing: ties as records of their own, which a plugin could add kinds of.                 |
+| Storage in the browser                  | Yes    | `persist` with `indexedDbStorage`: IndexedDB, written record by record.                                                                                |
+| Sync across tabs                        | Yes    | Same key: tabs of one browser stay in step.                                                                                                            |
+| Cursors of others                       | Partly | Pointer, selection and laser of the other tabs, with the name from `persist`'s `user`. Missing: following someone, cursor chat.                        |
+| Collaboration over a server             | No     | The seam is a `Channel` (post and listen); tabs use it today. A Convex channel and storage are not written: they need a deployed backend.              |
+| Checking and migrating stored documents | Partly | A version is saved with every document, bad records are left out on load, `migrate` is the place for steps. No step exists yet.                        |
+| Save and load files                     | Yes    | Page menu: save to a file, open a file.                                                                                                                |
+| Export                                  | Partly | Page menu: save as a picture (PNG of the page or the selection); `toSvg`, `toPng` in code. Pictures from other websites may be left out of it.         |
+| Assets                                  | Yes    | `AssetStore` with one method, `upload`. By default a file stays in the document as a data URL.                                                         |
+| Hooks before and after a change         | Partly | After: `store.listen`. Before: none.                                                                                                                   |
+| Replacing parts of the UI               | Yes    | The library brings no controls: `Canvas` takes yours as its children, and `around` its surface (a menu's trigger). The example has a full set to copy. |
+| Helpers for AI agents                   | No     |                                                                                                                                                        |
+| Licence                                 | MIT    | Free to use, change and ship, in commercial products too.                                                                                              |
 
 ## Decisions made while building
 
@@ -125,10 +130,11 @@ shape kind's geometry, attached, bent and right-angled lines, text, eraser, rota
 frames, clipboard, arranging, snapping, the grid, pages, saving and tabs (with stand-ins for
 IndexedDB and the channel), cursors, files and assets, read-only, scrolling at the edge.
 
-**Browser tests** (`packages/draw/tests/browser`, 7, `pnpm test:browser`, in Chrome) cover the
-Svelte layer: typing into a note and a text shape (every key written, the caret kept), a note's
+**Browser tests** (`pnpm test:browser`, in Chrome; 6 in `packages/draw/tests/browser`, 2 in
+`examples/whiteboard/tests`) cover the Svelte layer: typing into a note and a text shape (every key written, the caret kept), a note's
 writing fitting its paper, a text shape's measured size, the wheel, the canvas following its size,
-and a toolbar group showing the tool picked from it last.
+and, for the example's controls, a toolbar group showing the tool picked from it last and a
+right click opening the menu for the shape under it.
 
 **No engine test, because the code only runs in a browser:** the minimap, links to a view, not
 drawing what is off screen, picture export and copy as a picture, saving to and opening a file,
