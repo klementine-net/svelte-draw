@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 (2026-11-26)
+
+The first version on npm: `npm install @klementine/svelte-draw`. The entries below are what
+changed on the way to it.
 
 - **The project is svelte-draw**, published as `@klementine/svelte-draw`.
 - **Breaking: one import.** `@klementine/svelte-draw` is the Svelte layer with the whole engine
