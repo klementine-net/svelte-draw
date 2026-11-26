@@ -2,8 +2,18 @@
 
 An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, group,
 frame, turn, snap, copy and paste, undo. Shapes and tools are plugins, so the same engine can be
-a whiteboard today and a design tool later. What is built and what is not:
-[FEATURES.md](../../FEATURES.md).
+a whiteboard today and a design tool later.
+
+> **Early development.** Draw works, and it is young. Its API will change between releases
+> without notice, and parts of it are little tested. Pin the version you install, and check
+> [what is built](https://docs.klementine.net/svelte-draw/docs/features/) before you rely on a
+> part of it.
+
+Documentation, with a board to draw on: <https://docs.klementine.net/svelte-draw/>.
+
+```sh
+npm install @klementine/draw @klementine/ui
+```
 
 ```svelte
 <script lang="ts">
@@ -24,8 +34,12 @@ board lives as long as the page. `readOnly` shows it without letting it be chang
 
 The controls are composed from klementine.ui (`@klementine/ui`: Toolbar, ToggleGroup, Tooltip,
 Kbd, DropdownMenu, ContextMenu) and the canvas is drawn on its theme tokens; it is a peer
-dependency the app brings. Hand-drawn text wants a handwriting font: load one and name it in
-`--kd-font-hand` (the example loads Caveat).
+dependency, installed beside Draw, and the app needs Svelte 5.57 or newer and Tailwind CSS 4.
+Hand-drawn text wants a handwriting font: load one and name it in `--kd-font-hand` (the
+example loads Caveat).
+
+Draw is built with AI: its code, tests and documentation are written by AI coding agents
+(Claude Code), directed by the project's maintainers.
 
 ## How it is built
 
@@ -175,14 +189,11 @@ reorder at once). `tests/store.test.ts` runs two editors against each other this
 - **Pictures** (`svelte/export.ts`): `toSvg` and `toPng` copy the shapes' elements into an
   SVG with their styles and fonts packed in.
 
-## Where the ideas come from
+## Credits
 
-The architecture follows the ideas of [tldraw](https://tldraw.dev) (records in a reactive
-store, a `ShapeUtil` per kind, tool state machines, a plugin as an array of classes), learned
-by reading how it is designed. No tldraw code, icons or assets are in this package and it
-depends on no tldraw package: tldraw's editor is under a licence that forbids production use
-without a key, and a port would inherit that, so this is written from scratch. tldraw is a
-trademark of tldraw Inc.; this project is not affiliated with or endorsed by it.
+Draw's architecture is inspired by [tldraw](https://tldraw.dev): records in a reactive store,
+one class per kind of shape, tools as state machines. Draw is an independent project, written
+from scratch for Svelte; it contains no tldraw code and is not affiliated with tldraw Inc.
 
 Ink strokes use `perfect-freehand` (MIT), stacking order `fractional-indexing` (CC0), icons
 Phosphor (MIT).

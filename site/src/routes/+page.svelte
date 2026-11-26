@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ArrowRight from 'phosphor-svelte/lib/ArrowRight';
 	import { buttonVariants } from '@klementine/ui/button';
+	import EarlyNotice from '#lib/components/early-notice.svelte';
 	import LiveCanvas from '#lib/components/live-canvas.svelte';
 	import { homeBoard, phoneTools, plugins } from '#lib/home-board.ts';
 	import { href, REPOSITORY } from '#lib/nav.ts';
@@ -70,9 +71,10 @@
 			<div>
 				<h2 class="text-headline font-semibold tracking-[-0.02em]">Start</h2>
 				<p class="text-cream-ink2 mt-3 leading-[1.625]">
-					One component is a whole whiteboard: canvas, toolbar, styles, pages. Give it a name and it
-					keeps the board in the browser.
+					Install it, and one component is a whole whiteboard: canvas, toolbar, styles, pages. Give
+					it a name and it keeps the board in the browser.
 				</p>
+				<pre class="code !mb-0"><code>npm install @klementine/draw @klementine/ui</code></pre>
 				<a href={href('/docs/start/')} class="more"
 					>Getting started<ArrowRight aria-hidden="true" /></a
 				>
@@ -93,13 +95,10 @@
 		</section>
 		<section>
 			<h2 class="text-headline font-semibold tracking-[-0.02em]">Where it stands</h2>
-			<ul class="text-cream-ink2 mt-3 flex flex-col gap-2 leading-[1.625]">
-				<li>Early: built in a few days, used by one app so far, Klementine Tiles.</li>
-				<li>
-					Not on npm yet. The engine stands alone; the Svelte layer needs a design system that is
-					not public yet.
-				</li>
-				<li>Independent of tldraw, whose ideas it follows; none of its code is in it.</li>
+			<div class="mt-4"><EarlyNotice /></div>
+			<ul class="text-cream-ink2 mt-4 flex flex-col gap-2 leading-[1.625]">
+				<li>Built with AI: coding agents write the code, the tests and the docs.</li>
+				<li>Tabs of one browser stay in step; syncing through a server is not built yet.</li>
 				<li>MIT licensed.</li>
 			</ul>
 			<a href={href('/docs/features/')} class="more"
@@ -112,7 +111,7 @@
 		<p class="text-cream-ink3 border-t border-(--line) py-8 text-label font-normal">
 			Klementine Draw, MIT licensed. <a href={REPOSITORY} class="underline underline-offset-2"
 				>Source on GitHub</a
-			>. tldraw is a trademark of tldraw Inc.; this project is not affiliated with it.
+			>.
 		</p>
 	</footer>
 </main>

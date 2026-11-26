@@ -47,7 +47,7 @@ export const sections: DocSection[] = [
 			entry(
 				'/docs/start/',
 				'Getting started',
-				'From the repository to a whiteboard on your own page.',
+				'From installing it to a whiteboard on your own page.',
 				'+page.md'
 			)
 		]
@@ -99,7 +99,7 @@ export const sections: DocSection[] = [
 			entry(
 				'/docs/features/',
 				'What is built',
-				'Every feature, measured against tldraw: built, partly built or missing.',
+				'Every feature: built, partly built or missing.',
 				'+page.svelte'
 			)
 		]

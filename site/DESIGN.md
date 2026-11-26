@@ -32,13 +32,14 @@ what someone draws on a live canvas.
 
 ## Elements and their jobs
 
-| Element     | Its job, which nothing else does                                            |
-| ----------- | --------------------------------------------------------------------------- |
-| Header      | the name (home), and the three places: Docs, Demo, GitHub                   |
-| Sidebar     | the pages, in reading order; where you are                                  |
-| Page        | a title, one sentence on what the page is for, then the sections            |
-| Live canvas | proves it works; on the home page you draw, in the docs the code shown runs |
-| Page footer | what comes next, and where to change this page                              |
+| Element     | Its job, which nothing else does                                                                                                        |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Header      | the name (home), and the three places: Docs, Demo, GitHub                                                                               |
+| Sidebar     | the pages, in reading order; where you are                                                                                              |
+| Page        | a title, one sentence on what the page is for, then the sections                                                                        |
+| Live canvas | proves it works; on the home page you draw, in the docs the code shown runs                                                             |
+| Page footer | what comes next, and where to change this page                                                                                          |
+| Notice      | the one warning, early development: on the home page, the introduction and Getting started, nowhere else; outlined, with a sign, in ink |
 
 ## Left out on purpose
 
@@ -54,6 +55,7 @@ block, never the page.
 
 ## Honesty
 
-The site says what is true today: early, built in days, used by one app (Klementine Tiles),
-not on npm, the Svelte layer needs klementine.ui which is not public. Every example on a page
-runs the code it shows.
+The site says what is true: Draw is in early development (the notice), it is built with AI,
+and syncing through a server is not built. It reads as a published library: installing is one
+command. Every example on a page runs the code it shows. Credits sit once, at the end of the
+introduction; the features are described on their own terms, never by comparison.

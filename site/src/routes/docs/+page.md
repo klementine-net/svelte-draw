@@ -1,3 +1,7 @@
+<script>
+	import EarlyNotice from '#lib/components/early-notice.svelte';
+</script>
+
 Klementine Draw is an infinite canvas for Svelte: the engine of a whiteboard, and the parts to
 put one on a page. You draw, write, drag out shapes, connect them with arrows that stay
 attached, add pictures and links, group and frame things, turn and snap them, copy and paste,
@@ -7,6 +11,8 @@ tabs; it saves to a file and to a picture.
 Shapes and tools are plugins, also the ones that come with it. So the same engine can be a
 whiteboard today and a design tool later, and a kind of shape your app needs is a class and a
 Svelte component, not a fork.
+
+<EarlyNotice />
 
 ## What it is made of
 
@@ -21,28 +27,28 @@ Two layers, imported separately:
 
 ## Where it stands
 
-Read this before you build on it.
-
-- **Early.** It was built in a few days in November 2026. Much of it is covered by tests of the
-  engine (no browser); some of it has only been tried by hand, and a few parts never ran at all.
-  [What is built](./features/) says which is which, line by line.
-- **Used by one app.** Klementine Tiles, a place for teams and their AI agents to work on
-  shared documents, builds its board on it.
-- **Not on npm yet.** You get it from GitHub. The engine has no dependencies beyond two small
-  MIT libraries. The Svelte layer's controls come from **klementine.ui**, a design system that is
-  not public yet, so for now the Svelte layer only builds with a copy of it.
-  [Getting started](./start/) shows both ways.
+- **Tested where it counts, not everywhere.** The engine has its own tests, which need no
+  browser, and the Svelte layer is tested in Chrome. Some parts have only been tried in a
+  browser, and a few never ran at all. [What is built](./features/) says which is which, line by
+  line.
+- **Built with AI.** The code, the tests and these pages are written by AI coding agents
+  (Claude Code), directed by the project's maintainers.
+- **Two packages.** The engine has no dependencies beyond two small libraries. The Svelte
+  layer's toolbar, panels and menus come from **klementine.ui**, a design system for Svelte
+  that you install beside it. [Getting started](./start/) shows how.
 - **No server sync yet.** Tabs of one browser stay in step today. The seam for a server is two
   small interfaces, and nothing on the server side is written.
 
-## tldraw
+## Credits
 
-The architecture follows the ideas of [tldraw](https://tldraw.dev): records in a reactive store,
-one class per kind of shape, tools as state machines, plugins as lists of classes. Draw is an
-independent implementation, written from scratch for Svelte, and contains no tldraw source code,
-icons or assets. tldraw is a trademark of tldraw Inc.; this project is not affiliated with or
-endorsed by it. [What is built](./features/) uses tldraw's feature set as the yardstick, because
-it is the most complete whiteboard SDK there is.
+Draw's architecture is inspired by [tldraw](https://tldraw.dev): records in a reactive store,
+one class per kind of shape, tools as state machines. Draw is an independent project, written
+from scratch for Svelte; it contains no tldraw code and is not affiliated with tldraw Inc.
+
+Ink strokes are drawn with [perfect-freehand](https://github.com/steveruizok/perfect-freehand),
+the stacking order comes from
+[fractional-indexing](https://github.com/rocicorp/fractional-indexing), and the icons are
+[Phosphor](https://phosphoricons.com).
 
 ## Licence
 

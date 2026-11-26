@@ -5,17 +5,49 @@ pictures and links, group, frame, turn, snap, copy and paste, undo, on several p
 the document in the browser, keeps tabs in step and saves pictures and files. Shapes and tools
 are plugins, so the same engine can be a whiteboard today and a design tool later.
 
+> [!WARNING]
+> **Early development.** Draw works, and it is young. Its API will change between releases
+> without notice, and parts of it are little tested. Pin the version you install, and check
+> [what is built](FEATURES.md) before you rely on a part of it.
+
 **Documentation:** <https://docs.klementine.net/svelte-draw/>, with a board to draw on and
 examples that run. **Demo:** <https://docs.klementine.net/svelte-draw/demo/>. Both keep what
 you draw in your own browser; nothing is sent anywhere.
 
-What is built and what is not: [FEATURES.md](FEATURES.md).
+## Install
 
-## Status
+```sh
+npm install @klementine/draw @klementine/ui
+```
 
-Early. It was built in a few days, one app uses it (Klementine Tiles builds its board on it),
-and much of it is tested in the engine
-but not by hand ([FEATURES.md](FEATURES.md) says which parts). It is not on npm.
+```svelte
+<script lang="ts">
+	import { Draw } from '@klementine/draw/svelte';
+</script>
+
+<div class="h-dvh"><Draw persistenceKey="my-board" /></div>
+```
+
+```css
+@import 'tailwindcss';
+@import '@klementine/ui/theme.css';
+@import '@klementine/draw/draw.css';
+```
+
+One component is the whole whiteboard, and `persistenceKey` keeps the board in the browser.
+Draw needs Svelte 5.57 or newer and Tailwind CSS 4; its toolbar, panels and menus are parts of
+klementine.ui (`@klementine/ui`). The engine alone (`@klementine/draw` without `/svelte`) is
+plain TypeScript and needs none of that.
+[Getting started](https://docs.klementine.net/svelte-draw/docs/start/) has the rest, and
+[FEATURES.md](FEATURES.md) lists what is built and what is not.
+
+## Built with AI
+
+Draw's code, tests and documentation are written by AI coding agents (Claude Code), directed
+by the project's maintainers. How each part was checked, by which tests or by trying it in a
+browser, is listed at the end of [FEATURES.md](FEATURES.md).
+
+## This repository
 
 | Folder                | Package                          | What                                                            |
 | --------------------- | -------------------------------- | --------------------------------------------------------------- |
@@ -25,7 +57,7 @@ but not by hand ([FEATURES.md](FEATURES.md) says which parts). It is not on npm.
 
 How it is built, how to write a plugin and the collaboration seam: `packages/draw/README.md`.
 
-## Run it
+## Develop
 
 Node 24 and pnpm 11.
 
@@ -39,28 +71,26 @@ pnpm test:browser  # the Svelte layer, in the Chrome installed on the machine
 
 The demo and the site use the library as it ships: built, in `packages/draw/dist`
 (`pnpm --filter @klementine/draw build`). `pnpm dev`, `check` and `lint` build it first, and
-`pnpm dev` rebuilds it on every change. An app outside this workspace installs
-`packages/draw` (`file:`) once it is built.
+`pnpm dev` rebuilds it on every change.
 
-The controls (toolbar, style panel, menus, hints) are composed from klementine.ui
-(`@klementine/ui`), a peer dependency the app brings; the core (`@klementine/draw`) needs no
-design system. **klementine.ui is not public yet**, so for now the demo and the Svelte layer
-only build with a checkout of it beside this repository (`../klementine/packages/ui`); the
-engine and its tests (`pnpm --filter @klementine/draw test`) need nothing else. After a change
-in klementine.ui, run `pnpm install --force` here (a plain install keeps the old copy).
+The workspace takes klementine.ui from a checkout beside this repository
+(`../klementine/packages/ui`), which the demo, the site and the Svelte layer need; the engine
+and its tests (`pnpm --filter @klementine/draw test`) need nothing else. After a change in
+klementine.ui, run `pnpm install --force` here (a plain install keeps the old copy).
 
 `scripts/publish-site.sh` builds the documentation site (`site/`, its design in
 `site/DESIGN.md`) and the demo, and publishes both to GitHub Pages.
 
-## Relation to tldraw
+## Credits
 
-The architecture is modelled on the ideas of [tldraw](https://tldraw.dev): records in a
-reactive store, one class per kind of shape, tools as state machines, plugins as lists of
-classes. Klementine Draw is an independent implementation, written from scratch for Svelte. It
-contains no tldraw source code, icons or assets and depends on no tldraw package.
+Draw's architecture is inspired by [tldraw](https://tldraw.dev): records in a reactive store,
+one class per kind of shape, tools as state machines. Draw is an independent project, written
+from scratch for Svelte; it contains no tldraw code and is not affiliated with tldraw Inc.
 
-tldraw is a trademark of tldraw Inc. This project is not affiliated with, sponsored by or
-endorsed by tldraw.
+Ink strokes are drawn with [perfect-freehand](https://github.com/steveruizok/perfect-freehand),
+the stacking order comes from
+[fractional-indexing](https://github.com/rocicorp/fractional-indexing), and the icons are
+[Phosphor](https://phosphoricons.com).
 
 ## Licence
 

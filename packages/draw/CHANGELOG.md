@@ -4,8 +4,7 @@
 
 - **Built like a Svelte library.** The package is `dist`: JavaScript, `.svelte` files and
   types, made by svelte-package and checked by publint. The import paths stay the same
-  (`@klementine/draw`, `@klementine/draw/svelte`, `@klementine/draw/draw.css`). Installing
-  from the folder (`file:`) needs `pnpm --filter @klementine/draw build` first.
+  (`@klementine/draw`, `@klementine/draw/svelte`, `@klementine/draw/draw.css`).
 - **Breaking: `editText` is an attachment.**
   `use:editText={{ editor, text, onchange }}` becomes
   `{@attach editText({ editor, text: () => text, onchange })}`. `text` is a function now: it is

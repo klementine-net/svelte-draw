@@ -1,24 +1,25 @@
-## Get the code
+<script>
+	import EarlyNotice from '#lib/components/early-notice.svelte';
+</script>
 
-Draw is not on npm yet. Clone the repository; it is a pnpm workspace with the library in
-`packages/draw`, the demo in `examples/whiteboard` and this site in `site`.
+<EarlyNotice />
+
+## Install
 
 ```sh
-git clone https://github.com/klementine-net/svelte-draw.git
-cd svelte-draw
-pnpm install
-pnpm dev        # the demo, on http://localhost:5196
-pnpm test       # the engine's tests, no browser needed
+npm install @klementine/draw @klementine/ui
 ```
 
-You need Node 24 and pnpm 11. The demo uses the library as it ships, built into
-`packages/draw/dist`: `pnpm dev` builds it first and rebuilds it as you change it.
+Draw needs Svelte 5.57 or newer. The toolbar, the panels and the menus are parts of
+klementine.ui (`@klementine/ui`), a design system for Svelte, and are styled with
+[Tailwind CSS 4](https://tailwindcss.com), so the app needs Tailwind set up.
 
-**The Svelte layer needs klementine.ui.** The toolbar, the panels and the menus are built from
-klementine.ui, a Svelte design system that is not public yet. Until it is, the demo and the
-Svelte layer only build with a copy of it beside the repository (`../klementine/packages/ui`).
-The engine needs nothing of it: you can build your own controls on the engine today, and the
-tests run without it.
+The engine alone needs none of that. `@klementine/draw` without `/svelte` is plain TypeScript:
+it runs in Node as well as in a browser, and you can build your own controls on it.
+
+To work on Draw itself, clone
+[the repository](https://github.com/klementine-net/svelte-draw); its README says how to run the
+demo and the tests.
 
 ## A whiteboard on a page
 
