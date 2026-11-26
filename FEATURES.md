@@ -131,18 +131,21 @@ frames, clipboard, arranging, snapping, the grid, pages, saving and tabs (with s
 IndexedDB and the channel), cursors, files and assets, read-only, scrolling at the edge.
 
 **Browser tests** (`pnpm test:browser`, in Chrome) cover what only a browser can show. For
-the canvas (7, `packages/draw/tests/browser`): typing into a note and a text shape (every key
+the canvas (19, `packages/draw/tests/browser`): typing into a note and a text shape (every key
 written, the caret kept), a note's writing fitting its paper, a text shape's measured size,
-the wheel, the canvas following its size, its own light and dark. For the example's controls
-(13, `examples/whiteboard/tests`): picking tools from the bar and a group's menu, the
-right-click menu with a sub-menu and a switch, a resting finger opening that menu, the keys coming back to the canvas when a menu
-closes, renaming and adding pages, the style panel, undo and redo, zoom, hints, and menus and
-hints following the board's scheme.
+the wheel, the canvas following its size, its own light and dark; pictures of the page (size,
+ground, the shapes' colours as on screen, dark, without a ground, of chosen shapes), the
+minimap, links to a view, shapes off screen not drawn, copy, cut and paste through clipboard
+events, pasted words and addresses, a pasted and a dropped picture file, saving to a file,
+IndexedDB, the line between tabs, and a board kept in the browser coming back and staying in
+step with a second one. For the example's controls (13, `examples/whiteboard/tests`): picking
+tools from the bar and a group's menu, the right-click menu with a sub-menu and a switch, a
+resting finger opening that menu, the keys coming back to the canvas when a menu closes,
+renaming and adding pages, the style panel, undo and redo, zoom, hints, and menus and hints
+following the board's scheme.
 
-**No engine test, because the code only runs in a browser:** the minimap, links to a view, not
-drawing what is off screen, picture export and copy as a picture, saving to and opening a file,
-the hatched fill, focus mode, reading a picture file, IndexedDB itself, dropping and pasting
-files.
+**No test at all:** the file picker (opening a file, adding a picture from the toolbar), copy
+as a picture, the hatched fill's look, players for videos.
 
 **Tried in a browser (Chrome, desktop), with the pointer and the keys:** text tool, text in
 shapes, right-click menu and Duplicate, rotating by the handle, frames taking in shapes, eraser, a pen stroke kept across
@@ -151,7 +154,8 @@ an image added and kept across a reload, a new page and a page rename from the p
 picture export (compared by eye), two tabs in step with each other's cursor, laser, minimap,
 links to a view, shapes off screen not drawn, a link card, a hatched fill, text position.
 
-**Not tried in a browser:** real Ctrl+C and Ctrl+V, dropping a file, the file picker, Alt-drag,
-lasso, grouping, lock, align, snapping guides, the grid, deleting a page from the menu, save and
-open a file, copy as a picture, players for videos, read-only and focus mode, scrolling at the
-edge. **Never run at all:** pinch on a touch screen.
+**Not tried in a browser by a person** (covered by tests only, or not at all): real Ctrl+C and
+Ctrl+V, the file picker, Alt-drag, lasso, grouping, lock, align, snapping guides, the grid,
+deleting a page from the menu, opening a file, copy as a picture, players for videos,
+read-only, scrolling at the edge. **Only in emulation:** pinch and the phone arrangement; no
+real touch screen yet.
