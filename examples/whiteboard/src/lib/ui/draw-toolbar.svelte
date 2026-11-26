@@ -6,8 +6,8 @@
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import Hint from './hint.svelte';
 	import type { DrawSveltePlugin, ToolbarItem } from '@simon-lund/svelte-draw/svelte';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import { toCanvas, useScheme } from './board.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
+	import { toCanvas, useScheme } from './board';
 
 	/**
 	 * DrawToolbar: the tools of every plugin in one bar, then undo and redo. The picked tool is

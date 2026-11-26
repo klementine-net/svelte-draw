@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { createAttachmentKey } from 'svelte/attachments';
 	import { broadcastChannel, Editor, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
 	import {
 		Canvas,
@@ -9,13 +10,13 @@
 		type DrawSveltePlugin
 	} from '@simon-lund/svelte-draw/svelte';
 	import { ContextMenu } from 'bits-ui';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
 	import CanvasMenu from './canvas-menu.svelte';
 	import DrawToolbar from './draw-toolbar.svelte';
 	import StylePanel from './style-panel.svelte';
 	import ZoomControl from './zoom-control.svelte';
 	import PageMenu from './page-menu.svelte';
-	import { setScheme, toCanvas, type Scheme } from './board.ts';
+	import { holdForMenu, setScheme, toCanvas, type Scheme } from './board';
 
 	/**
 	 * Whiteboard: a whole whiteboard in one tag: the library's canvas with this example's
@@ -62,6 +63,8 @@
 	const scheme = $derived(props.scheme ?? 'auto');
 	// Menus and hints are drawn outside the board: they learn the scheme from here.
 	setScheme(() => scheme);
+	// A finger resting on the canvas opens the menu, as a right click does.
+	const hold = { [createAttachmentKey()]: holdForMenu };
 	/** The canvas's surface, for the menu's copy of the selection as a picture. */
 	let surface = $state<HTMLElement | null>(null);
 
@@ -104,7 +107,7 @@
 		{#snippet around(canvas)}
 			<ContextMenu.Root>
 				<ContextMenu.Trigger bind:ref={surface}>
-					{#snippet child({ props })}{@render canvas(props)}{/snippet}
+					{#snippet child({ props })}{@render canvas({ ...props, ...hold })}{/snippet}
 				</ContextMenu.Trigger>
 				<ContextMenu.Portal>
 					<ContextMenu.Content

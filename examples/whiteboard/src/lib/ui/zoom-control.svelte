@@ -5,8 +5,8 @@
 	import { Toolbar, Tooltip } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import Hint from './hint.svelte';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import { useScheme } from './board.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
+	import { useScheme } from './board';
 
 	/**
 	 * ZoomControl: out, the zoom in percent (press it to go back to 100%), in, and show

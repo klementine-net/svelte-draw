@@ -12,7 +12,7 @@ It needs `bits-ui` (menus, hints and bars that work with a keyboard) and `phosph
 <script lang="ts">
 	import '@simon-lund/svelte-draw/draw.css';
 	import './ui/ui.css';
-	import { Whiteboard } from './ui/index.ts';
+	import { Whiteboard } from './ui';
 </script>
 
 <div style="height: 100dvh">
@@ -20,21 +20,22 @@ It needs `bits-ui` (menus, hints and bars that work with a keyboard) and `phosph
 </div>
 ```
 
-| File                  | What                                                                    |
-| --------------------- | ----------------------------------------------------------------------- |
-| `whiteboard.svelte`   | the canvas with every control in its corner, and the phone arrangement  |
-| `draw-toolbar.svelte` | the tools of the plugins, grouped, then undo and redo                   |
-| `style-panel.svelte`  | the look of what is selected: colour, fill, size, line, type, opacity   |
-| `page-menu.svelte`    | the pages, and saving to a file or a picture                            |
-| `zoom-control.svelte` | out, the zoom in percent, in, show everything                           |
-| `canvas-menu.svelte`  | what the right-click menu offers for the selection                      |
-| `hint.svelte`         | an icon's name and key, beside it                                       |
-| `board.ts`            | the scheme for menus and hints, and handing the keys back to the canvas |
-| `labels.ts`           | every word the controls say, to translate                               |
-| `ui.css`              | the look: classes `wb-*`, colours as properties on `.wb`                |
+| File                  | What                                                                      |
+| --------------------- | ------------------------------------------------------------------------- |
+| `whiteboard.svelte`   | the canvas with every control in its corner, and the phone arrangement    |
+| `draw-toolbar.svelte` | the tools of the plugins, grouped, then undo and redo                     |
+| `style-panel.svelte`  | the look of what is selected: colour, fill, size, line, type, opacity     |
+| `page-menu.svelte`    | the pages, and saving to a file or a picture                              |
+| `zoom-control.svelte` | out, the zoom in percent, in, show everything                             |
+| `canvas-menu.svelte`  | what the right-click menu offers for the selection                        |
+| `hint.svelte`         | an icon's name and key, beside it                                         |
+| `board.ts`            | the scheme for menus and hints, the keys back to the canvas, a long press |
+| `labels.ts`           | every word the controls say, to translate                                 |
+| `ui.css`              | the look: classes `wb-*`, colours as properties on `.wb`                  |
 
 ## Make it yours
 
+- **Typeface:** the controls take the page's, so set one on `body`.
 - **Colours:** set the `--wb-*` properties on `.wb` (a bar, a panel, ink, the picked tool).
   Each has a light and a dark value.
 - **Light and dark:** `<Whiteboard scheme="dark">`, or `auto` (the default) to follow the

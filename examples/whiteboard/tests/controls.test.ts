@@ -212,3 +212,44 @@ test('menus and hints are drawn outside the board and still follow its scheme', 
 	await screen.getByLabelText('Draw', { exact: true }).hover();
 	await expect.poll(() => ground('.wb-tip'), { timeout: 3000 }).toBe('rgb(46, 43, 38)');
 });
+
+test('a finger resting on the canvas opens the menu; a finger that moves does not', async () => {
+	const { editor, screen, surface } = await board();
+	const shape = editor.createShape({ kind: 'geo', x: 100, y: 100, props: { w: 160, h: 120 } });
+	await expect.poll(() => screen.container.querySelector('.kd-shape')).toBeTruthy();
+	const box = surface().getBoundingClientRect();
+	// A finger, as the browser reports it. (Pointer 1 always exists, so the canvas can capture it.)
+	const finger = (type: string, x: number, y: number) =>
+		surface().dispatchEvent(
+			new PointerEvent(type, {
+				pointerType: 'touch',
+				pointerId: 1,
+				isPrimary: true,
+				clientX: box.x + x,
+				clientY: box.y + y,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+	const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+	// It rests on the shape's edge, drifting a little as a real finger does.
+	finger('pointerdown', 180, 102);
+	await wait(250);
+	finger('pointermove', 182, 103);
+	await wait(350);
+	await expect.element(screen.getByRole('menu')).toBeVisible();
+	expect(editor.selection.get()).toEqual([shape.id]);
+	finger('pointerup', 182, 103);
+	await expect.element(screen.getByRole('menuitem', { name: 'Duplicate' })).toBeVisible();
+	await userEvent.keyboard('{Escape}');
+	await expect.element(screen.getByRole('menu')).not.toBeInTheDocument();
+
+	// It drags: that is a move, however long it takes.
+	finger('pointerdown', 180, 102);
+	await wait(100);
+	finger('pointermove', 210, 130);
+	await wait(600);
+	finger('pointerup', 210, 130);
+	expect(document.querySelector('[role=menu]')).toBeNull();
+});

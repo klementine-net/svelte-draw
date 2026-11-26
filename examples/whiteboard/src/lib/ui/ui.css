@@ -409,3 +409,23 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+/* A finger needs more room than a pointer: 44px to touch around the 36px controls, and taller
+   rows in a menu. */
+@media (pointer: coarse) {
+	.wb-item::before {
+		content: '';
+		position: absolute;
+		inset: -4px;
+	}
+	.wb-menu-item {
+		min-height: 44px;
+	}
+}
+
+/* Reduced motion: a menu fades in, it does not grow. */
+@media (prefers-reduced-motion: reduce) {
+	.wb-menu {
+		transition: opacity 140ms;
+	}
+}

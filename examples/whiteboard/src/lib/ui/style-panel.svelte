@@ -27,8 +27,8 @@
 		type SizeName,
 		type StyleKey
 	} from '@simon-lund/svelte-draw';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import { useScheme } from './board.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
+	import { useScheme } from './board';
 
 	/**
 	 * StylePanel: the look of what is selected, or of the next shape when nothing is. One row

@@ -134,8 +134,8 @@ IndexedDB and the channel), cursors, files and assets, read-only, scrolling at t
 the canvas (7, `packages/draw/tests/browser`): typing into a note and a text shape (every key
 written, the caret kept), a note's writing fitting its paper, a text shape's measured size,
 the wheel, the canvas following its size, its own light and dark. For the example's controls
-(12, `examples/whiteboard/tests`): picking tools from the bar and a group's menu, the
-right-click menu with a sub-menu and a switch, the keys coming back to the canvas when a menu
+(13, `examples/whiteboard/tests`): picking tools from the bar and a group's menu, the
+right-click menu with a sub-menu and a switch, a resting finger opening that menu, the keys coming back to the canvas when a menu
 closes, renaming and adding pages, the style panel, undo and redo, zoom, hints, and menus and
 hints following the board's scheme.
 

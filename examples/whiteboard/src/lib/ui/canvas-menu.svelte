@@ -4,8 +4,8 @@
 	import { ContextMenu } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import { toPng } from '@simon-lund/svelte-draw/svelte';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import { useScheme } from './board.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
+	import { useScheme } from './board';
 
 	/**
 	 * CanvasMenu: what the canvas's right-click menu offers for the selection: clipboard,

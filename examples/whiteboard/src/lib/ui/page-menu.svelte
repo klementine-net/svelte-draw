@@ -3,8 +3,8 @@
 	import { DropdownMenu, Toolbar } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import { download, openFile, saveFile, toPng } from '@simon-lund/svelte-draw/svelte';
-	import { defaultLabels, type DrawLabels } from './labels.ts';
-	import { toCanvas, useScheme } from './board.ts';
+	import { defaultLabels, type DrawLabels } from './labels';
+	import { toCanvas, useScheme } from './board';
 
 	/**
 	 * PageMenu: the page being looked at, and the menu to go to another, add one, rename or

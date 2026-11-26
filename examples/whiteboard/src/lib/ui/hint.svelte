@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tooltip } from 'bits-ui';
 	import type { Snippet } from 'svelte';
-	import { useScheme } from './board.ts';
+	import { useScheme } from './board';
 
 	/**
 	 * Hint: the name of an icon-only control, with the key that does the same, shown beside it

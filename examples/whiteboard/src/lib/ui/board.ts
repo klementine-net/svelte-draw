@@ -36,3 +36,60 @@ export function toCanvas(event: Event, control: Element | null) {
 	event.preventDefault();
 	surface.focus({ preventScroll: true });
 }
+
+/**
+ * Opens the right-click menu where a finger rests on the canvas: half a second, within 8px.
+ * A touch screen has no right click, and not every browser turns a long press into one
+ * (Safari on a phone does not). The canvas then does what it does on a right click: it selects
+ * what is under the finger, and the menu opens there.
+ *
+ * @example
+ * <ContextMenu.Trigger>
+ *   {#snippet child({ props })}{@render canvas({ ...props, [createAttachmentKey()]: holdForMenu })}{/snippet}
+ * </ContextMenu.Trigger>
+ */
+export function holdForMenu(surface: HTMLElement) {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	let at: { x: number; y: number } | null = null;
+	const forget = () => {
+		clearTimeout(timer);
+		at = null;
+	};
+	const down = (event: PointerEvent) => {
+		forget();
+		if (event.pointerType !== 'touch' || !event.isPrimary) return;
+		const point = (at = { x: event.clientX, y: event.clientY });
+		timer = setTimeout(() => {
+			at = null;
+			surface.dispatchEvent(
+				new MouseEvent('contextmenu', {
+					clientX: point.x,
+					clientY: point.y,
+					bubbles: true,
+					cancelable: true
+				})
+			);
+		}, 500);
+	};
+	// A finger that moves is drawing, dragging or scrolling; a second one is a pinch.
+	const move = (event: PointerEvent) => {
+		if (at && Math.hypot(event.clientX - at.x, event.clientY - at.y) > 8) forget();
+	};
+	// The browser's own long press came first (Android): one menu is enough.
+	const native = (event: MouseEvent) => {
+		if (event.isTrusted) forget();
+	};
+	surface.addEventListener('pointerdown', down);
+	surface.addEventListener('pointermove', move);
+	surface.addEventListener('pointerup', forget);
+	surface.addEventListener('pointercancel', forget);
+	surface.addEventListener('contextmenu', native);
+	return () => {
+		forget();
+		surface.removeEventListener('pointerdown', down);
+		surface.removeEventListener('pointermove', move);
+		surface.removeEventListener('pointerup', forget);
+		surface.removeEventListener('pointercancel', forget);
+		surface.removeEventListener('contextmenu', native);
+	};
+}

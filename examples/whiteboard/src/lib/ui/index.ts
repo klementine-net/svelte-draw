@@ -12,5 +12,5 @@ export { default as ZoomControl } from './zoom-control.svelte';
 export { default as PageMenu } from './page-menu.svelte';
 export { default as CanvasMenu } from './canvas-menu.svelte';
 export { default as Hint } from './hint.svelte';
-export { defaultLabels, type DrawLabels } from './labels.ts';
-export { setScheme, toCanvas, useScheme, type Scheme } from './board.ts';
+export { defaultLabels, type DrawLabels } from './labels';
+export { holdForMenu, setScheme, toCanvas, useScheme, type Scheme } from './board';
