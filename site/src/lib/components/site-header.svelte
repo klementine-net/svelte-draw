@@ -32,7 +32,7 @@
 		class="mx-auto flex h-full max-w-(--site-max) items-center justify-between px-(--site-margin) md:px-8"
 	>
 		<a href={href('/')} class="text-[0.9375rem] leading-5 font-semibold tracking-[-0.01em]">
-			Klementine Draw
+			svelte-draw
 		</a>
 		<nav aria-label="Site" class="hidden items-center gap-7 md:flex">
 			<a href={href('/docs/')} class={place} aria-current={inDocs ? 'page' : undefined}>Docs</a>
@@ -50,7 +50,7 @@
 				</DrawerTrigger>
 				<DrawerContent>
 					<DrawerHeader>
-						<DrawerTitle>Klementine Draw</DrawerTitle>
+						<DrawerTitle>svelte-draw</DrawerTitle>
 					</DrawerHeader>
 					<DrawerBody class="flex flex-col gap-8 pb-8">
 						<nav aria-label="Site" class="flex flex-col gap-1">

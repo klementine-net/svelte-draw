@@ -1,7 +1,7 @@
 /*
- * @klementine/draw: the core. Plain TypeScript, no UI framework: it runs in a browser, in a
+ * @simon-lund/svelte-draw: the core. Plain TypeScript, no UI framework: it runs in a browser, in a
  * test and on a server alike (only what is in `browser/` needs a browser, and only when it is
- * called). The Svelte layer is `@klementine/draw/svelte`.
+ * called). The Svelte layer is `@simon-lund/svelte-draw/svelte`.
  */
 
 import type { DrawPlugin } from './core/editor.ts';

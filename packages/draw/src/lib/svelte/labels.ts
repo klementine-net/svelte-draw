@@ -1,5 +1,5 @@
 /*
- * The words Klementine Draw's own controls say, in English. An app in another language passes
+ * The words svelte-draw's own controls say, in English. An app in another language passes
  * its translations as `labels` (all of them or a few; the rest stay English). A plugin's tool
  * names travel with the plugin (`toolbar[].label`).
  */

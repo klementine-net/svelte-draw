@@ -7,7 +7,7 @@
 import type { AssetRecord, Editor, ShapeRecord, Vec } from '../../index.ts';
 import { inField } from './input.ts';
 
-export const CLIPBOARD_TYPE = 'application/x-klementine-draw';
+export const CLIPBOARD_TYPE = 'application/x-svelte-draw';
 
 /** Puts the selection on the clipboard; with `cut`, removes it from the canvas too. */
 export function copyShapes(editor: Editor, event: ClipboardEvent, cut = false) {

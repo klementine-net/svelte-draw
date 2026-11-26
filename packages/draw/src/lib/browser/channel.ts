@@ -4,7 +4,7 @@ import type { Channel, ChannelMessage } from '../core/persist.ts';
 
 /** A line to the other tabs of this browser that show the document `key`. */
 export function broadcastChannel(key: string): Channel {
-	const channel = new BroadcastChannel(`klementine-draw:${key}`);
+	const channel = new BroadcastChannel(`svelte-draw:${key}`);
 	return {
 		post: (message) => channel.postMessage(message),
 		listen(listener) {

@@ -1,10 +1,10 @@
-# Agents: Klementine Draw
+# Agents: svelte-draw
 
-Klementine Draw: an infinite canvas for Svelte. A pnpm workspace of its own: the engine in
+svelte-draw: an infinite canvas for Svelte. A pnpm workspace of its own: the engine in
 `packages/draw`, example apps in `examples/*`. Read README.md, then `packages/draw/AGENTS.md`.
 
 - **Draw is a library on its own.** Nothing here imports an application's code; an app
-  installs the built package (`pnpm --filter @klementine/draw build` makes it).
+  installs the built package (`pnpm --filter @simon-lund/svelte-draw build` makes it).
 - **klementine.ui is a peer** (`@klementine/ui`), installed from the monorepo checkout beside
   this one. Only `packages/draw/src/lib/svelte` and the examples may import it; after a change
   there, `pnpm install --force` here.

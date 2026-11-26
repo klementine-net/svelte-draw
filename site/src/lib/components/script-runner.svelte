@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Play from 'phosphor-svelte/lib/Play';
 	import { Button } from '@klementine/ui/button';
-	import type { Editor } from '@klementine/draw';
+	import type { Editor } from '@simon-lund/svelte-draw';
 
 	/**
 	 * ScriptRunner: an example's code, and a button that runs exactly that code on the page's

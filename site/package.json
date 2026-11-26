@@ -1,10 +1,10 @@
 {
-	"name": "@klementine/draw-site",
+	"name": "svelte-draw-site",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
 	"license": "MIT",
-	"description": "The documentation website of Klementine Draw: static pages with live canvases, published to GitHub Pages beside the demo.",
+	"description": "The documentation website of svelte-draw: static pages with live canvases, published to GitHub Pages beside the demo.",
 	"engines": {
 		"node": ">=24.13.0"
 	},
@@ -35,7 +35,7 @@
 		"@fontsource/caveat": "^5.3.0",
 		"@fontsource/instrument-sans": "^5.3.0",
 		"@fontsource/jetbrains-mono": "^5.3.0",
-		"@klementine/draw": "workspace:*",
+		"@simon-lund/svelte-draw": "workspace:*",
 		"@klementine/ui": "file:../../klementine/packages/ui",
 		"phosphor-svelte": "^3.1.1"
 	},

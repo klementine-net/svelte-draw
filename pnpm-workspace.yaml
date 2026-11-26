@@ -1,4 +1,4 @@
-# Klementine Draw, the example apps built on it, and its documentation website.
+# svelte-draw, the example apps built on it, and its documentation website.
 packages:
   - 'packages/*'
   - 'examples/*'

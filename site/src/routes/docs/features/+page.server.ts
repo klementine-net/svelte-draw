@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { marked } from 'marked';
 
-const REPOSITORY = 'https://github.com/klementine-net/svelte-draw/blob/main/';
+const REPOSITORY = 'https://github.com/simon-lund/svelte-draw/blob/main/';
 
 export function load() {
 	const markdown = readFileSync(resolve(process.cwd(), '../FEATURES.md'), 'utf8')

@@ -1,5 +1,5 @@
-import { ShapeUtil, StateNode } from '@klementine/draw';
-import type { Box, PointerInfo, ShapeRecord, StyleKey, Vec } from '@klementine/draw';
+import { ShapeUtil, StateNode } from '@simon-lund/svelte-draw';
+import type { Box, PointerInfo, ShapeRecord, StyleKey, Vec } from '@simon-lund/svelte-draw';
 
 /** A voting dot, as plain data: its record. */
 export type DotShape = ShapeRecord<'dot', { r: number }>;

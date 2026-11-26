@@ -4,7 +4,7 @@
 yourself:
 
 ```ts
-import { broadcastChannel, indexedDbStorage, persist } from '@klementine/draw';
+import { broadcastChannel, indexedDbStorage, persist } from '@simon-lund/svelte-draw';
 
 const stop = await persist(editor, {
 	storage: indexedDbStorage('my-board'),
@@ -65,7 +65,7 @@ The page menu saves the board to a file and opens one again, and saves the page 
 selection as a PNG. In code:
 
 ```ts
-import { openFile, saveFile, toPng, toSvg } from '@klementine/draw/svelte';
+import { openFile, saveFile, toPng, toSvg } from '@simon-lund/svelte-draw/svelte';
 
 const document = editor.getDocument(); // { version, records }
 editor.loadDocument(document.records, 'user');

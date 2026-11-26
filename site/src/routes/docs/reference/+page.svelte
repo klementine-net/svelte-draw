@@ -59,7 +59,7 @@
 	{/each}
 
 	<h2 id="components">Components</h2>
-	<p>From <code>@klementine/draw/svelte</code>.</p>
+	<p>From <code>@simon-lund/svelte-draw/svelte</code>.</p>
 	<dl class="reference">
 		{#each data.components as component (component.name)}
 			<div>

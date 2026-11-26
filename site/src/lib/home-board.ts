@@ -3,7 +3,7 @@
  * thing about Draw, and showing its look while it does.
  */
 
-import { Editor } from '@klementine/draw';
+import { Editor } from '@simon-lund/svelte-draw';
 import {
 	defaultPlugins,
 	drawPlugin,
@@ -12,7 +12,7 @@ import {
 	selectPlugin,
 	textPlugin,
 	type DrawSveltePlugin
-} from '@klementine/draw/svelte';
+} from '@simon-lund/svelte-draw/svelte';
 
 /** The editor's kinds and tools: everything, so whatever someone pastes or opens works. */
 export const plugins: DrawSveltePlugin[] = defaultPlugins;

@@ -7,18 +7,18 @@
 ## Install
 
 ```sh
-npm install @klementine/draw @klementine/ui
+npm install @simon-lund/svelte-draw @klementine/ui
 ```
 
 Draw needs Svelte 5.57 or newer. The toolbar, the panels and the menus are parts of
 klementine.ui (`@klementine/ui`), a design system for Svelte, and are styled with
 [Tailwind CSS 4](https://tailwindcss.com), so the app needs Tailwind set up.
 
-The engine alone needs none of that. `@klementine/draw` without `/svelte` is plain TypeScript:
+The engine alone needs none of that. `@simon-lund/svelte-draw` without `/svelte` is plain TypeScript:
 it runs in Node as well as in a browser, and you can build your own controls on it.
 
 To work on Draw itself, clone
-[the repository](https://github.com/klementine-net/svelte-draw); its README says how to run the
+[the repository](https://github.com/simon-lund/svelte-draw); its README says how to run the
 demo and the tests.
 
 ## A whiteboard on a page
@@ -28,7 +28,7 @@ and the zoom control. It fills its parent, so give the parent a size.
 
 ```svelte
 <script lang="ts">
-	import { Draw } from '@klementine/draw/svelte';
+	import { Draw } from '@simon-lund/svelte-draw/svelte';
 </script>
 
 <div class="h-dvh">
@@ -41,7 +41,7 @@ The styles come after the design system's theme:
 ```css
 @import 'tailwindcss';
 @import '@klementine/ui/theme.css';
-@import '@klementine/draw/draw.css';
+@import '@simon-lund/svelte-draw/draw.css';
 ```
 
 Hand-drawn text wants a handwriting font. Load one and name it in `--kd-font-hand`; the demo
@@ -60,8 +60,8 @@ A board that was never saved can start with a first picture:
 
 ```svelte
 <script lang="ts">
-	import type { Editor } from '@klementine/draw';
-	import { Draw } from '@klementine/draw/svelte';
+	import type { Editor } from '@simon-lund/svelte-draw';
+	import { Draw } from '@simon-lund/svelte-draw/svelte';
 
 	function seed(editor: Editor) {
 		editor.createShape({ kind: 'note', x: 0, y: 0, props: { text: 'Hello' } });
@@ -79,8 +79,8 @@ what it can do.
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@klementine/draw';
-	import { defaultPlugins, Draw } from '@klementine/draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { defaultPlugins, Draw } from '@simon-lund/svelte-draw/svelte';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </script>

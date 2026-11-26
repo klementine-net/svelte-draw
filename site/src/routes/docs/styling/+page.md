@@ -18,7 +18,7 @@ fill, a text has a typeface), and so does the style panel.
 ## The theme
 
 The canvas is drawn on klementine.ui's tokens, so it follows light and dark with the rest of
-the app. Its own classes start with `kd-` and live in `@klementine/draw/draw.css`. The colours
+the app. Its own classes start with `kd-` and live in `@simon-lund/svelte-draw/draw.css`. The colours
 of shapes are named variables you can set:
 
 ```css
@@ -35,8 +35,8 @@ with only a toolbar, or controls of your own around it.
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@klementine/draw';
-	import { Canvas, defaultPlugins, DrawToolbar, ZoomControl } from '@klementine/draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { Canvas, defaultPlugins, DrawToolbar, ZoomControl } from '@simon-lund/svelte-draw/svelte';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 </script>
@@ -61,7 +61,7 @@ English. A plugin's tool names travel with the plugin (`toolbar[].label`).
 
 ```svelte
 <script lang="ts">
-	import { defaultLabels, Draw } from '@klementine/draw/svelte';
+	import { defaultLabels, Draw } from '@simon-lund/svelte-draw/svelte';
 
 	const labels = { ...defaultLabels, undo: 'Rückgängig', redo: 'Wiederholen' };
 </script>

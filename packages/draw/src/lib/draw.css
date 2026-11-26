@@ -1,7 +1,7 @@
 /*
- * Klementine Draw's styles, imported after the theme:
+ * svelte-draw's styles, imported after the theme:
  *   @import '@klementine/ui/theme.css';
- *   @import '@klementine/draw/draw.css';
+ *   @import '@simon-lund/svelte-draw/draw.css';
  * The canvas's own classes (kd-*) are plain CSS on the theme's tokens, so the canvas follows
  * light and dark with the rest of the app. The controls around it are @klementine/ui parts
  * with Tailwind classes; the @source line lets Tailwind see them.
@@ -17,7 +17,7 @@
 	isolation: isolate;
 	background: var(--canvas-ground);
 
-	/* The shape colours by name. No orange: that one is Klementine's own. */
+	/* The shape colours by name. */
 	--kd-ink: var(--cream-ink);
 	--kd-grey: light-dark(#8b877d, #9c968a);
 	--kd-red: light-dark(#cf3f3f, #f0796f);

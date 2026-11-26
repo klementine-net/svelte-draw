@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @import '@klementine/ui/theme.css';
-@import '@klementine/draw/draw.css';
+@import '@simon-lund/svelte-draw/draw.css';
 
 @source './';
 

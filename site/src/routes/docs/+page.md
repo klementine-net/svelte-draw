@@ -2,7 +2,7 @@
 	import EarlyNotice from '#lib/components/early-notice.svelte';
 </script>
 
-Klementine Draw is an infinite canvas for Svelte: the engine of a whiteboard, and the parts to
+svelte-draw is an infinite canvas for Svelte: the engine of a whiteboard, and the parts to
 put one on a page. You draw, write, drag out shapes, connect them with arrows that stay
 attached, add pictures and links, group and frame things, turn and snap them, copy and paste,
 undo, on as many pages as you like. A board can be kept in the browser and stays in step across
@@ -18,10 +18,10 @@ Svelte component, not a fork.
 
 Two layers, imported separately:
 
-| Import                    | What it is                                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@klementine/draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
-| `@klementine/draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the toolbar, the panels, `Draw`             |
+| Import                           | What it is                                                                                                  |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `@simon-lund/svelte-draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
+| `@simon-lund/svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the toolbar, the panels, `Draw`             |
 
 [How it is built](./concepts/) explains the engine in five ideas.
 
@@ -52,5 +52,5 @@ the stacking order comes from
 
 ## Licence
 
-[MIT](https://github.com/klementine-net/svelte-draw/blob/main/LICENSE). Use it, change it, ship it;
+[MIT](https://github.com/simon-lund/svelte-draw/blob/main/LICENSE). Use it, change it, ship it;
 keep the copyright notice.

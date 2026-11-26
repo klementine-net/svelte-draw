@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { box, type Editor } from '@klementine/draw';
-	import { Canvas, DrawToolbar, type DrawSveltePlugin } from '@klementine/draw/svelte';
+	import { box, type Editor } from '@simon-lund/svelte-draw';
+	import { Canvas, DrawToolbar, type DrawSveltePlugin } from '@simon-lund/svelte-draw/svelte';
 
 	/**
 	 * LiveCanvas: a real Draw canvas set into a page. It does not take the page's scrolling until

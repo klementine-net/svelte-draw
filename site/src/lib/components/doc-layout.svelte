@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>{at.page ? `${at.page.title} · Klementine Draw` : 'Klementine Draw'}</title>
+	<title>{at.page ? `${at.page.title} · svelte-draw` : 'svelte-draw'}</title>
 	{#if at.page}<meta name="description" content={at.page.summary} />{/if}
 </svelte:head>
 

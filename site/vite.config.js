@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
 /*
- * The documentation website of Klementine Draw: every page prerendered to static files in
+ * The documentation website of svelte-draw: every page prerendered to static files in
  * build/, served by GitHub Pages under /svelte-draw/ (scripts/publish-site.sh puts the demo
  * beside it at /svelte-draw/demo/). Pages are Svelte or Markdown (mdsvex).
  */
@@ -66,6 +66,6 @@ export default defineConfig({
 	server: { port: 5197, strictPort: true, fs: { allow: ['..'] } },
 	// Both ship their TypeScript and Svelte sources: they are compiled with the site, never
 	// pre-bundled.
-	optimizeDeps: { exclude: ['@klementine/ui', '@klementine/draw'] },
-	ssr: { noExternal: ['@klementine/ui', '@klementine/draw'] }
+	optimizeDeps: { exclude: ['@klementine/ui', '@simon-lund/svelte-draw'] },
+	ssr: { noExternal: ['@klementine/ui', '@simon-lund/svelte-draw'] }
 });

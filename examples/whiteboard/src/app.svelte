@@ -1,8 +1,8 @@
 <script lang="ts">
 	// The handwriting font for hand-drawn text (`--kd-font-hand`).
 	import '@fontsource/caveat/600.css';
-	import { Editor } from '@klementine/draw';
-	import { defaultPlugins, Draw } from '@klementine/draw/svelte';
+	import { Editor } from '@simon-lund/svelte-draw';
+	import { defaultPlugins, Draw } from '@simon-lund/svelte-draw/svelte';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 
@@ -93,7 +93,7 @@
 			kind: 'text',
 			x: 120,
 			y: 60,
-			props: { text: 'Klementine Draw', w: 230, h: 40 },
+			props: { text: 'svelte-draw', w: 230, h: 40 },
 			style: { size: 'l' }
 		});
 	}

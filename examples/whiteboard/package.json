@@ -1,10 +1,10 @@
 {
-	"name": "@klementine/example-whiteboard",
+	"name": "svelte-draw-example-whiteboard",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
 	"license": "MIT",
-	"description": "A whiteboard on Klementine Draw, kept in the browser and in step across tabs. A Draw example.",
+	"description": "A whiteboard on svelte-draw, kept in the browser and in step across tabs. A Draw example.",
 	"engines": {
 		"node": ">=24.13.0"
 	},
@@ -17,7 +17,7 @@
 	},
 	"dependencies": {
 		"@fontsource/caveat": "^5.3.0",
-		"@klementine/draw": "workspace:*",
+		"@simon-lund/svelte-draw": "workspace:*",
 		"@klementine/ui": "file:../../../klementine/packages/ui",
 		"phosphor-svelte": "^3.1.1"
 	},

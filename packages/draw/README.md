@@ -1,4 +1,4 @@
-# Klementine Draw
+# svelte-draw
 
 An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, group,
 frame, turn, snap, copy and paste, undo. Shapes and tools are plugins, so the same engine can be
@@ -6,18 +6,18 @@ a whiteboard today and a design tool later.
 
 > **Early development.** Draw works, and it is young. Its API will change between releases
 > without notice, and parts of it are little tested. Pin the version you install, and check
-> [what is built](https://docs.klementine.net/svelte-draw/docs/features/) before you rely on a
+> [what is built](https://docs.simon-lund.com/svelte-draw/docs/features/) before you rely on a
 > part of it.
 
-Documentation, with a board to draw on: <https://docs.klementine.net/svelte-draw/>.
+Documentation, with a board to draw on: <https://docs.simon-lund.com/svelte-draw/>.
 
 ```sh
-npm install @klementine/draw @klementine/ui
+npm install @simon-lund/svelte-draw @klementine/ui
 ```
 
 ```svelte
 <script lang="ts">
-	import { Draw } from '@klementine/draw/svelte';
+	import { Draw } from '@simon-lund/svelte-draw/svelte';
 </script>
 
 <div class="h-dvh"><Draw persistenceKey="my-board" minimap deepLinks /></div>
@@ -29,7 +29,7 @@ board lives as long as the page. `readOnly` shows it without letting it be chang
 ```css
 @import 'tailwindcss';
 @import '@klementine/ui/theme.css';
-@import '@klementine/draw/draw.css';
+@import '@simon-lund/svelte-draw/draw.css';
 ```
 
 The controls are composed from klementine.ui (`@klementine/ui`: Toolbar, ToggleGroup, Tooltip,
@@ -45,11 +45,11 @@ Draw is built with AI: its code, tests and documentation are written by AI codin
 
 Two layers. The core never imports Svelte.
 
-| Layer                         | Import                    | What                                                                             |
-| ----------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
-| Core (`src/lib/core`)         | `@klementine/draw`        | the store, undo, the editor, the base classes for shapes and tools               |
-| Built-ins (`shapes`, `tools`) | `@klementine/draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
-| Svelte (`src/lib/svelte`)     | `@klementine/draw/svelte` | `Canvas`, the views of the built-in shapes, `DrawToolbar`, `StylePanel`, `Draw`  |
+| Layer                         | Import                           | What                                                                             |
+| ----------------------------- | -------------------------------- | -------------------------------------------------------------------------------- |
+| Core (`src/lib/core`)         | `@simon-lund/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools               |
+| Built-ins (`shapes`, `tools`) | `@simon-lund/svelte-draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
+| Svelte (`src/lib/svelte`)     | `@simon-lund/svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `DrawToolbar`, `StylePanel`, `Draw`  |
 
 The core in five ideas:
 
@@ -129,7 +129,7 @@ export const notePlugin: DrawSveltePlugin = {
 
 A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
 `editor.editing` to the shape, and the view makes its text element the field with the
-`editText` attachment (`@klementine/draw/svelte`):
+`editText` attachment (`@simon-lund/svelte-draw/svelte`):
 
 ```svelte
 <span {@attach editText({ editor, text: () => shape.props.text, onchange })}></span>
@@ -172,7 +172,7 @@ reorder at once). `tests/store.test.ts` runs two editors against each other this
   guides in `editor.snapLines`.
 - **Clipboard.** `editor.getContent` gives records that stand on their own (on the page, tied
   only to each other); `putContent` adds them with new ids. The canvas puts them on the system
-  clipboard as JSON under `application/x-klementine-draw`, with the files they show.
+  clipboard as JSON under `application/x-svelte-draw`, with the files they show.
 - **Saving and tabs** (`core/persist.ts`). `persist(editor, { storage, channel })` loads the
   document, then writes every change of this user record by record and posts it to the
   channel; what arrives from the channel is applied as `remote`. `DocumentStorage` and

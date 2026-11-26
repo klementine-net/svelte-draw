@@ -1,4 +1,4 @@
-/* @klementine/draw/svelte: the Svelte layer. The core is `@klementine/draw`. */
+/* @simon-lund/svelte-draw/svelte: the Svelte layer. The core is `@simon-lund/svelte-draw`. */
 
 import './reactive.ts';
 

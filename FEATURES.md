@@ -1,6 +1,6 @@
-# Klementine Draw: what is built
+# svelte-draw: what is built
 
-What Klementine Draw can do, feature by feature. This is the one list of what is built and
+What svelte-draw can do, feature by feature. This is the one list of what is built and
 what is not; it changes with the code.
 
 **Yes**: built. **Partly**: the core of it works, the rest of the line says what is missing.

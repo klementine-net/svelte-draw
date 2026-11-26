@@ -9,7 +9,7 @@ export function indexedDbStorage(key: string): DocumentStorage {
 	let connection: Promise<IDBDatabase> | undefined;
 	const open = () =>
 		(connection ??= new Promise<IDBDatabase>((resolve, reject) => {
-			const request = indexedDB.open(`klementine-draw:${key}`, 1);
+			const request = indexedDB.open(`svelte-draw:${key}`, 1);
 			request.onupgradeneeded = () => {
 				request.result.createObjectStore('records', { keyPath: 'id' });
 				request.result.createObjectStore('meta');

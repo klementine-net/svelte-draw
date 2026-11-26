@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head
-	><title>{missing ? 'Not found' : 'Something went wrong'} · Klementine Draw</title></svelte:head
+	><title>{missing ? 'Not found' : 'Something went wrong'} · svelte-draw</title></svelte:head
 >
 
 <main class="mx-auto max-w-(--site-max) px-(--site-margin) py-24 md:px-8">

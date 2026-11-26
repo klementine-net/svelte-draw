@@ -14,7 +14,7 @@
 
 	// (The closing tag is put together, or it would end this very script.)
 	const start = `<script lang="ts">
-	import { Draw } from '@klementine/draw/svelte';
+	import { Draw } from '@simon-lund/svelte-draw/svelte';
 </${'script'}>
 
 <div class="h-dvh">
@@ -23,7 +23,7 @@
 </script>
 
 <svelte:head>
-	<title>Klementine Draw: an infinite canvas for Svelte</title>
+	<title>svelte-draw: an infinite canvas for Svelte</title>
 	<meta
 		name="description"
 		content="A whiteboard engine for Svelte: draw, write, connect shapes with arrows, add pictures, on several pages, kept in the browser and in step across tabs. Shapes and tools are plugins."
@@ -74,7 +74,8 @@
 					Install it, and one component is a whole whiteboard: canvas, toolbar, styles, pages. Give
 					it a name and it keeps the board in the browser.
 				</p>
-				<pre class="code !mb-0"><code>npm install @klementine/draw @klementine/ui</code></pre>
+				<pre class="code !mb-0"><code>npm install @simon-lund/svelte-draw @klementine/ui</code
+					></pre>
 				<a href={href('/docs/start/')} class="more"
 					>Getting started<ArrowRight aria-hidden="true" /></a
 				>
@@ -109,7 +110,7 @@
 
 	<footer class="mx-auto max-w-(--site-max) px-(--site-margin) md:px-8">
 		<p class="text-cream-ink3 border-t border-(--line) py-8 text-label font-normal">
-			Klementine Draw, MIT licensed. <a href={REPOSITORY} class="underline underline-offset-2"
+			svelte-draw, MIT licensed. <a href={REPOSITORY} class="underline underline-offset-2"
 				>Source on GitHub</a
 			>.
 		</p>

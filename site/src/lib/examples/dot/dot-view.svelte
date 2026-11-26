@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ShapeViewProps } from '@klementine/draw/svelte';
+	import type { ShapeViewProps } from '@simon-lund/svelte-draw/svelte';
 	import type { DotShape } from './dot.ts';
 
 	// How a dot looks: drawn in its own space, the canvas puts it in place.
