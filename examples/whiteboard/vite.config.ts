@@ -1,4 +1,3 @@
-import tailwindcss from '@tailwindcss/vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
@@ -7,9 +6,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
 	root: import.meta.dirname,
 	server: { port: 5196, strictPort: true },
-	plugins: [tailwindcss(), svelte({ compilerOptions: { runes: true } })],
+	plugins: [svelte({ compilerOptions: { runes: true } })],
 	// The controls' tests (`pnpm test:browser`), in the Chrome installed on the machine.
-	optimizeDeps: { exclude: ['@klementine/ui'] },
 	test: {
 		include: ['tests/*.test.ts'],
 		browser: {

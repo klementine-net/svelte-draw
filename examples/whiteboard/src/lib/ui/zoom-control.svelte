@@ -2,11 +2,11 @@
 	import CornersOut from 'phosphor-svelte/lib/CornersOut';
 	import Minus from 'phosphor-svelte/lib/Minus';
 	import Plus from 'phosphor-svelte/lib/Plus';
-	import { Toolbar, ToolbarButton } from '@klementine/ui/toolbar';
-	import { TooltipProvider } from '@klementine/ui/tooltip';
+	import { Toolbar, Tooltip } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import Hint from './hint.svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
+	import { useScheme } from './board.ts';
 
 	/**
 	 * ZoomControl: out, the zoom in percent (press it to go back to 100%), in, and show
@@ -22,57 +22,58 @@
 	}: { editor: Editor; labels?: DrawLabels; class?: string } = $props();
 
 	const percent = $derived(Math.round(editor.camera.get().z * 100));
+	const scheme = useScheme();
 </script>
 
-<TooltipProvider>
-	<Toolbar aria-label={labels.zoom} class={['shadow-float', className]}>
+<Tooltip.Provider delayDuration={500} skipDelayDuration={300}>
+	<Toolbar.Root aria-label={labels.zoom} class={['wb wb-bar', className]} data-scheme={scheme()}>
 		<Hint label={labels.zoomOut}>
 			{#snippet control(props)}
-				<ToolbarButton
+				<Toolbar.Button
 					{...props}
-					size="icon"
+					class="wb-item"
 					aria-label={labels.zoomOut}
 					onclick={() => editor.zoomOut()}
 				>
 					<Minus aria-hidden="true" />
-				</ToolbarButton>
+				</Toolbar.Button>
 			{/snippet}
 		</Hint>
 		<Hint label={labels.zoomReset}>
 			{#snippet control(props)}
-				<ToolbarButton
+				<Toolbar.Button
 					{...props}
 					aria-label="{labels.zoomReset} ({percent}%)"
-					class="w-16 justify-center tabular-nums"
+					class="wb-item wb-text wb-percent"
 					onclick={() => editor.resetZoom()}
 				>
 					{percent}%
-				</ToolbarButton>
+				</Toolbar.Button>
 			{/snippet}
 		</Hint>
 		<Hint label={labels.zoomIn}>
 			{#snippet control(props)}
-				<ToolbarButton
+				<Toolbar.Button
 					{...props}
-					size="icon"
+					class="wb-item"
 					aria-label={labels.zoomIn}
 					onclick={() => editor.zoomIn()}
 				>
 					<Plus aria-hidden="true" />
-				</ToolbarButton>
+				</Toolbar.Button>
 			{/snippet}
 		</Hint>
 		<Hint label={labels.zoomFit}>
 			{#snippet control(props)}
-				<ToolbarButton
+				<Toolbar.Button
 					{...props}
-					size="icon"
+					class="wb-item"
 					aria-label={labels.zoomFit}
 					onclick={() => editor.zoomToFit()}
 				>
 					<CornersOut aria-hidden="true" />
-				</ToolbarButton>
+				</Toolbar.Button>
 			{/snippet}
 		</Hint>
-	</Toolbar>
-</TooltipProvider>
+	</Toolbar.Root>
+</Tooltip.Provider>

@@ -10,7 +10,7 @@
 	import TextAlignCenter from 'phosphor-svelte/lib/TextAlignCenter';
 	import TextAlignLeft from 'phosphor-svelte/lib/TextAlignLeft';
 	import TextAlignRight from 'phosphor-svelte/lib/TextAlignRight';
-	import { TooltipProvider } from '@klementine/ui/tooltip';
+	import { Tooltip } from 'bits-ui';
 	import StyleRow from './style-row.svelte';
 	import {
 		ALIGNS,
@@ -28,6 +28,7 @@
 		type StyleKey
 	} from '@simon-lund/svelte-draw';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
+	import { useScheme } from './board.ts';
 
 	/**
 	 * StylePanel: the look of what is selected, or of the next shape when nothing is. One row
@@ -84,32 +85,24 @@
 
 	const sizeWeight = { s: 'thin', m: 'regular', l: 'bold', xl: 'fill' } as const;
 	const percent = (value: number) => `${Math.round(value * 100)}%`;
+	const scheme = useScheme();
 </script>
 
 {#if rows.length > 0}
-	<TooltipProvider>
+	<Tooltip.Provider delayDuration={500} skipDelayDuration={300}>
 		<div
 			role="group"
 			aria-label={labels.style}
-			class={['flex w-fit flex-col gap-1 rounded-lg bg-layer p-1.5 shadow-float', className]}
+			class={['wb wb-panel', className]}
+			data-scheme={scheme()}
 		>
 			{#if rows.includes('color')}
-				<StyleRow
-					label={labels.color}
-					options={named(COLORS, labels.colors)}
-					{...pick('color')}
-					class="grid grid-cols-4 gap-0.5"
-				>
-					{#snippet item(name)}<span class="kd-swatch" data-color={name}></span>{/snippet}
+				<StyleRow label={labels.color} options={named(COLORS, labels.colors)} {...pick('color')}>
+					{#snippet item(name)}<span class="wb-swatch" data-color={name}></span>{/snippet}
 				</StyleRow>
 			{/if}
 			{#if rows.includes('fill')}
-				<StyleRow
-					label={labels.fill}
-					options={named(FILLS, labels.fills)}
-					{...pick('fill')}
-					class="grid grid-cols-4 gap-0.5"
-				>
+				<StyleRow label={labels.fill} options={named(FILLS, labels.fills)} {...pick('fill')}>
 					{#snippet item(name)}
 						{#if name === 'none'}<Circle aria-hidden="true" />
 						{:else if name === 'tint'}<CircleHalf aria-hidden="true" />
@@ -119,29 +112,19 @@
 				</StyleRow>
 			{/if}
 			{#if rows.includes('size')}
-				<StyleRow
-					label={labels.size}
-					options={named(SIZES, labels.sizes)}
-					{...pick('size')}
-					class="grid grid-cols-4 gap-0.5"
-				>
+				<StyleRow label={labels.size} options={named(SIZES, labels.sizes)} {...pick('size')}>
 					{#snippet item(name)}
 						<Minus weight={sizeWeight[name as SizeName]} aria-hidden="true" />
 					{/snippet}
 				</StyleRow>
 			{/if}
 			{#if rows.includes('look')}
-				<StyleRow
-					label={labels.look}
-					options={named(LOOKS, labels.looks)}
-					{...pick('look')}
-					class="grid grid-cols-4 gap-0.5"
-				>
+				<StyleRow label={labels.look} options={named(LOOKS, labels.looks)} {...pick('look')}>
 					{#snippet item(name)}
 						{#if name === 'sketch'}<Scribble aria-hidden="true" />
 						{:else if name === 'precise'}<LineSegment aria-hidden="true" />
 						{:else}
-							<svg class="kd-dash-icon" viewBox="0 0 16 16" aria-hidden="true">
+							<svg class="wb-dash-icon" viewBox="0 0 16 16" aria-hidden="true">
 								<path d="M2,8H14" stroke-dasharray={name === 'dashed' ? '3.2 2.4' : '0.1 3'} />
 							</svg>
 						{/if}
@@ -149,14 +132,9 @@
 				</StyleRow>
 			{/if}
 			{#if rows.includes('font')}
-				<StyleRow
-					label={labels.font}
-					options={named(FONTS, labels.fonts)}
-					{...pick('font')}
-					class="grid grid-cols-4 gap-0.5"
-				>
+				<StyleRow label={labels.font} options={named(FONTS, labels.fonts)} {...pick('font')}>
 					{#snippet item(name)}
-						<span class="kd-font-sample" data-font={name} aria-hidden="true">Aa</span>
+						<span class="wb-font-sample" data-font={name} aria-hidden="true">Aa</span>
 					{/snippet}
 				</StyleRow>
 			{/if}
@@ -165,7 +143,7 @@
 					label={labels.align}
 					options={named(ALIGNS, labels.aligns)}
 					{...pick('align')}
-					class="flex gap-0.5"
+					columns="line"
 				>
 					{#snippet item(name)}
 						{#if name === 'start'}<TextAlignLeft aria-hidden="true" />
@@ -179,7 +157,7 @@
 					label={labels.valign}
 					options={named(VALIGNS, labels.valigns)}
 					{...pick('valign')}
-					class="flex gap-0.5"
+					columns="line"
 				>
 					{#snippet item(name)}
 						{#if name === 'top'}<AlignTop aria-hidden="true" />
@@ -196,14 +174,13 @@
 						label: `${labels.opacity} ${percent(value)}`
 					}))}
 					{...pick('opacity', Number)}
-					class="grid grid-cols-5 gap-0"
-					itemClass="w-auto min-w-0 px-0"
+					columns={5}
 				>
 					{#snippet item(value)}
-						<span class="kd-swatch kd-opacity" style:--kd-opacity={value}></span>
+						<span class="wb-swatch wb-opacity" style:--wb-opacity={value}></span>
 					{/snippet}
 				</StyleRow>
 			{/if}
 		</div>
-	</TooltipProvider>
+	</Tooltip.Provider>
 {/if}

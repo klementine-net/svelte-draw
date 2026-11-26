@@ -38,7 +38,7 @@
 			plugins={tools}
 			fit={false}
 			label="A board for the examples on this page"
-			class="h-64 rounded-md bg-(--canvas-ground) shadow-[0_0_0_1px_var(--line)] md:h-80"
+			class="h-64 rounded-md bg-(--paper) shadow-[0_0_0_1px_var(--line)] md:h-80"
 		/>
 	</div>
 

@@ -8,13 +8,14 @@
 		Minimap,
 		type DrawSveltePlugin
 	} from '@simon-lund/svelte-draw/svelte';
-	import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@klementine/ui/context-menu';
+	import { ContextMenu } from 'bits-ui';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
 	import CanvasMenu from './canvas-menu.svelte';
 	import DrawToolbar from './draw-toolbar.svelte';
 	import StylePanel from './style-panel.svelte';
 	import ZoomControl from './zoom-control.svelte';
 	import PageMenu from './page-menu.svelte';
+	import { setScheme, toCanvas, type Scheme } from './board.ts';
 
 	/**
 	 * Whiteboard: a whole whiteboard in one tag: the library's canvas with this example's
@@ -32,6 +33,8 @@
 		plugins?: DrawSveltePlugin[];
 		editor?: Editor;
 		labels?: DrawLabels;
+		/** Light or dark, for the canvas and the controls; `auto` (the default) follows the system. */
+		scheme?: Scheme;
 		/**
 		 * Keeps the document in this browser under this name and in step with the other tabs
 		 * that show it. Without it, the document lives only as long as the page.
@@ -56,6 +59,9 @@
 	const editor = untrack(() => props.editor ?? new Editor({ plugins }));
 	const labels = $derived(props.labels ?? defaultLabels);
 	const readOnly = $derived(editor.readOnly.get());
+	const scheme = $derived(props.scheme ?? 'auto');
+	// Menus and hints are drawn outside the board: they learn the scheme from here.
+	setScheme(() => scheme);
 	/** The canvas's surface, for the menu's copy of the selection as a picture. */
 	let surface = $state<HTMLElement | null>(null);
 
@@ -91,28 +97,90 @@
 	});
 </script>
 
-<!-- The theme follows the system, so the canvas does. -->
-<Canvas {editor} {plugins} label={labels.canvas} scheme="auto">
-	<!-- The right-click menu: its trigger goes around the canvas's surface. -->
-	{#snippet around(canvas)}
-		<ContextMenu>
-			<ContextMenuTrigger bind:ref={surface}>
-				{#snippet child({ props })}{@render canvas(props)}{/snippet}
-			</ContextMenuTrigger>
-			<ContextMenuContent><CanvasMenu {editor} {labels} canvas={surface} /></ContextMenuContent>
-		</ContextMenu>
-	{/snippet}
-	{#if !props.focus}
-		<PageMenu {editor} {labels} class="absolute top-3 left-3" />
-	{/if}
-	{#if !readOnly && !props.focus}
-		<StylePanel {editor} {labels} class="absolute top-3 right-3" />
-		<DrawToolbar {editor} {plugins} {labels} class="absolute bottom-3 left-1/2 -translate-x-1/2" />
-	{/if}
-	{#if !props.focus}
-		<ZoomControl {editor} {labels} class="absolute bottom-3 left-3" />
-	{/if}
-	{#if props.minimap && !props.focus}
-		<Minimap {editor} label={labels.minimap} class="absolute right-3 bottom-3" />
-	{/if}
-</Canvas>
+<!-- The board's width decides how the controls are arranged, not the window's. -->
+<div class="board">
+	<Canvas {editor} {plugins} label={labels.canvas} {scheme}>
+		<!-- The right-click menu: its trigger goes around the canvas's surface. -->
+		{#snippet around(canvas)}
+			<ContextMenu.Root>
+				<ContextMenu.Trigger bind:ref={surface}>
+					{#snippet child({ props })}{@render canvas(props)}{/snippet}
+				</ContextMenu.Trigger>
+				<ContextMenu.Portal>
+					<ContextMenu.Content
+						collisionPadding={8}
+						class="wb wb-menu"
+						data-scheme={scheme}
+						onCloseAutoFocus={(event) => toCanvas(event, surface)}
+					>
+						<CanvasMenu {editor} {labels} canvas={surface} />
+					</ContextMenu.Content>
+				</ContextMenu.Portal>
+			</ContextMenu.Root>
+		{/snippet}
+		<!-- The controls lie above the surface, each in its corner. -->
+		{#if !props.focus}
+			<div class="at top-left"><PageMenu {editor} {labels} /></div>
+			<div class="at bottom-left"><ZoomControl {editor} {labels} /></div>
+			{#if !readOnly}
+				<div class="at top-right"><StylePanel {editor} {labels} /></div>
+				<div class="at bottom"><DrawToolbar {editor} {plugins} {labels} /></div>
+			{/if}
+			{#if props.minimap}
+				<div class="at bottom-right"><Minimap {editor} label={labels.minimap} /></div>
+			{/if}
+		{/if}
+	</Canvas>
+</div>
+
+<style>
+	.board {
+		width: 100%;
+		height: 100%;
+		container-type: inline-size;
+	}
+	.at {
+		position: absolute;
+	}
+	.top-left {
+		top: 12px;
+		left: 12px;
+	}
+	.top-right {
+		top: 12px;
+		right: 12px;
+	}
+	.bottom-left {
+		bottom: 12px;
+		left: 12px;
+	}
+	.bottom-right {
+		right: 12px;
+		bottom: 12px;
+	}
+	/* The tools: in the middle of the bottom edge, and never wider than the board. */
+	.bottom {
+		bottom: 12px;
+		left: 50%;
+		translate: -50%;
+		max-width: calc(100% - 24px);
+	}
+
+	/* A narrow board (a phone): the tools get the bottom edge to themselves and scroll sideways.
+	   Zooming is a pinch there, and the map would cover the page it shows. */
+	@container (max-width: 599px) {
+		.bottom-left,
+		.bottom-right {
+			display: none;
+		}
+		.bottom {
+			/* Room for the bar's shadow inside the scrolling box. */
+			bottom: 0;
+			max-width: 100%;
+			padding: 12px;
+			box-sizing: border-box;
+			overflow-x: auto;
+			scrollbar-width: none;
+		}
+	}
+</style>

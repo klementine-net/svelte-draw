@@ -4,9 +4,9 @@
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import { Whiteboard } from '../src/lib/ui/index.ts';
 
-	let { editor }: { editor: Editor } = $props();
+	let { editor, scheme }: { editor: Editor; scheme?: 'light' | 'dark' | 'auto' } = $props();
 </script>
 
 <div style:width="800px" style:height="600px">
-	<Whiteboard {editor} />
+	<Whiteboard {editor} {scheme} />
 </div>

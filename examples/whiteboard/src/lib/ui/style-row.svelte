@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { ToggleGroup } from 'bits-ui';
 	import type { Snippet } from 'svelte';
-	import { ToggleGroup, ToggleGroupItem } from '@klementine/ui/toggle-group';
 	import Hint from './hint.svelte';
 
 	/**
@@ -9,7 +9,7 @@
 	 * one again keeps it: a style always has a value.
 	 *
 	 * @example
-	 * <StyleRow label="Fill" options={fills} value={style.fill} onpick={setFill} class="flex gap-0.5">
+	 * <StyleRow label="Fill" options={fills} value={style.fill} onpick={setFill}>
 	 *   {#snippet item(name)}<Circle weight={name === 'solid' ? 'fill' : 'regular'} />{/snippet}
 	 * </StyleRow>
 	 */
@@ -19,8 +19,7 @@
 		value,
 		onpick,
 		item,
-		class: className,
-		itemClass
+		columns = 4
 	}: {
 		/** What the row sets, read out for the group. */
 		label: string;
@@ -28,18 +27,16 @@
 		value: string;
 		onpick: (value: string) => void;
 		item: Snippet<[string]>;
-		/** How the choices are laid out (a grid or a line). */
-		class?: string;
-		itemClass?: string;
+		/** How the choices are laid out: four or five in a row of the grid, or one line. */
+		columns?: 4 | 5 | 'line';
 	} = $props();
 </script>
 
-<ToggleGroup
+<ToggleGroup.Root
 	type="single"
-	variant="quiet"
-	size="icon"
 	aria-label={label}
-	class={className}
+	class="wb-choices"
+	data-columns={columns}
 	bind:value={
 		() => value,
 		(next) => {
@@ -50,15 +47,10 @@
 	{#each options as option (option.value)}
 		<Hint label={option.label} side="left">
 			{#snippet control(props)}
-				<ToggleGroupItem
-					{...props}
-					value={option.value}
-					aria-label={option.label}
-					class={itemClass}
-				>
+				<ToggleGroup.Item {...props} value={option.value} aria-label={option.label} class="wb-item">
 					{@render item(option.value)}
-				</ToggleGroupItem>
+				</ToggleGroup.Item>
 			{/snippet}
 		</Hint>
 	{/each}
-</ToggleGroup>
+</ToggleGroup.Root>

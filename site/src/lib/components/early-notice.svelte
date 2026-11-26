@@ -31,7 +31,7 @@
 		border-radius: var(--radius-md);
 		font-size: 0.9375rem;
 		line-height: 1.5;
-		color: var(--cream-ink);
+		color: var(--ink);
 	}
 	/* The sign sits on the title's line. */
 	.notice :global(.sign) {
@@ -45,7 +45,7 @@
 	}
 	p + p {
 		margin-top: 0.125rem;
-		color: var(--cream-ink2);
+		color: var(--ink2);
 	}
 	a {
 		color: inherit;

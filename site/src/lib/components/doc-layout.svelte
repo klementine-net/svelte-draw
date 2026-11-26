@@ -22,7 +22,7 @@
 <article class="prose min-w-0">
 	{#if at.page}
 		<h1>{at.page.title}</h1>
-		<p class="text-cream-ink2 !mt-3 text-title font-normal">{at.page.summary}</p>
+		<p class="!mt-3 text-title font-normal text-ink2">{at.page.summary}</p>
 	{/if}
 	<div class="doc-body">
 		{@render children?.()}
@@ -33,7 +33,7 @@
 	<nav aria-label="Pages" class="grid grid-cols-2 gap-4">
 		{#if at.previous}
 			<a href={href(at.previous.path)} class="group flex flex-col gap-1">
-				<span class="text-cream-ink3 flex items-center gap-1 text-label"
+				<span class="flex items-center gap-1 text-label text-ink3"
 					><ArrowLeft aria-hidden="true" class="size-3.5" />Previous</span
 				>
 				<span class="text-[0.9375rem] font-semibold group-hover:underline">{at.previous.title}</span
@@ -44,7 +44,7 @@
 		{/if}
 		{#if at.next}
 			<a href={href(at.next.path)} class="group flex flex-col items-end gap-1 text-right">
-				<span class="text-cream-ink3 flex items-center gap-1 text-label"
+				<span class="flex items-center gap-1 text-label text-ink3"
 					>Next<ArrowRight aria-hidden="true" class="size-3.5" /></span
 				>
 				<span class="text-[0.9375rem] font-semibold group-hover:underline">{at.next.title}</span>
@@ -52,7 +52,7 @@
 		{/if}
 	</nav>
 	{#if at.page}
-		<p class="text-cream-ink3 mt-8 text-label">
+		<p class="mt-8 text-label text-ink3">
 			<a href="{REPOSITORY}/edit/main/{at.page.source}" class="underline-offset-2 hover:underline"
 				>Edit this page on GitHub</a
 			>

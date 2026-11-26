@@ -14,7 +14,7 @@
 	<h1 class="text-display font-semibold tracking-[-0.035em]">
 		{missing ? 'There is no page here.' : 'This page could not be shown.'}
 	</h1>
-	<p class="text-cream-ink2 mt-4 max-w-[36rem] leading-[1.625]">
+	<p class="mt-4 max-w-[36rem] leading-[1.625] text-ink2">
 		{missing
 			? 'The address may have changed. The documentation starts with the introduction.'
 			: 'Try loading it again. If it keeps failing, the documentation starts with the introduction.'}

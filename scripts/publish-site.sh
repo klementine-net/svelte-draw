@@ -4,8 +4,8 @@
 #
 #   scripts/publish-site.sh [remote]        # remote: public (simon-lund/svelte-draw) by default
 #
-# Both are served from <host>/svelte-draw/ (BASE_PATH changes that). The demo and the site need the UI kit
-# checkout this workspace installs from, so they are built here, not by GitHub.
+# Both are served from <host>/svelte-draw/ (BASE_PATH changes that). They are built here
+# and pushed as files.
 set -euo pipefail
 
 remote="${1:-public}"

@@ -25,7 +25,8 @@ Read README.md first (the two layers, the five ideas, what is not built).
   no design system in this package. Shape colours are named (`ink`, `red`, …); no orange.
 - **No controls here.** Only what is the canvas's own is written in this package: shapes,
   selection, the minimap. A toolbar, a panel or a menu goes to `examples/whiteboard/src/lib/ui`;
-  what it needs from the canvas is a prop or a snippet (`around`), never an import of a UI kit.
+  what it needs from the canvas is a prop or a snippet (`around`), never an import of a
+  component library.
 - **Shipped built, like any Svelte library**: `pnpm build` (svelte-package, then publint)
   writes `dist`, and the demo, the site and every app use that. Source imports keep `.ts`;
   the build rewrites them to `.js`. Anything public is exported from `src/lib/index.ts` or

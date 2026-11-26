@@ -1,9 +1,5 @@
-@import 'tailwindcss';
-@import '@klementine/ui/theme.css';
 @import '@simon-lund/svelte-draw/draw.css';
 @import './lib/ui/ui.css';
-
-@source './';
 
 html,
 body,
@@ -12,12 +8,11 @@ body,
 	margin: 0;
 }
 
-/* The canvas in this app's theme: its ground, ink, lines and typeface come from the tokens. */
+/* The controls take the page's typeface; the canvas uses it for its small print. */
+body {
+	font-family: 'Instrument Sans', system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
 .kd-root {
-	--kd-ground: var(--canvas-ground);
-	--kd-ink: var(--cream-ink);
-	--kd-line: var(--line-strong);
-	--kd-layer: var(--color-layer);
-	--kd-select: var(--color-focus);
-	--kd-font-sans: var(--font-sans);
+	--kd-font-sans: 'Instrument Sans', system-ui, sans-serif;
 }

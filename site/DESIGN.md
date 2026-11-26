@@ -22,11 +22,11 @@ what someone draws on a live canvas.
   the sidebar and the column.
 - **Compact** (phones): one column, 20px side margins.
 - **Type:** Instrument Sans for text, JetBrains Mono for code, both self-hosted (no request to
-  Google). Sizes are the theme's: display 30/36 for a page's title, headline 22/28 for a
+  Google). Sizes: display 30/36 for a page's title, headline 22/28 for a
   section, title 17/23 for a subsection, body 16/24, label 13/16 for navigation and captions.
   Two weights, 400 and 600.
-- **Colour:** the theme's paper (`--canvas-ground`) and ink (`--cream-ink`, quieter
-  `--cream-ink2`). No accent: a link is ink and underlined, the one button that matters is
+- **Colour:** paper (`--paper`) and ink (`--ink`, quieter `--ink2` for what is secondary,
+  `--ink3` for captions), defined once in `src/app.css`, light and dark. No accent: a link is ink and underlined, the one button that matters is
   filled with ink. Colour appears only in drawings on a live canvas. Light and dark follow the
   system.
 
@@ -49,7 +49,7 @@ tracked, nothing is loaded from elsewhere).
 
 ## Compact
 
-The sidebar is a list in a drawer opened from the header. The canvas on the home page is
+The sidebar is a list on a sheet opened from the header. The canvas on the home page is
 shorter and has fewer tools; the full set is in the demo. Code scrolls sideways inside its
 block, never the page.
 

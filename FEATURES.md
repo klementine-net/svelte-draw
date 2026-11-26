@@ -130,11 +130,14 @@ shape kind's geometry, attached, bent and right-angled lines, text, eraser, rota
 frames, clipboard, arranging, snapping, the grid, pages, saving and tabs (with stand-ins for
 IndexedDB and the channel), cursors, files and assets, read-only, scrolling at the edge.
 
-**Browser tests** (`pnpm test:browser`, in Chrome; 6 in `packages/draw/tests/browser`, 2 in
-`examples/whiteboard/tests`) cover the Svelte layer: typing into a note and a text shape (every key written, the caret kept), a note's
-writing fitting its paper, a text shape's measured size, the wheel, the canvas following its size,
-and, for the example's controls, a toolbar group showing the tool picked from it last and a
-right click opening the menu for the shape under it.
+**Browser tests** (`pnpm test:browser`, in Chrome) cover what only a browser can show. For
+the canvas (7, `packages/draw/tests/browser`): typing into a note and a text shape (every key
+written, the caret kept), a note's writing fitting its paper, a text shape's measured size,
+the wheel, the canvas following its size, its own light and dark. For the example's controls
+(12, `examples/whiteboard/tests`): picking tools from the bar and a group's menu, the
+right-click menu with a sub-menu and a switch, the keys coming back to the canvas when a menu
+closes, renaming and adding pages, the style panel, undo and redo, zoom, hints, and menus and
+hints following the board's scheme.
 
 **No engine test, because the code only runs in a browser:** the minimap, links to a view, not
 drawing what is off screen, picture export and copy as a picture, saving to and opening a file,

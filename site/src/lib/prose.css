@@ -7,7 +7,7 @@
 	max-width: var(--site-column);
 	font-size: 1rem;
 	line-height: 1.625;
-	color: var(--cream-ink);
+	color: var(--ink);
 }
 
 .prose > * + *,
@@ -85,7 +85,7 @@
 }
 
 .prose li::marker {
-	color: var(--cream-ink3);
+	color: var(--ink3);
 }
 
 .prose :not(pre) > code {
@@ -93,13 +93,13 @@
 	font-size: 0.875em;
 	padding: 0.1em 0.3em;
 	border-radius: var(--radius-xs);
-	background: var(--cream-recess);
+	background: var(--recess);
 }
 
 .prose blockquote {
 	padding-left: 1rem;
 	border-left: 2px solid var(--line-strong);
-	color: var(--cream-ink2);
+	color: var(--ink2);
 }
 
 /* Tables: lines between rows only, no boxes. */
@@ -115,7 +115,7 @@
 	font-weight: 600;
 	font-size: var(--type-label);
 	line-height: var(--type-label-leading);
-	color: var(--cream-ink2);
+	color: var(--ink2);
 	padding: 0 1rem 0.5rem 0;
 	border-bottom: 1px solid var(--line-strong);
 }

@@ -20,9 +20,9 @@
 			{editor}
 			{plugins}
 			label="Ideas to vote on with dots"
-			class="h-80 rounded-md bg-(--canvas-ground) shadow-[0_0_0_1px_var(--line)]"
+			class="h-80 rounded-md bg-(--paper) shadow-[0_0_0_1px_var(--line)]"
 		/>
-		<p class="text-cream-ink3 mt-3 text-label font-normal">
+		<p class="mt-3 text-label font-normal text-ink3">
 			Pick Vote in the toolbar (or press B) and click a note. Each click is a vote.
 		</p>
 	</div>

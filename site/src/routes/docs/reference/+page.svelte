@@ -102,7 +102,7 @@
 		margin: 0.25rem 0 0;
 		font-size: 0.9375rem;
 		line-height: 1.55;
-		color: var(--cream-ink2);
+		color: var(--ink2);
 	}
 	.reference dd + dd {
 		margin-top: 0.5rem;
@@ -110,6 +110,6 @@
 	.reference dd :global(code) {
 		font-family: var(--font-mono);
 		font-size: 0.8125em;
-		color: var(--cream-ink);
+		color: var(--ink);
 	}
 </style>

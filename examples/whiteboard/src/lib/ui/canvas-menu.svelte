@@ -1,25 +1,19 @@
 <script lang="ts">
-	import {
-		ContextMenuCheckboxItem,
-		ContextMenuItem,
-		ContextMenuSeparator,
-		ContextMenuShortcut,
-		ContextMenuSub,
-		ContextMenuSubContent,
-		ContextMenuSubTrigger
-	} from '@klementine/ui/context-menu';
-	import { Kbd } from '@klementine/ui/kbd';
+	import CaretRight from 'phosphor-svelte/lib/CaretRight';
+	import Check from 'phosphor-svelte/lib/Check';
+	import { ContextMenu } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import { toPng } from '@simon-lund/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
+	import { useScheme } from './board.ts';
 
 	/**
 	 * CanvasMenu: what the canvas's right-click menu offers for the selection: clipboard,
 	 * order, alignment, flipping, grouping, locking, deleting. Only what applies shows. It is
-	 * the inside of a ContextMenuContent; `Canvas` puts it there.
+	 * the inside of a context menu's content; `Whiteboard` puts it there.
 	 *
 	 * @example
-	 * <ContextMenuContent><CanvasMenu {editor} /></ContextMenuContent>
+	 * <ContextMenu.Content class="wb wb-menu"><CanvasMenu {editor} /></ContextMenu.Content>
 	 */
 	let {
 		editor,
@@ -50,139 +44,223 @@
 		selected[0] && !locked ? editor.util(selected[0].kind).toggles(selected[0]) : []
 	);
 	const grid = $derived(editor.grid.get());
+	const scheme = useScheme();
 	// Where the menu was opened: a paste lands there.
 	const at = $derived(editor.inputs.page);
 </script>
 
 {#if editor.readOnly.get()}
-	<ContextMenuItem onSelect={() => editor.zoomToFit()}>{labels.zoomFit}</ContextMenuItem>
+	<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.zoomToFit()}
+		>{labels.zoomFit}</ContextMenu.Item
+	>
 {:else}
 	{#if movable.length > 0}
-		<ContextMenuItem onSelect={() => editor.cut()}>
-			{words.cut}<ContextMenuShortcut><Kbd>{mod} X</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
-		<ContextMenuItem onSelect={() => editor.copy()}>
-			{words.copy}<ContextMenuShortcut><Kbd>{mod} C</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.cut()}>
+			{words.cut}<span class="wb-keys" aria-hidden="true"><kbd class="wb-key">{mod} X</kbd></span>
+		</ContextMenu.Item>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.copy()}>
+			{words.copy}<span class="wb-keys" aria-hidden="true"><kbd class="wb-key">{mod} C</kbd></span>
+		</ContextMenu.Item>
 	{/if}
-	<ContextMenuItem
+	<ContextMenu.Item
+		class="wb-menu-item"
 		disabled={editor.clipboard.length === 0}
 		onSelect={() => editor.paste(undefined, at)}
 	>
-		{words.paste}<ContextMenuShortcut><Kbd>{mod} V</Kbd></ContextMenuShortcut>
-	</ContextMenuItem>
+		{words.paste}<span class="wb-keys" aria-hidden="true"><kbd class="wb-key">{mod} V</kbd></span>
+	</ContextMenu.Item>
 	{#if movable.length > 0}
-		<ContextMenuItem onSelect={() => editor.duplicateSelection()}>
-			{words.duplicate}<ContextMenuShortcut><Kbd>{mod} D</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.duplicateSelection()}>
+			{words.duplicate}<span class="wb-keys" aria-hidden="true"
+				><kbd class="wb-key">{mod} D</kbd></span
+			>
+		</ContextMenu.Item>
 		{#if canvas}
-			<ContextMenuItem onSelect={copyPicture}>{words.copyPicture}</ContextMenuItem>
+			<ContextMenu.Item class="wb-menu-item" onSelect={copyPicture}
+				>{words.copyPicture}</ContextMenu.Item
+			>
 		{/if}
-		<ContextMenuSeparator />
-		<ContextMenuSub>
-			<ContextMenuSubTrigger>{words.order}</ContextMenuSubTrigger>
-			<ContextMenuSubContent>
-				<ContextMenuItem onSelect={() => editor.bringToFront()}>
-					{words.toFront}<ContextMenuShortcut><Kbd>]</Kbd></ContextMenuShortcut>
-				</ContextMenuItem>
-				<ContextMenuItem onSelect={() => editor.bringForward()}>{words.forward}</ContextMenuItem>
-				<ContextMenuItem onSelect={() => editor.sendBackward()}>{words.backward}</ContextMenuItem>
-				<ContextMenuItem onSelect={() => editor.sendToBack()}>
-					{words.toBack}<ContextMenuShortcut><Kbd>[</Kbd></ContextMenuShortcut>
-				</ContextMenuItem>
-			</ContextMenuSubContent>
-		</ContextMenuSub>
+		<ContextMenu.Separator class="wb-menu-rule" />
+		<ContextMenu.Sub>
+			<ContextMenu.SubTrigger class="wb-menu-item">
+				{words.order}<CaretRight class="wb-more" aria-hidden="true" />
+			</ContextMenu.SubTrigger>
+			<ContextMenu.Portal>
+				<ContextMenu.SubContent
+					align="start"
+					alignOffset={-6}
+					sideOffset={10}
+					collisionPadding={8}
+					class="wb wb-menu"
+					data-scheme={scheme()}
+				>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.bringToFront()}>
+						{words.toFront}<span class="wb-keys" aria-hidden="true"
+							><kbd class="wb-key">]</kbd></span
+						>
+					</ContextMenu.Item>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.bringForward()}
+						>{words.forward}</ContextMenu.Item
+					>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.sendBackward()}
+						>{words.backward}</ContextMenu.Item
+					>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.sendToBack()}>
+						{words.toBack}<span class="wb-keys" aria-hidden="true"><kbd class="wb-key">[</kbd></span
+						>
+					</ContextMenu.Item>
+				</ContextMenu.SubContent>
+			</ContextMenu.Portal>
+		</ContextMenu.Sub>
 		{#if movable.length > 1}
-			<ContextMenuSub>
-				<ContextMenuSubTrigger>{words.align}</ContextMenuSubTrigger>
-				<ContextMenuSubContent>
-					<ContextMenuItem onSelect={() => editor.alignSelection('left')}>
-						{words.alignLeft}
-					</ContextMenuItem>
-					<ContextMenuItem onSelect={() => editor.alignSelection('center')}>
-						{words.alignCenter}
-					</ContextMenuItem>
-					<ContextMenuItem onSelect={() => editor.alignSelection('right')}>
-						{words.alignRight}
-					</ContextMenuItem>
-					<ContextMenuSeparator />
-					<ContextMenuItem onSelect={() => editor.alignSelection('top')}>
-						{words.alignTop}
-					</ContextMenuItem>
-					<ContextMenuItem onSelect={() => editor.alignSelection('middle')}>
-						{words.alignMiddle}
-					</ContextMenuItem>
-					<ContextMenuItem onSelect={() => editor.alignSelection('bottom')}>
-						{words.alignBottom}
-					</ContextMenuItem>
-					{#if movable.length > 2}
-						<ContextMenuSeparator />
-						<ContextMenuItem onSelect={() => editor.distributeSelection('x')}>
-							{words.distributeX}
-						</ContextMenuItem>
-						<ContextMenuItem onSelect={() => editor.distributeSelection('y')}>
-							{words.distributeY}
-						</ContextMenuItem>
-					{/if}
-				</ContextMenuSubContent>
-			</ContextMenuSub>
+			<ContextMenu.Sub>
+				<ContextMenu.SubTrigger class="wb-menu-item">
+					{words.align}<CaretRight class="wb-more" aria-hidden="true" />
+				</ContextMenu.SubTrigger>
+				<ContextMenu.Portal>
+					<ContextMenu.SubContent
+						align="start"
+						alignOffset={-6}
+						sideOffset={10}
+						collisionPadding={8}
+						class="wb wb-menu"
+						data-scheme={scheme()}
+					>
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('left')}>
+							{words.alignLeft}
+						</ContextMenu.Item>
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('center')}>
+							{words.alignCenter}
+						</ContextMenu.Item>
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('right')}>
+							{words.alignRight}
+						</ContextMenu.Item>
+						<ContextMenu.Separator class="wb-menu-rule" />
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('top')}>
+							{words.alignTop}
+						</ContextMenu.Item>
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('middle')}>
+							{words.alignMiddle}
+						</ContextMenu.Item>
+						<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.alignSelection('bottom')}>
+							{words.alignBottom}
+						</ContextMenu.Item>
+						{#if movable.length > 2}
+							<ContextMenu.Separator class="wb-menu-rule" />
+							<ContextMenu.Item
+								class="wb-menu-item"
+								onSelect={() => editor.distributeSelection('x')}
+							>
+								{words.distributeX}
+							</ContextMenu.Item>
+							<ContextMenu.Item
+								class="wb-menu-item"
+								onSelect={() => editor.distributeSelection('y')}
+							>
+								{words.distributeY}
+							</ContextMenu.Item>
+						{/if}
+					</ContextMenu.SubContent>
+				</ContextMenu.Portal>
+			</ContextMenu.Sub>
 		{/if}
-		<ContextMenuSub>
-			<ContextMenuSubTrigger>{words.flip}</ContextMenuSubTrigger>
-			<ContextMenuSubContent>
-				<ContextMenuItem onSelect={() => editor.flipSelection('x')}>{words.flipX}</ContextMenuItem>
-				<ContextMenuItem onSelect={() => editor.flipSelection('y')}>{words.flipY}</ContextMenuItem>
-			</ContextMenuSubContent>
-		</ContextMenuSub>
+		<ContextMenu.Sub>
+			<ContextMenu.SubTrigger class="wb-menu-item">
+				{words.flip}<CaretRight class="wb-more" aria-hidden="true" />
+			</ContextMenu.SubTrigger>
+			<ContextMenu.Portal>
+				<ContextMenu.SubContent
+					align="start"
+					alignOffset={-6}
+					sideOffset={10}
+					collisionPadding={8}
+					class="wb wb-menu"
+					data-scheme={scheme()}
+				>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.flipSelection('x')}
+						>{words.flipX}</ContextMenu.Item
+					>
+					<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.flipSelection('y')}
+						>{words.flipY}</ContextMenu.Item
+					>
+				</ContextMenu.SubContent>
+			</ContextMenu.Portal>
+		</ContextMenu.Sub>
 		{#if editor.canGroupSelection()}
-			<ContextMenuItem onSelect={() => editor.groupSelection()}>
-				{words.group}<ContextMenuShortcut><Kbd>{mod} G</Kbd></ContextMenuShortcut>
-			</ContextMenuItem>
+			<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.groupSelection()}>
+				{words.group}<span class="wb-keys" aria-hidden="true"
+					><kbd class="wb-key">{mod} G</kbd></span
+				>
+			</ContextMenu.Item>
 		{/if}
 	{/if}
 	{#each toggles as toggle (toggle.id)}
-		<ContextMenuCheckboxItem
+		<ContextMenu.CheckboxItem
+			class="wb-menu-item wb-marked"
 			checked={toggle.on}
 			onCheckedChange={() => editor.toggleSelection(toggle.id)}
 		>
-			{labels.toggles[toggle.id] ?? toggle.id}
-		</ContextMenuCheckboxItem>
+			{#snippet children({ checked })}
+				<span class="wb-mark" aria-hidden="true"
+					>{#if checked}<Check />{/if}</span
+				>
+				{labels.toggles[toggle.id] ?? toggle.id}
+			{/snippet}
+		</ContextMenu.CheckboxItem>
 	{/each}
 	{#if groups}
-		<ContextMenuItem onSelect={() => editor.ungroupSelection()}>
-			{words.ungroup}<ContextMenuShortcut><Kbd>{mod} ⇧ G</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.ungroupSelection()}>
+			{words.ungroup}<span class="wb-keys" aria-hidden="true"
+				><kbd class="wb-key">{mod} ⇧ G</kbd></span
+			>
+		</ContextMenu.Item>
 	{/if}
 	{#if selected.length > 0}
-		<ContextMenuItem onSelect={() => editor.toggleLock()}>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.toggleLock()}>
 			{locked ? words.unlock : words.lock}
-		</ContextMenuItem>
-		<ContextMenuItem onSelect={() => editor.zoomToSelection()}>
+		</ContextMenu.Item>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.zoomToSelection()}>
 			{words.zoomToSelection}
-		</ContextMenuItem>
+		</ContextMenu.Item>
 	{:else}
-		<ContextMenuItem onSelect={() => editor.selectAll()}>
-			{words.selectAll}<ContextMenuShortcut><Kbd>{mod} A</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
-		<ContextMenuItem onSelect={() => editor.zoomToFit()}>{labels.zoomFit}</ContextMenuItem>
-		<ContextMenuSeparator />
-		<ContextMenuCheckboxItem
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.selectAll()}>
+			{words.selectAll}<span class="wb-keys" aria-hidden="true"
+				><kbd class="wb-key">{mod} A</kbd></span
+			>
+		</ContextMenu.Item>
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.zoomToFit()}
+			>{labels.zoomFit}</ContextMenu.Item
+		>
+		<ContextMenu.Separator class="wb-menu-rule" />
+		<ContextMenu.CheckboxItem
+			class="wb-menu-item wb-marked"
 			checked={grid.show}
 			onCheckedChange={() => editor.grid.set({ ...grid, show: !grid.show })}
 		>
-			{words.showGrid}
-		</ContextMenuCheckboxItem>
-		<ContextMenuCheckboxItem
+			{#snippet children({ checked })}
+				<span class="wb-mark" aria-hidden="true"
+					>{#if checked}<Check />{/if}</span
+				>
+				{words.showGrid}
+			{/snippet}
+		</ContextMenu.CheckboxItem>
+		<ContextMenu.CheckboxItem
+			class="wb-menu-item wb-marked"
 			checked={grid.snap}
 			onCheckedChange={() => editor.grid.set({ ...grid, snap: !grid.snap })}
 		>
-			{words.snapGrid}
-		</ContextMenuCheckboxItem>
+			{#snippet children({ checked })}
+				<span class="wb-mark" aria-hidden="true"
+					>{#if checked}<Check />{/if}</span
+				>
+				{words.snapGrid}
+			{/snippet}
+		</ContextMenu.CheckboxItem>
 	{/if}
 	{#if movable.length > 0}
-		<ContextMenuSeparator />
-		<ContextMenuItem onSelect={() => editor.deleteSelection()}>
-			{words.delete}<ContextMenuShortcut><Kbd>Del</Kbd></ContextMenuShortcut>
-		</ContextMenuItem>
+		<ContextMenu.Separator class="wb-menu-rule" />
+		<ContextMenu.Item class="wb-menu-item" onSelect={() => editor.deleteSelection()}>
+			{words.delete}<span class="wb-keys" aria-hidden="true"><kbd class="wb-key">Del</kbd></span>
+		</ContextMenu.Item>
 	{/if}
 {/if}

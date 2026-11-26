@@ -72,8 +72,9 @@ pages, arranging.
 [whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
 has a full set: a toolbar with grouped tools, a style panel, a page menu, a zoom control, a
 right-click menu, and `Whiteboard`, which puts them around the canvas and keeps the board in
-the browser. The [demo](../../demo/) is that example. Its controls are built on the author's
-own design system; take the structure and swap in your buttons and menus.
+the browser. The [demo](../../demo/) is that example. They are Svelte components on
+[bits-ui](https://bits-ui.com) (menus, hints and bars that work with a keyboard) and one plain
+stylesheet whose colours are a handful of properties. Copy the folder and make it yours.
 [Look and controls](../styling/) shows the seams.
 
 ## Keep the board

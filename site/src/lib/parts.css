@@ -1,0 +1,134 @@
+/*
+ * The site's few controls: a button in three kinds, and the phone's menu. Plain classes on
+ * the site's paper and ink (app.css).
+ */
+
+.button {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 40px;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 9999px;
+	font: inherit;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	line-height: 1.25rem;
+	white-space: nowrap;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	transition:
+		background-color 140ms,
+		scale 140ms;
+}
+.button svg {
+	width: 18px;
+	height: 18px;
+}
+.button:active {
+	scale: 0.97;
+}
+/* The one button that matters on a page: filled with ink. */
+.button[data-kind='primary'] {
+	background: var(--ink);
+	color: var(--paper);
+	box-shadow:
+		0 0 0 1px var(--line),
+		0 1px 2px light-dark(rgb(36 35 29 / 0.16), rgb(0 0 0 / 0.5));
+}
+.button[data-kind='primary']:hover {
+	background: color-mix(in oklab, var(--ink) 88%, var(--paper));
+}
+/* A small one beside something: a key on the page. */
+.button[data-kind='key'] {
+	gap: 4px;
+	height: 28px;
+	padding: 0 10px;
+	background: var(--key);
+	color: var(--ink);
+	box-shadow:
+		inset 0 1px 0 light-dark(rgb(255 255 255 / 0), rgb(255 248 235 / 0.08)),
+		0 0 0 1px var(--line),
+		0 1px 2px light-dark(rgb(36 35 29 / 0.16), rgb(0 0 0 / 0.5));
+	font-size: 0.8125rem;
+	line-height: 1rem;
+	letter-spacing: 0.01em;
+}
+.button[data-kind='key'] svg {
+	width: 16px;
+	height: 16px;
+}
+.button[data-kind='key']:hover {
+	background: color-mix(in oklab, var(--key) 92%, var(--ink));
+}
+/* A quiet one: words and an icon, a wash when pointed at. */
+.button[data-kind='quiet'] {
+	padding: 0 12px;
+	background: transparent;
+	color: var(--ink);
+}
+.button[data-kind='quiet']:hover {
+	background: color-mix(in oklab, var(--recess) 60%, transparent);
+}
+
+/* The phone's menu: a sheet from the right over a veil of paper. */
+.sheet-veil {
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+	background: var(--paper-veil);
+	backdrop-filter: blur(6px);
+	transition: opacity 320ms;
+	@starting-style {
+		opacity: 0;
+	}
+}
+.sheet {
+	position: fixed;
+	inset: 0 0 0 48px;
+	z-index: 50;
+	display: flex;
+	flex-direction: column;
+	max-width: 440px;
+	margin-left: auto;
+	padding-top: max(20px, env(safe-area-inset-top));
+	border-radius: 28px 0 0 28px;
+	corner-shape: squircle;
+	background: var(--layer);
+	box-shadow:
+		0 0 0 1px var(--line-strong),
+		-16px 0 40px -16px light-dark(rgb(36 35 29 / 0.2), rgb(0 0 0 / 0.7));
+	color: var(--ink);
+	outline: none;
+	transition: translate 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	@starting-style {
+		translate: 100%;
+	}
+}
+.sheet-title {
+	flex: none;
+	padding: 0 16px 12px;
+	font-size: var(--type-title);
+	font-weight: 500;
+	line-height: var(--type-title-leading);
+	letter-spacing: -0.005em;
+}
+.sheet-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 2rem;
+	min-height: 0;
+	padding: 0 16px 2rem;
+	overflow-y: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+	.sheet {
+		transition: none;
+	}
+}

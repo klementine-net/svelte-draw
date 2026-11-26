@@ -1,16 +1,16 @@
 <script lang="ts">
+	import { Tooltip } from 'bits-ui';
 	import type { Snippet } from 'svelte';
-	import { Kbd } from '@klementine/ui/kbd';
-	import { Tooltip, TooltipContent, TooltipTrigger } from '@klementine/ui/tooltip';
+	import { useScheme } from './board.ts';
 
 	/**
-	 * Hint: the name of an icon-only control of the canvas, with the key that does the same, as
-	 * the design system's Tooltip. The control is the `control` snippet; spread its props on it.
-	 * Needs a TooltipProvider above (each bar of Draw brings one).
+	 * Hint: the name of an icon-only control, with the key that does the same, shown beside it
+	 * when it is pointed at or focused. The control is the `control` snippet; spread its props on
+	 * it. Needs a `Tooltip.Provider` above (each bar brings one).
 	 *
 	 * @example
 	 * <Hint label="Rectangle" shortcut="R">
-	 *   {#snippet control(props)}<ToolbarButton {...props} size="icon" aria-label="Rectangle">…</ToolbarButton>{/snippet}
+	 *   {#snippet control(props)}<button {...props} class="wb-item" aria-label="Rectangle">…</button>{/snippet}
 	 * </Hint>
 	 */
 	let {
@@ -24,14 +24,18 @@
 		side?: 'top' | 'right' | 'bottom' | 'left';
 		control: Snippet<[Record<string, unknown>]>;
 	} = $props();
+
+	const scheme = useScheme();
 </script>
 
-<Tooltip>
-	<TooltipTrigger>
+<Tooltip.Root>
+	<Tooltip.Trigger>
 		{#snippet child({ props })}{@render control(props)}{/snippet}
-	</TooltipTrigger>
-	<TooltipContent {side} class="flex items-center gap-2">
-		{label}
-		{#if shortcut}<Kbd surface="charcoal">{shortcut}</Kbd>{/if}
-	</TooltipContent>
-</Tooltip>
+	</Tooltip.Trigger>
+	<Tooltip.Portal>
+		<Tooltip.Content {side} sideOffset={6} class="wb wb-tip" data-scheme={scheme()}>
+			{label}
+			{#if shortcut}<kbd class="wb-key">{shortcut}</kbd>{/if}
+		</Tooltip.Content>
+	</Tooltip.Portal>
+</Tooltip.Root>

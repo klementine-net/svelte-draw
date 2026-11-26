@@ -1,6 +1,9 @@
 <script lang="ts">
-	// The handwriting font for hand-drawn text (`--kd-font-hand`).
+	// The handwriting font for hand-drawn text (`--kd-font-hand`), and the controls' typeface.
 	import '@fontsource/caveat/600.css';
+	import '@fontsource/instrument-sans/400.css';
+	import '@fontsource/instrument-sans/500.css';
+	import '@fontsource/instrument-sans/600.css';
 	import { Editor } from '@simon-lund/svelte-draw';
 	import { defaultPlugins } from '@simon-lund/svelte-draw/svelte';
 	import { Whiteboard } from './lib/ui/index.ts';
@@ -103,6 +106,6 @@
 	(globalThis as { editor?: Editor }).editor = editor;
 </script>
 
-<div class="h-full">
+<div style="height: 100%">
 	<Whiteboard {editor} persistenceKey="whiteboard" {seed} minimap deepLinks />
 </div>

@@ -6,11 +6,13 @@ in `site`. Read README.md, then `packages/draw/AGENTS.md`.
 
 - **Draw is a library on its own.** Nothing here imports an application's code; an app
   installs the built package (`pnpm --filter @simon-lund/svelte-draw build` makes it).
-- **The library has no UI kit.** `packages/draw` is the engine and the canvas in plain CSS; it
-  imports no design system and no Tailwind class. Controls (toolbar, panels, menus) live in
-  `examples/whiteboard/src/lib/ui`, for apps to copy. Only the example and the site may import
-  `@klementine/ui`, from the checkout beside this repository; after a change there,
-  `pnpm install --force` here.
+- **The library has no controls and no framework.** `packages/draw` is the engine and the
+  canvas in plain CSS, with no Tailwind class. Controls (toolbar, panels, menus) live in
+  `examples/whiteboard/src/lib/ui`, for apps to copy: bits-ui primitives and one plain
+  stylesheet (`ui.css`, classes `wb-*`, colours on `.wb`). The site has its own small theme
+  (`site/src/app.css`) on Tailwind.
+- **Everything installs from npm.** No dependency on anything private or outside this
+  repository (`file:` paths, sibling checkouts): a bare clone must install, build and test.
 - **Checks:** `pnpm check`, `pnpm test`, `pnpm lint` at the root (Node 24, pnpm 11);
   `pnpm test:browser` runs the Svelte layer in Chrome. Where they are installed through asdf,
   call them by the absolute path of the install: the shims fail outside an interactive shell.

@@ -40,7 +40,7 @@ engine alone (`@simon-lund/svelte-draw` without `/svelte`) is plain TypeScript.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
 or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
-demo shows. [Getting started](https://docs.simon-lund.com/svelte-draw/docs/start/) has the
+demo shows: Svelte components on [bits-ui](https://bits-ui.com) and one plain stylesheet. [Getting started](https://docs.simon-lund.com/svelte-draw/docs/start/) has the
 rest, and [FEATURES.md](FEATURES.md) lists what is built and what is not.
 
 ## Built with AI
@@ -61,33 +61,18 @@ How it is built, how to write a plugin and the collaboration seam: `packages/dra
 
 ## Develop
 
-Node 24 and pnpm 11. The library needs nothing but this repository:
-
-```sh
-cd packages/draw
-pnpm install --ignore-workspace
-pnpm --ignore-workspace test          # the engine, under Node
-pnpm --ignore-workspace test:browser  # the canvas, in the Chrome installed on the machine
-pnpm --ignore-workspace check
-pnpm --ignore-workspace build         # writes dist, the way it ships
-```
-
-The demo and the documentation site are another matter for now: their controls are built
-with the author's own UI kit (`@klementine/ui`), which is not published, so the workspace as
-a whole installs only with a checkout of it beside this repository
-(`../klementine/packages/ui`). With it:
+Node 24 and pnpm 11. Everything in this repository installs from npm.
 
 ```sh
 pnpm install
 pnpm dev      # the demo, on http://localhost:5196
 pnpm dev:site # the documentation site, on http://localhost:5197
 pnpm check && pnpm test && pnpm lint
-pnpm test:browser
+pnpm test:browser  # the canvas and the controls, in the Chrome installed on the machine
 ```
 
 The demo and the site use the library as it ships: built, in `packages/draw/dist`. `pnpm dev`,
-`check` and `lint` build it first, and `pnpm dev` rebuilds it on every change. After a change
-in the UI kit, run `pnpm install --force` (a plain install keeps the old copy).
+`check` and `lint` build it first, and `pnpm dev` rebuilds it on every change.
 
 `scripts/publish-site.sh` builds the documentation site (`site/`, its design in
 `site/DESIGN.md`) and the demo, and publishes both to GitHub Pages.

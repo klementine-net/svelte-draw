@@ -1,19 +1,10 @@
 <script lang="ts">
 	import CaretDown from 'phosphor-svelte/lib/CaretDown';
-	import {
-		DropdownMenu,
-		DropdownMenuContent,
-		DropdownMenuItem,
-		DropdownMenuRadioGroup,
-		DropdownMenuRadioItem,
-		DropdownMenuSeparator,
-		DropdownMenuTrigger
-	} from '@klementine/ui/dropdown-menu';
-	import { Input } from '@klementine/ui/input';
-	import { Toolbar, ToolbarButton } from '@klementine/ui/toolbar';
+	import { DropdownMenu, Toolbar } from 'bits-ui';
 	import type { Editor } from '@simon-lund/svelte-draw';
 	import { download, openFile, saveFile, toPng } from '@simon-lund/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels.ts';
+	import { toCanvas, useScheme } from './board.ts';
 
 	/**
 	 * PageMenu: the page being looked at, and the menu to go to another, add one, rename or
@@ -34,6 +25,7 @@
 	const page = $derived(editor.getPage());
 	const locked = $derived(editor.readOnly.get());
 
+	const scheme = useScheme();
 	let bar = $state<HTMLElement | null>(null);
 
 	async function savePicture() {
@@ -64,15 +56,20 @@
 	}
 </script>
 
-<Toolbar bind:ref={bar} aria-label={words.label} class={['shadow-float', className]}>
+<Toolbar.Root
+	bind:ref={bar}
+	aria-label={words.label}
+	class={['wb wb-bar', className]}
+	data-scheme={scheme()}
+>
 	{#if renaming}
-		<Input
+		<input
 			aria-label={words.rename}
-			class="h-8 w-40"
-			bind:ref={field}
+			class="wb-field"
+			bind:this={field}
 			bind:value={name}
 			onblur={keep}
-			onkeydown={(event: KeyboardEvent) => {
+			onkeydown={(event) => {
 				if (event.key === 'Enter') keep();
 				else if (event.key === 'Escape') renaming = false;
 				// The canvas's shortcuts are not for a name being typed.
@@ -80,43 +77,77 @@
 			}}
 		/>
 	{:else}
-		<DropdownMenu>
-			<DropdownMenuTrigger>
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
-					<ToolbarButton {...props} aria-label="{words.label}: {page?.name ?? ''}">
-						<span class="max-w-40 truncate">{page?.name ?? ''}</span>
-						<CaretDown aria-hidden="true" class="size-3" />
-					</ToolbarButton>
-				{/snippet}
-			</DropdownMenuTrigger>
-			<DropdownMenuContent side="bottom" align="start">
-				<DropdownMenuRadioGroup value={page?.id ?? ''} onValueChange={(id) => editor.setPage(id)}>
-					{#each pages as each (each.id)}
-						<DropdownMenuRadioItem value={each.id}>{each.name}</DropdownMenuRadioItem>
-					{/each}
-				</DropdownMenuRadioGroup>
-				{#if !locked}
-					<DropdownMenuSeparator />
-					<DropdownMenuItem onSelect={() => editor.createPage(words.name(pages.length + 1))}>
-						{words.add}
-					</DropdownMenuItem>
-					<DropdownMenuItem onSelect={startRenaming}>{words.rename}</DropdownMenuItem>
-					<DropdownMenuItem
-						disabled={pages.length < 2}
-						onSelect={() => page && editor.deletePage(page.id)}
+					<Toolbar.Button
+						{...props}
+						class="wb-item wb-text"
+						aria-label="{words.label}: {page?.name ?? ''}"
 					>
-						{words.delete}
-					</DropdownMenuItem>
-				{/if}
-				<DropdownMenuSeparator />
-				<DropdownMenuItem onSelect={savePicture}>{labels.file.picture}</DropdownMenuItem>
-				<DropdownMenuItem onSelect={() => saveFile(editor, page?.name)}>
-					{labels.file.save}
-				</DropdownMenuItem>
-				{#if !locked}
-					<DropdownMenuItem onSelect={() => openFile(editor)}>{labels.file.open}</DropdownMenuItem>
-				{/if}
-			</DropdownMenuContent>
-		</DropdownMenu>
+						<span class="wb-name">{page?.name ?? ''}</span>
+						<CaretDown aria-hidden="true" />
+					</Toolbar.Button>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					side="bottom"
+					align="start"
+					sideOffset={6}
+					collisionPadding={8}
+					class="wb wb-menu"
+					data-scheme={scheme()}
+					onCloseAutoFocus={(event) => toCanvas(event, bar)}
+				>
+					<DropdownMenu.RadioGroup
+						value={page?.id ?? ''}
+						onValueChange={(id) => editor.setPage(id)}
+					>
+						{#each pages as each (each.id)}
+							<DropdownMenu.RadioItem value={each.id} class="wb-menu-item wb-marked">
+								{#snippet children({ checked })}
+									<span class="wb-mark" aria-hidden="true">
+										{#if checked}<span class="wb-dot"></span>{/if}
+									</span>
+									{each.name}
+								{/snippet}
+							</DropdownMenu.RadioItem>
+						{/each}
+					</DropdownMenu.RadioGroup>
+					{#if !locked}
+						<DropdownMenu.Separator class="wb-menu-rule" />
+						<DropdownMenu.Item
+							class="wb-menu-item"
+							onSelect={() => editor.createPage(words.name(pages.length + 1))}
+						>
+							{words.add}
+						</DropdownMenu.Item>
+						<DropdownMenu.Item class="wb-menu-item" onSelect={startRenaming}>
+							{words.rename}
+						</DropdownMenu.Item>
+						<DropdownMenu.Item
+							class="wb-menu-item"
+							disabled={pages.length < 2}
+							onSelect={() => page && editor.deletePage(page.id)}
+						>
+							{words.delete}
+						</DropdownMenu.Item>
+					{/if}
+					<DropdownMenu.Separator class="wb-menu-rule" />
+					<DropdownMenu.Item class="wb-menu-item" onSelect={savePicture}>
+						{labels.file.picture}
+					</DropdownMenu.Item>
+					<DropdownMenu.Item class="wb-menu-item" onSelect={() => saveFile(editor, page?.name)}>
+						{labels.file.save}
+					</DropdownMenu.Item>
+					{#if !locked}
+						<DropdownMenu.Item class="wb-menu-item" onSelect={() => openFile(editor)}>
+							{labels.file.open}
+						</DropdownMenu.Item>
+					{/if}
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	{/if}
-</Toolbar>
+</Toolbar.Root>

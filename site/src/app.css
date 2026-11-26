@@ -1,23 +1,42 @@
 @import 'tailwindcss';
-@import '@klementine/ui/theme.css';
 @import '@simon-lund/svelte-draw/draw.css';
 @import 'svelte-draw-example-whiteboard/ui.css';
 @import './lib/code.css';
 @import './lib/prose.css';
+@import './lib/parts.css';
 
 @source './';
-/* The live canvases' toolbar is the whiteboard example's. */
-@source '../../examples/whiteboard/src/lib/ui';
 
 /*
- * Paper and ink (DESIGN.md): the page is the theme's paper, the type its ink; colour comes only
- * from what is drawn on a live canvas.
+ * Paper and ink (DESIGN.md): the page is paper, the type is ink; colour comes only from what is
+ * drawn on a live canvas. Light and dark follow the system.
  */
 :root {
-	--font-sans: 'Instrument Sans', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;
-	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+	color-scheme: light dark;
+
+	--paper: light-dark(#f5f3ee, #1b1916);
+	--paper-veil: light-dark(rgb(245 243 238 / 0.72), rgb(27 25 22 / 0.72));
+	--ink: light-dark(#24231d, #f2efe7);
+	--ink2: light-dark(#5c594e, #bdb6a8);
+	--ink3: light-dark(#66625a, #aaa498);
+	--recess: light-dark(#ebe7de, #211f1b); /* behind code */
+	--layer: light-dark(#ffffff, #2e2b26); /* what floats: the phone's menu */
+	--key: light-dark(#ffffff, #3a3731); /* a small button on the page */
+	--line: light-dark(rgb(36 35 29 / 0.1), rgb(255 248 235 / 0.09));
+	--line-strong: light-dark(rgb(36 35 29 / 0.18), rgb(255 248 235 / 0.16));
+
 	/* The handwriting on the canvases. */
 	--kd-font-hand: 'Caveat', 'Bradley Hand', cursive;
+
+	/* The type scale (DESIGN.md): size and leading. */
+	--type-display: 1.875rem;
+	--type-display-leading: 2.25rem;
+	--type-headline: 1.375rem;
+	--type-headline-leading: 1.75rem;
+	--type-title: 1.0625rem;
+	--type-title-leading: 1.4375rem;
+	--type-label: 0.8125rem;
+	--type-label-leading: 1rem;
 
 	/* The site's measures (DESIGN.md, "Grid, type, colour"). */
 	--site-sidebar: 14rem;
@@ -28,11 +47,52 @@
 	--site-header: 3.5rem;
 }
 
+/* The typefaces and the corners, as variables and as Tailwind classes (font-mono, rounded-md). */
+@theme {
+	--font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+	--radius-xs: 0.375rem;
+	--radius-sm: 0.625rem;
+	--radius-md: 0.875rem;
+	--radius-lg: 1rem;
+	--radius-xl: 1.75rem;
+}
+
+/* The colours and the type scale above, as Tailwind classes: text-ink2, bg-recess, text-title. */
+@theme inline {
+	--color-paper: var(--paper);
+	--color-ink: var(--ink);
+	--color-ink2: var(--ink2);
+	--color-ink3: var(--ink3);
+	--color-recess: var(--recess);
+
+	--text-display: var(--type-display);
+	--text-display--line-height: var(--type-display-leading);
+	--text-display--font-weight: 600;
+	--text-display--letter-spacing: -0.04em;
+	--text-headline: var(--type-headline);
+	--text-headline--line-height: var(--type-headline-leading);
+	--text-headline--font-weight: 600;
+	--text-headline--letter-spacing: -0.03em;
+	--text-title: var(--type-title);
+	--text-title--line-height: var(--type-title-leading);
+	--text-title--font-weight: 500;
+	--text-title--letter-spacing: -0.005em;
+	--text-label: var(--type-label);
+	--text-label--line-height: var(--type-label-leading);
+	--text-label--font-weight: 600;
+	--text-label--letter-spacing: 0.01em;
+}
+
 html {
-	background: var(--canvas-ground);
-	color: var(--cream-ink);
+	background: var(--paper);
+	color: var(--ink);
 	font-family: var(--font-sans);
+	font-variant-numeric: tabular-nums;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-tap-highlight-color: transparent;
 	text-rendering: optimizeLegibility;
 	scroll-padding-top: calc(var(--site-header) + 1.5rem);
 }
@@ -42,16 +102,16 @@ body {
 }
 
 :focus-visible {
-	outline: 2px solid var(--color-focus);
+	outline: 2px solid var(--ink);
 	outline-offset: 2px;
 }
 
-/* The canvases in the site's theme: ground, ink, lines and typeface from its tokens. */
+/* The canvases in the site's look: its paper, ink, lines and typeface. */
 .kd-root {
-	--kd-ground: var(--canvas-ground);
-	--kd-ink: var(--cream-ink);
+	--kd-ground: var(--paper);
+	--kd-ink: var(--ink);
 	--kd-line: var(--line-strong);
-	--kd-layer: var(--color-layer);
-	--kd-select: var(--color-focus);
+	--kd-layer: var(--layer);
+	--kd-select: var(--ink);
 	--kd-font-sans: var(--font-sans);
 }
