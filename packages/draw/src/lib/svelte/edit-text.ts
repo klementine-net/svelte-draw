@@ -15,7 +15,7 @@
 
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
-import type { Editor } from '../index.ts';
+import type { Editor } from '../core.ts';
 
 export interface EditTextOptions {
 	editor: Editor;

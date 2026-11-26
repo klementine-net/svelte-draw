@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { box, type Editor } from '../index.ts';
+	import { box, type Editor } from '../core.ts';
 
 	/**
 	 * Minimap: the whole page small, with the part on screen marked. Press or drag in it to

@@ -9,14 +9,18 @@ import { expect, test } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import {
 	broadcastChannel,
+	deepLink,
+	defaultPlugins,
 	Editor,
 	indexedDbStorage,
 	persist,
+	saveFile,
+	toPng,
+	toSvg,
 	type AssetRecord,
 	type ChannelMessage,
 	type DocumentFile
 } from '../../src/lib/index.ts';
-import { deepLink, defaultPlugins, saveFile, toPng, toSvg } from '../../src/lib/svelte/index.ts';
 import Board from './board.svelte';
 
 const board = async (props: { minimap?: boolean; scheme?: 'light' | 'dark' } = {}) => {

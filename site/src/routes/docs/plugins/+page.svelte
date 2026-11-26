@@ -37,6 +37,11 @@
 	</p>
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -- highlighted at build time from our own file -->
 	{@html data.util}
+	<p>
+		Nothing in this file needs Svelte. To test it under Node, import the same names from
+		<code>@klementine/svelte-draw/core</code> there: the main import also brings the canvas's components,
+		which only a Svelte build can load.
+	</p>
 
 	<h2>The view</h2>
 	<p>

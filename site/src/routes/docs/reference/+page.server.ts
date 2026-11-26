@@ -112,30 +112,33 @@ async function classMembers(file: string, className: string, single?: string): P
 
 /** The exported components, each with the comment at the top of its script. */
 function components(): { name: string; doc: string[] }[] {
-	const index = readFileSync(resolve(lib, 'svelte/index.ts'), 'utf8');
-	return [...index.matchAll(/export \{ default as (\w+) \} from '\.\/([\w-]+)\.svelte'/g)].map(
-		([, name, file]) => {
-			const text = readFileSync(resolve(lib, `svelte/${file}.svelte`), 'utf8');
-			const comment = /\/\*\*([\s\S]*?)\*\//.exec(text)?.[1] ?? '';
-			const doc = comment
-				.split('\n')
-				.map((line) => line.replace(/^\s*\* ?/, ''))
-				.join('\n')
-				.split(/\n\s*@\w+/)[0]
-				.trim()
-				.split(/\n\s*\n/)
-				.map((paragraph) =>
-					inline(
-						paragraph
-							.replace(/\s*\n\s*/g, ' ')
-							.replace(/^\w+: /, '')
-							.trim()
-					)
+	// The main entry names each component and the file it is in.
+	const index = readFileSync(resolve(lib, 'index.ts'), 'utf8');
+	const exported = [
+		...index.matchAll(/export \{ default as (\w+) \} from '\.\/(svelte\/[\w-]+\.svelte)'/g)
+	];
+	if (exported.length === 0) throw new Error('No components found in the main entry');
+	return exported.map(([, name, file]) => {
+		const text = readFileSync(resolve(lib, file), 'utf8');
+		const comment = /\/\*\*([\s\S]*?)\*\//.exec(text)?.[1] ?? '';
+		const doc = comment
+			.split('\n')
+			.map((line) => line.replace(/^\s*\* ?/, ''))
+			.join('\n')
+			.split(/\n\s*@\w+/)[0]
+			.trim()
+			.split(/\n\s*\n/)
+			.map((paragraph) =>
+				inline(
+					paragraph
+						.replace(/\s*\n\s*/g, ' ')
+						.replace(/^\w+: /, '')
+						.trim()
 				)
-				.filter(Boolean);
-			return { name, doc };
-		}
-	);
+			)
+			.filter(Boolean);
+		return { name, doc };
+	});
 }
 
 export async function load() {

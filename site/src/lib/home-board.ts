@@ -3,16 +3,16 @@
  * thing about Draw, and showing its look while it does.
  */
 
-import { Editor } from '@klementine/svelte-draw';
 import {
 	defaultPlugins,
 	drawPlugin,
+	Editor,
 	geoPlugin,
 	notePlugin,
 	selectPlugin,
 	textPlugin,
 	type DrawSveltePlugin
-} from '@klementine/svelte-draw/svelte';
+} from '@klementine/svelte-draw';
 
 /** The editor's kinds and tools: everything, so whatever someone pastes or opens works. */
 export const plugins: DrawSveltePlugin[] = defaultPlugins;

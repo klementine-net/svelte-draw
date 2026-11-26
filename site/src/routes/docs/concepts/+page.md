@@ -1,13 +1,17 @@
 ## Two layers
 
-| Layer                         | Import                           | What                                                               |
-| ----------------------------- | -------------------------------- | ------------------------------------------------------------------ |
-| Core (`src/lib/core`)         | `@klementine/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools |
-| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw`        | select, pens, eraser, shapes, lines, text, notes, frames, groups   |
-| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw/svelte` | the canvas, the views of the built-in shapes, the minimap          |
+| Layer                         | Import                         | What                                                               |
+| ----------------------------- | ------------------------------ | ------------------------------------------------------------------ |
+| Core (`src/lib/core`)         | `@klementine/svelte-draw/core` | the store, undo, the editor, the base classes for shapes and tools |
+| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw/core` | select, pens, eraser, shapes, lines, text, notes, frames, groups   |
+| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw`      | the canvas, the views of the built-in shapes, the minimap          |
 
 The core never imports Svelte. It is plain TypeScript that Node runs as it is, so the tests drag
 shapes around without a browser and a server can open a board to read or change it.
+
+The main import is the Svelte layer with the whole core in it, so an app takes everything from
+`@klementine/svelte-draw`. A built-in plugin from there comes with its view; the plugin of the
+same name from `/core` is the engine's part alone.
 
 ## Five ideas
 

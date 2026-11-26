@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ArrowSquareOut from 'phosphor-svelte/lib/ArrowSquareOut';
-	import { embedUrl, type LinkShape } from '../index.ts';
+	import { embedUrl, type LinkShape } from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 
 	/**

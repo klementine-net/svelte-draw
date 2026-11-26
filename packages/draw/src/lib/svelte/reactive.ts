@@ -6,7 +6,7 @@
  */
 
 import { createSubscriber } from 'svelte/reactivity';
-import { setTracker, type Atom } from '../index.ts';
+import { setTracker, type Atom } from '../core.ts';
 
 const subscribers = new WeakMap<Atom<unknown>, () => void>();
 

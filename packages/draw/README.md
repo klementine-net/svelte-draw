@@ -17,8 +17,7 @@ npm install @klementine/svelte-draw
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@klementine/svelte-draw';
-	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import { Canvas, defaultPlugins, Editor } from '@klementine/svelte-draw';
 	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
@@ -31,7 +30,7 @@ npm install @klementine/svelte-draw
 
 That is a whiteboard, worked by its keys. (`@klementine` is the author's organization on npm.) It needs Svelte 5.57 or newer and nothing else: the
 styles are plain CSS on a few custom properties (`--kd-ground`, `--kd-ink`, …), and the engine
-alone (without `/svelte`) is plain TypeScript. Hand-drawn text wants a handwriting font: load
+alone (`@klementine/svelte-draw/core`) is plain TypeScript that Node runs as it is. Hand-drawn text wants a handwriting font: load
 one and name it in `--kd-font-hand`.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
@@ -45,11 +44,16 @@ svelte-draw is built with AI: its code, tests and documentation are written by A
 
 Two layers. The core never imports Svelte.
 
-| Layer                         | Import                           | What                                                                             |
-| ----------------------------- | -------------------------------- | -------------------------------------------------------------------------------- |
-| Core (`src/lib/core`)         | `@klementine/svelte-draw`        | the store, undo, the editor, the base classes for shapes and tools               |
-| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw`        | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
-| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw/svelte` | `Canvas`, the views of the built-in shapes, `Minimap`                            |
+| Layer                         | Import                         | What                                                                             |
+| ----------------------------- | ------------------------------ | -------------------------------------------------------------------------------- |
+| Core (`src/lib/core`)         | `@klementine/svelte-draw/core` | the store, undo, the editor, the base classes for shapes and tools               |
+| Built-ins (`shapes`, `tools`) | `@klementine/svelte-draw/core` | select, hand, pens, eraser, geo shapes, lines, text, frames, groups: all plugins |
+| Svelte (`src/lib/svelte`)     | `@klementine/svelte-draw`      | `Canvas`, the views of the built-in shapes, `Minimap`                            |
+
+The main import is the Svelte layer with the whole core in it: an app takes everything from
+`@klementine/svelte-draw`, and a built-in plugin from there comes with its view. `/core` is the
+core alone, for where there is no Svelte (`src/lib/core.ts` is that entry, `src/lib/index.ts`
+the main one).
 
 The core in five ideas:
 
@@ -129,7 +133,7 @@ export const notePlugin: DrawSveltePlugin = {
 
 A util that returns `true` from `canEdit()` gets a double click and Enter: the editor sets
 `editor.editing` to the shape, and the view makes its text element the field with the
-`editText` attachment (`@klementine/svelte-draw/svelte`):
+`editText` attachment:
 
 ```svelte
 <span {@attach editText({ editor, text: () => shape.props.text, onchange })}></span>

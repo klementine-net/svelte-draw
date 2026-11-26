@@ -22,8 +22,7 @@ npm install @klementine/svelte-draw
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@klementine/svelte-draw';
-	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import { Canvas, defaultPlugins, Editor } from '@klementine/svelte-draw';
 	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
@@ -36,8 +35,9 @@ npm install @klementine/svelte-draw
 
 That is a whiteboard, worked by its keys (`D` draws, `R` a rectangle, `T` text, `N` a note). `@klementine` is
 the author's organization on npm.
-svelte-draw needs Svelte 5.57 or newer and nothing else: the styles are plain CSS, and the
-engine alone (`@klementine/svelte-draw` without `/svelte`) is plain TypeScript.
+svelte-draw needs Svelte 5.57 or newer and nothing else: the styles are plain CSS. The engine
+alone, for a server or a script without Svelte, is `@klementine/svelte-draw/core`: plain
+TypeScript that Node runs as it is.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
 or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { box, type Editor } from '../index.ts';
+	import { box, type Editor } from '../core.ts';
 	import type { ShapeView } from './plugin.ts';
 
 	/**

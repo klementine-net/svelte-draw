@@ -2,8 +2,8 @@
 
 Read README.md first (the two layers, the five ideas, what is not built).
 
-- **The core never imports Svelte** (`src/lib/core`, `shapes/*.ts`, `tools/*.ts`): it must run
-  under `node --test` and on a server. Rendering lives in `src/lib/svelte`.
+- **The core never imports Svelte** (`src/lib/core.ts`, `core/`, `shapes/*.ts`, `tools/*.ts`):
+  it must run under `node --test` and on a server. Rendering lives in `src/lib/svelte`.
 - **Erasable TypeScript only** in the core (no enums, no parameter properties): the tests run
   the `.ts` files directly with Node. Import with the `.ts` extension.
 - **Every document change goes through the store**, and a tool calls `editor.history.mark()`
@@ -29,6 +29,11 @@ Read README.md first (the two layers, the five ideas, what is not built).
   component library.
 - **Shipped built, like any Svelte library**: `pnpm build` (svelte-package, then publint)
   writes `dist`, and the demo, the site and every app use that. Source imports keep `.ts`;
-  the build rewrites them to `.js`. Anything public is exported from `src/lib/index.ts` or
-  `src/lib/svelte/index.ts`; nothing reaches into `dist` by path.
+  the build rewrites them to `.js`. Nothing reaches into `dist` by path.
+- **Two entries.** `src/lib/core.ts` is the engine alone (`@klementine/svelte-draw/core`).
+  `src/lib/index.ts` is the main one (`@klementine/svelte-draw`): the Svelte layer, plus the
+  whole engine by `export * from './core.ts'`. Anything public is exported from one of them.
+  Inside the library, import the engine from `core.ts`, never from `index.ts`. A built-in
+  plugin that has a view must be exported from `index.ts` by name, or the engine's plugin of
+  the same name shows through the star; `tests/browser/entries.test.ts` checks that.
 - Checks: `pnpm --filter @klementine/svelte-draw check`, `test`, `lint`.

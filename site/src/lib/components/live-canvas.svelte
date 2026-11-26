@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { box, type Editor } from '@klementine/svelte-draw';
-	import { Canvas, type DrawSveltePlugin } from '@klementine/svelte-draw/svelte';
+	import { box, Canvas, type DrawSveltePlugin, type Editor } from '@klementine/svelte-draw';
 	// The toolbar is the whiteboard example's: the library brings no controls.
 	import { DrawToolbar } from 'svelte-draw-example-whiteboard/ui';
 

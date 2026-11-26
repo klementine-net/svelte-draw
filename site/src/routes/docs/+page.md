@@ -16,12 +16,12 @@ Svelte component, not a fork.
 
 ## What it is made of
 
-Two layers, imported separately:
+Two layers. A Svelte app imports one thing, and the engine also comes on its own:
 
-| Import                           | What it is                                                                                                  |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@klementine/svelte-draw`        | the engine: plain TypeScript with no UI framework, so it runs in a browser, in a test and on a server alike |
-| `@klementine/svelte-draw/svelte` | the Svelte layer: the canvas, the views of the built-in shapes, the minimap                                 |
+| Import                         | What it is                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `@klementine/svelte-draw`      | everything for a Svelte app: the canvas, the views of the built-in shapes, the minimap, and the whole engine  |
+| `@klementine/svelte-draw/core` | the engine alone: plain TypeScript with no UI framework, so it runs in a test and on a server as in a browser |
 
 [How it is built](./concepts/) explains the engine in five ideas.
 

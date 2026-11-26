@@ -3,9 +3,8 @@
 	import ArrowUUpRight from 'phosphor-svelte/lib/ArrowUUpRight';
 	import CaretUp from 'phosphor-svelte/lib/CaretUp';
 	import { DropdownMenu, Toolbar, Tooltip } from 'bits-ui';
-	import type { Editor } from '@klementine/svelte-draw';
+	import type { DrawSveltePlugin, Editor, ToolbarItem } from '@klementine/svelte-draw';
 	import Hint from './hint.svelte';
-	import type { DrawSveltePlugin, ToolbarItem } from '@klementine/svelte-draw/svelte';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import { toCanvas, useScheme } from './board';
 

@@ -3,7 +3,7 @@
  * whether an event is the canvas's at all or belongs to a text field inside it.
  */
 
-import type { DrawEvent, Editor, PointerInfo, Vec } from '../../index.ts';
+import type { DrawEvent, Editor, PointerInfo, Vec } from '../../core.ts';
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 

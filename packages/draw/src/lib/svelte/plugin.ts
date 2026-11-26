@@ -41,7 +41,7 @@ import {
 	type DrawPlugin,
 	type Editor,
 	type ShapeRecord
-} from '../index.ts';
+} from '../core.ts';
 import DrawView from './draw-view.svelte';
 import GeoView from './geo-view.svelte';
 import FrameView from './frame-view.svelte';

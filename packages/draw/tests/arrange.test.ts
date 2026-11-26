@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pointer } from '../src/lib/index.ts';
+import { pointer } from '../src/lib/core.ts';
 import { makeEditor, drag, rect, click } from './helpers.ts';
 
 test('clipboard: copy and paste at a point, cut, and Alt-drag leaves a copy behind', () => {

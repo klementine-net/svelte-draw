@@ -1,7 +1,6 @@
 /* The board on the plugins page: three ideas to vote on, and the dot plugin beside the built-ins. */
 
-import { Editor } from '@klementine/svelte-draw';
-import { handPlugin, notePlugin, selectPlugin } from '@klementine/svelte-draw/svelte';
+import { Editor, handPlugin, notePlugin, selectPlugin } from '@klementine/svelte-draw';
 import { dotPlugin } from './plugin.ts';
 
 export const plugins = [selectPlugin, handPlugin, notePlugin, dotPlugin];

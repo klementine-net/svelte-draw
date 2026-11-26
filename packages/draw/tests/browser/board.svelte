@@ -1,8 +1,7 @@
 <!-- The canvas at a fixed size, on an editor the test owns. -->
 <script lang="ts">
 	import '../../src/lib/draw.css';
-	import type { Editor } from '../../src/lib/index.ts';
-	import { Canvas, defaultPlugins, Minimap } from '../../src/lib/svelte/index.ts';
+	import { Canvas, defaultPlugins, Minimap, type Editor } from '../../src/lib/index.ts';
 
 	let {
 		editor,

@@ -1,6 +1,6 @@
 /* Which shapes are drawn: only what is on screen and a little around it, so a large board stays light. */
 
-import { box, type Editor } from '../../index.ts';
+import { box, type Editor } from '../../core.ts';
 
 /** The ids of the shapes to draw now, bottom to top. Read inside a `$derived`. */
 export function visibleShapeIds(editor: Editor): readonly string[] {

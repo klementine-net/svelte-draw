@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Attachment } from 'svelte/attachments';
-	import { noteTilt, type NoteShape } from '../index.ts';
+	import { noteTilt, type NoteShape } from '../core.ts';
 	import { editText } from './edit-text.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 

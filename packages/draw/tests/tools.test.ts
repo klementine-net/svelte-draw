@@ -9,7 +9,7 @@ import {
 	type DrawShape,
 	type GeoShape,
 	type ShapeRecord
-} from '../src/lib/index.ts';
+} from '../src/lib/core.ts';
 import { makeEditor, drag, key } from './helpers.ts';
 
 test('dragging with the rectangle tool makes a shape, and it undoes in one step', () => {

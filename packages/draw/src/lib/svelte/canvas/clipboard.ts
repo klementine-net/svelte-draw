@@ -4,7 +4,7 @@
  * built on Draw) and never into a text field as a wall of JSON.
  */
 
-import type { AssetRecord, Editor, ShapeRecord, Vec } from '../../index.ts';
+import type { AssetRecord, Editor, ShapeRecord, Vec } from '../../core.ts';
 import { inField } from './input.ts';
 
 export const CLIPBOARD_TYPE = 'application/x-svelte-draw';

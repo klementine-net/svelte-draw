@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ImageShape } from '../index.ts';
+	import type { ImageShape } from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 
 	/** ImageView: a picture, from the asset record the shape points at. */

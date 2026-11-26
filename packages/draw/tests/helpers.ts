@@ -11,7 +11,7 @@ import {
 	type DocumentStorage,
 	type DrawPlugin,
 	type DrawRecord
-} from '../src/lib/index.ts';
+} from '../src/lib/core.ts';
 
 export function makeEditor(plugins: DrawPlugin[] = corePlugins, store?: Store<DrawRecord>) {
 	const editor = new Editor({ plugins, store });

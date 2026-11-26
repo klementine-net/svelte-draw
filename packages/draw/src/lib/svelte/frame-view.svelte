@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { FrameShape } from '../index.ts';
+	import type { FrameShape } from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 	import TextLabel from './text-label.svelte';
 

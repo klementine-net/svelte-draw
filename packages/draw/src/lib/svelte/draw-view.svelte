@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { inkPath, inkSize, type DrawShape } from '../index.ts';
+	import { inkPath, inkSize, type DrawShape } from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 
 	/**

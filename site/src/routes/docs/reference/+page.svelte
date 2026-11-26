@@ -59,7 +59,10 @@
 	{/each}
 
 	<h2 id="components">Components</h2>
-	<p>From <code>@klementine/svelte-draw/svelte</code>.</p>
+	<p>
+		From <code>@klementine/svelte-draw</code>, like the classes above. The classes also come from
+		<code>@klementine/svelte-draw/core</code>, the engine alone; the components do not.
+	</p>
 	<dl class="reference">
 		{#each data.components as component (component.name)}
 			<div>

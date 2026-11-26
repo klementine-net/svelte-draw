@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pointer } from '../src/lib/index.ts';
+import { pointer } from '../src/lib/core.ts';
 import { makeEditor, drag, key, near, rect, click } from './helpers.ts';
 
 test('turning: the handle turns a shape around its middle; hit, resize and arrows follow', () => {

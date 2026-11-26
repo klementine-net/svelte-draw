@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { box, vec, type Editor, type Vec } from '../index.ts';
+	import { box, vec, type Editor, type Vec } from '../core.ts';
 
 	/**
 	 * What sits on top of the shapes and never zooms: the hover and selection outlines, the

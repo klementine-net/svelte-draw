@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lineGeometry, lineEnds, pointer, type LineShape } from '../src/lib/index.ts';
+import { lineGeometry, lineEnds, pointer, type LineShape } from '../src/lib/core.ts';
 import { makeEditor, drag, near, rect } from './helpers.ts';
 
 test('the arrow tool drags out an arrow; a click makes nothing; resizing across flips it', () => {

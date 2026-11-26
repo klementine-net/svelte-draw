@@ -12,7 +12,7 @@ import {
 	type Box,
 	type LineShape,
 	type ShapeRecord
-} from '../src/lib/index.ts';
+} from '../src/lib/core.ts';
 import { makeEditor, drag, key, near, solid, rect, click } from './helpers.ts';
 
 test('editing: double click or Enter starts it, Escape or a press elsewhere ends it, one undo step', () => {

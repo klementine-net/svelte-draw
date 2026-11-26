@@ -11,8 +11,9 @@ npm install @klementine/svelte-draw
 ```
 
 svelte-draw needs Svelte 5.57 or newer and nothing else: no CSS framework and no component kit.
-The engine alone (`@klementine/svelte-draw` without `/svelte`) is plain TypeScript and runs in
-Node as well as in a browser.
+Everything comes from the one import. The engine alone, for a server or a script without
+Svelte, is `@klementine/svelte-draw/core`: plain TypeScript that runs in Node as well as in a
+browser.
 
 ## A canvas on a page
 
@@ -21,8 +22,7 @@ editor's events. It fills its parent, so give the parent a size.
 
 ```svelte
 <script lang="ts">
-	import { Editor } from '@klementine/svelte-draw';
-	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import { Canvas, defaultPlugins, Editor } from '@klementine/svelte-draw';
 	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });
@@ -84,8 +84,14 @@ and in step with every other tab that shows the same name.
 
 ```svelte
 <script lang="ts">
-	import { broadcastChannel, Editor, indexedDbStorage, persist } from '@klementine/svelte-draw';
-	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import {
+		broadcastChannel,
+		Canvas,
+		defaultPlugins,
+		Editor,
+		indexedDbStorage,
+		persist
+	} from '@klementine/svelte-draw';
 
 	const editor = new Editor({ plugins: defaultPlugins });
 
@@ -117,5 +123,5 @@ and in step with every other tab that shows the same name.
 | `around`   | what goes around the surface, a context menu's trigger for one (see Look and controls) |
 
 The editor has the rest: `editor.setReadOnly(true)` shows a board without letting it be
-changed, and `Minimap` and `deepLink` (the page and the view in the address) come from
-`@klementine/svelte-draw/svelte`.
+changed, and `Minimap` and `deepLink` (the page and the view in the address) come from the
+same import as `Canvas`.

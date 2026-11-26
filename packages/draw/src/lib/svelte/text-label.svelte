@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Editor, ShapeRecord } from '../index.ts';
+	import type { Editor, ShapeRecord } from '../core.ts';
 	import { editText } from './edit-text.ts';
 
 	/**

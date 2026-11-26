@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { createAttachmentKey } from 'svelte/attachments';
-	import { broadcastChannel, Editor, indexedDbStorage, persist } from '@klementine/svelte-draw';
 	import {
+		broadcastChannel,
 		Canvas,
 		deepLink,
 		defaultPlugins,
+		Editor,
+		indexedDbStorage,
 		Minimap,
+		persist,
 		type DrawSveltePlugin
-	} from '@klementine/svelte-draw/svelte';
+	} from '@klementine/svelte-draw';
 	import { ContextMenu } from 'bits-ui';
 	import { defaultLabels, type DrawLabels } from './labels';
 	import CanvasMenu from './canvas-menu.svelte';

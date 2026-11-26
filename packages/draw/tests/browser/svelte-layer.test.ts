@@ -7,8 +7,7 @@
 import { expect, test } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { Editor, type NoteShape, type TextShape } from '../../src/lib/index.ts';
-import { defaultPlugins } from '../../src/lib/svelte/index.ts';
+import { defaultPlugins, Editor, type NoteShape, type TextShape } from '../../src/lib/index.ts';
 import Board from './board.svelte';
 
 const board = async (size?: { width?: number; height?: number; scheme?: 'light' | 'dark' }) => {

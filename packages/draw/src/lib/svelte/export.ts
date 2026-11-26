@@ -6,7 +6,7 @@
  */
 
 import { tick } from 'svelte';
-import { box, migrate, type DocumentFile, type Editor } from '../index.ts';
+import { box, migrate, type DocumentFile, type Editor } from '../core.ts';
 
 /** The canvas's values the shapes' styles read; they are packed into the picture. */
 const VARIABLES = [

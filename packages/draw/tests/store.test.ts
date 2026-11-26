@@ -6,7 +6,7 @@ import {
 	Store,
 	type DrawRecord,
 	type ShapeRecord
-} from '../src/lib/index.ts';
+} from '../src/lib/core.ts';
 import { makeEditor, byId } from './helpers.ts';
 
 test('indexBetween sorts between its neighbours', () => {

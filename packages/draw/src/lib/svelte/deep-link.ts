@@ -3,7 +3,7 @@
  * #), so a copied address opens where it was copied.
  */
 
-import type { Editor } from '../index.ts';
+import type { Editor } from '../core.ts';
 
 /**
  * Goes to the place the address names, then keeps the address up to date as the view moves.

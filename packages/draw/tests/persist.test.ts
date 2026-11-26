@@ -7,7 +7,7 @@ import {
 	type DocumentStorage,
 	type DrawRecord,
 	type ShapeRecord
-} from '../src/lib/index.ts';
+} from '../src/lib/core.ts';
 import { makeEditor, rect, fakeStorage, fakeChannels } from './helpers.ts';
 
 test('saving: a board is seeded once, kept record by record, loaded again; tabs stay in step', async () => {

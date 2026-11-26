@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Editor } from '@klementine/svelte-draw';
 	import {
 		defaultPlugins,
+		Editor,
 		geoPlugin,
 		handPlugin,
 		linePlugin,
 		selectPlugin
-	} from '@klementine/svelte-draw/svelte';
+	} from '@klementine/svelte-draw';
 	import DocLayout from '#lib/components/doc-layout.svelte';
 	import LiveCanvas from '#lib/components/live-canvas.svelte';
 	import ScriptRunner from '#lib/components/script-runner.svelte';
@@ -83,6 +83,18 @@
 			>{`const stop = editor.store.listen((diff, source) => {
 	if (source === 'user') send(diff);
 });`}</code
+		></pre>
+	<h2>Without Svelte</h2>
+	<p>
+		A script under Node or a server has no canvas. It takes the editor from
+		<code>@klementine/svelte-draw/core</code>, the engine alone, with <code>corePlugins</code> in
+		place of <code>defaultPlugins</code>: the same kinds and tools, without their views.
+	</p>
+	<pre class="code"><code
+			>{`import { corePlugins, Editor } from '@klementine/svelte-draw/core';
+
+const editor = new Editor({ plugins: corePlugins });
+editor.createShape({ kind: 'note', x: 0, y: 0, props: { text: 'Made on a server' } });`}</code
 		></pre>
 	<p>
 		The methods are listed, with what each does, in the <a href="../reference/">API reference</a>.

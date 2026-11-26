@@ -3,7 +3,7 @@
  * of the fingers; the canvas tells it about every touch and asks whether a pinch is on.
  */
 
-import type { Editor, Vec } from '../../index.ts';
+import type { Editor, Vec } from '../../core.ts';
 
 /** `editor` is asked for each time, so a canvas given another editor pinches that one. */
 export function createPinch(editor: () => Editor) {

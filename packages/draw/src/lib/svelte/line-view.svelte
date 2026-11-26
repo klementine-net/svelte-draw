@@ -9,7 +9,7 @@
 		STROKE_WIDTH,
 		type LineShape,
 		type Vec
-	} from '../index.ts';
+	} from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 	import TextLabel from './text-label.svelte';
 

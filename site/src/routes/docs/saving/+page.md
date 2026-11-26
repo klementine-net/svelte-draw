@@ -64,7 +64,7 @@ The page menu saves the board to a file and opens one again, and saves the page 
 selection as a PNG. In code:
 
 ```ts
-import { openFile, saveFile, toPng, toSvg } from '@klementine/svelte-draw/svelte';
+import { openFile, saveFile, toPng, toSvg } from '@klementine/svelte-draw';
 
 const document = editor.getDocument(); // { version, records }
 editor.loadDocument(document.records, 'user');

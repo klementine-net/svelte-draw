@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Attachment } from 'svelte/attachments';
-	import { FONT_SIZE, type TextShape } from '../index.ts';
+	import { FONT_SIZE, type TextShape } from '../core.ts';
 	import type { ShapeViewProps } from './plugin.ts';
 	import TextLabel from './text-label.svelte';
 

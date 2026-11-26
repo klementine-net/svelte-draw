@@ -13,8 +13,7 @@
 
 	// (The closing tag is put together, or it would end this very script.)
 	const start = `<script lang="ts">
-	import { Editor } from '@klementine/svelte-draw';
-	import { Canvas, defaultPlugins } from '@klementine/svelte-draw/svelte';
+	import { Canvas, defaultPlugins, Editor } from '@klementine/svelte-draw';
 	import '@klementine/svelte-draw/draw.css';
 
 	const editor = new Editor({ plugins: defaultPlugins });

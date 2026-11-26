@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import './reactive.ts';
-	import type { Editor } from '../index.ts';
+	import type { Editor } from '../core.ts';
 	import type { DrawSveltePlugin, ShapeView as View } from './plugin.ts';
 	import ShapeView from './shape-view.svelte';
 	import Overlay from './overlay.svelte';
