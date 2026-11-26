@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 (2026-11-26)
+
+- **A new home, no change to the code.** The repository is
+  `github.com/klementine-net/svelte-draw` and the documentation is at
+  `docs.klementine.net/svelte-draw`. The old addresses forward. This version only corrects the
+  links the package carries.
+
 ## 0.1.0 (2026-11-26)
 
 The first version on npm: `npm install @klementine/svelte-draw`. The entries below are what

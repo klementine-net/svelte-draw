@@ -10,8 +10,8 @@ are plugins, so the same engine can be a whiteboard today and a design tool late
 > without notice, and parts of it are little tested. Pin the version you install, and check
 > [what is built](FEATURES.md) before you rely on a part of it.
 
-**Documentation:** <https://docs.simon-lund.com/svelte-draw/>, with a board to draw on and
-examples that run. **Demo:** <https://docs.simon-lund.com/svelte-draw/demo/>. Both keep what
+**Documentation:** <https://docs.klementine.net/svelte-draw/>, with a board to draw on and
+examples that run. **Demo:** <https://docs.klementine.net/svelte-draw/demo/>. Both keep what
 you draw in your own browser; nothing is sent anywhere.
 
 ## Install
@@ -41,7 +41,7 @@ TypeScript that Node runs as it is.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
 or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
-demo shows: Svelte components on [bits-ui](https://bits-ui.com) and one plain stylesheet. [Getting started](https://docs.simon-lund.com/svelte-draw/docs/start/) has the
+demo shows: Svelte components on [bits-ui](https://bits-ui.com) and one plain stylesheet. [Getting started](https://docs.klementine.net/svelte-draw/docs/start/) has the
 rest, and [FEATURES.md](FEATURES.md) lists what is built and what is not.
 
 ## Built with AI

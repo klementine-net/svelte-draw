@@ -74,7 +74,7 @@ handler first, so a right click selects what is under the pointer before the men
 ```
 
 The
-[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
+[whiteboard example](https://github.com/klementine-net/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
 does all of this in full: toolbar, style panel, page menu, zoom control and right-click menu.
 
 ## Words

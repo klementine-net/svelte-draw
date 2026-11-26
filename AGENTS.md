@@ -16,7 +16,7 @@ in `site`. Read README.md, then `packages/draw/AGENTS.md`.
 - **Checks:** `pnpm check`, `pnpm test`, `pnpm lint` at the root (Node 24, pnpm 11);
   `pnpm test:browser` runs the Svelte layer in Chrome. Where they are installed through asdf,
   call them by the absolute path of the install: the shims fail outside an interactive shell.
-- **This repository is public, under its author's name.** No local paths or anything private
+- **This repository is public, in the Klementine organization.** No local paths or anything private
   in code, docs or commit messages, and no other products by name. The documentation site
   (`site/`) and the demo are published with `scripts/publish-site.sh`.
 - **The docs read as a published library**: install from npm, an early-development warning on

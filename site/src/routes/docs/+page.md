@@ -53,5 +53,5 @@ the stacking order comes from
 
 ## Licence
 
-[MIT](https://github.com/simon-lund/svelte-draw/blob/main/LICENSE). Use it, change it, ship it;
+[MIT](https://github.com/klementine-net/svelte-draw/blob/main/LICENSE). Use it, change it, ship it;
 keep the copyright notice.

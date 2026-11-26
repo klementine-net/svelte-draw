@@ -69,7 +69,7 @@ What sits inside `Canvas` lies above the surface and does not send it events.
 pages, arranging.
 
 **Copy the example's.** The
-[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
+[whiteboard example](https://github.com/klementine-net/svelte-draw/tree/main/examples/whiteboard/src/lib/ui)
 has a full set: a toolbar with grouped tools, a style panel, a page menu, a zoom control, a
 right-click menu, and `Whiteboard`, which puts them around the canvas and keeps the board in
 the browser. The [demo](../../demo/) is that example. They are Svelte components on

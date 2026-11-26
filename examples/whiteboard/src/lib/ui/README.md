@@ -1,7 +1,7 @@
 # Controls for svelte-draw
 
 A toolbar, a style panel, a page menu, a zoom control and a right-click menu for a
-[svelte-draw](https://docs.simon-lund.com/svelte-draw/) canvas, and `Whiteboard`, which puts
+[svelte-draw](https://docs.klementine.net/svelte-draw/) canvas, and `Whiteboard`, which puts
 them around the canvas and keeps the board in the browser. The library brings no controls of its
 own: copy this folder into your app and change it.
 

@@ -6,10 +6,10 @@ a whiteboard today and a design tool later.
 
 > **Early development.** Draw works, and it is young. Its API will change between releases
 > without notice, and parts of it are little tested. Pin the version you install, and check
-> [what is built](https://docs.simon-lund.com/svelte-draw/docs/features/) before you rely on a
+> [what is built](https://docs.klementine.net/svelte-draw/docs/features/) before you rely on a
 > part of it.
 
-Documentation, with a board to draw on: <https://docs.simon-lund.com/svelte-draw/>.
+Documentation, with a board to draw on: <https://docs.klementine.net/svelte-draw/>.
 
 ```sh
 npm install @klementine/svelte-draw
@@ -35,7 +35,7 @@ one and name it in `--kd-font-hand`.
 
 The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
 or copy the set in the repository's
-[whiteboard example](https://github.com/simon-lund/svelte-draw/tree/main/examples/whiteboard/src/lib/ui).
+[whiteboard example](https://github.com/klementine-net/svelte-draw/tree/main/examples/whiteboard/src/lib/ui).
 
 svelte-draw is built with AI: its code, tests and documentation are written by AI coding agents
 (Claude Code), directed by its author.

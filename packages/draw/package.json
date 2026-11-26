@@ -1,6 +1,6 @@
 {
 	"name": "@klementine/svelte-draw",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"license": "MIT",
 	"description": "An infinite canvas for Svelte: a plain TypeScript engine (record store, shape utils, tool state machines, undo) and a Svelte layer that draws it. Shapes and tools are plugins.",
@@ -15,13 +15,13 @@
 		"shapes"
 	],
 	"author": "Simon Lund",
-	"homepage": "https://docs.simon-lund.com/svelte-draw/",
+	"homepage": "https://docs.klementine.net/svelte-draw/",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/simon-lund/svelte-draw.git",
+		"url": "git+https://github.com/klementine-net/svelte-draw.git",
 		"directory": "packages/draw"
 	},
-	"bugs": "https://github.com/simon-lund/svelte-draw/issues",
+	"bugs": "https://github.com/klementine-net/svelte-draw/issues",
 	"publishConfig": {
 		"access": "public"
 	},

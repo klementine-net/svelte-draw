@@ -2,7 +2,7 @@
 # Builds the documentation site and the demo and publishes both to GitHub Pages: the gh-pages
 # branch of a remote, with the site at its root and the demo under /demo/.
 #
-#   scripts/publish-site.sh [remote]        # remote: origin (simon-lund/svelte-draw) by default
+#   scripts/publish-site.sh [remote]        # remote: origin (klementine-net/svelte-draw) by default
 #
 # Both are served from <host>/svelte-draw/ (BASE_PATH changes that). They are built here
 # and pushed as files.
