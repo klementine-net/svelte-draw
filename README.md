@@ -61,25 +61,33 @@ How it is built, how to write a plugin and the collaboration seam: `packages/dra
 
 ## Develop
 
-Node 24 and pnpm 11.
+Node 24 and pnpm 11. The library needs nothing but this repository:
+
+```sh
+cd packages/draw
+pnpm install --ignore-workspace
+pnpm --ignore-workspace test          # the engine, under Node
+pnpm --ignore-workspace test:browser  # the canvas, in the Chrome installed on the machine
+pnpm --ignore-workspace check
+pnpm --ignore-workspace build         # writes dist, the way it ships
+```
+
+The demo and the documentation site are another matter for now: their controls are built
+with the author's own UI kit (`@klementine/ui`), which is not published, so the workspace as
+a whole installs only with a checkout of it beside this repository
+(`../klementine/packages/ui`). With it:
 
 ```sh
 pnpm install
 pnpm dev      # the demo, on http://localhost:5196
 pnpm dev:site # the documentation site, on http://localhost:5197
 pnpm check && pnpm test && pnpm lint
-pnpm test:browser  # the Svelte layer, in the Chrome installed on the machine
+pnpm test:browser
 ```
 
-The demo and the site use the library as it ships: built, in `packages/draw/dist`
-(`pnpm --filter @simon-lund/svelte-draw build`). `pnpm dev`, `check` and `lint` build it first, and
-`pnpm dev` rebuilds it on every change.
-
-The library stands alone: `pnpm --filter @simon-lund/svelte-draw` `check`, `test` and `build`
-need nothing but this repository. The example's controls and the site are built with the
-author's own UI kit (`@klementine/ui`), which is not published: those two expect a checkout of
-it beside this repository (`../klementine/packages/ui`), and after a change in it
-`pnpm install --force` here (a plain install keeps the old copy).
+The demo and the site use the library as it ships: built, in `packages/draw/dist`. `pnpm dev`,
+`check` and `lint` build it first, and `pnpm dev` rebuilds it on every change. After a change
+in the UI kit, run `pnpm install --force` (a plain install keeps the old copy).
 
 `scripts/publish-site.sh` builds the documentation site (`site/`, its design in
 `site/DESIGN.md`) and the demo, and publishes both to GitHub Pages.
