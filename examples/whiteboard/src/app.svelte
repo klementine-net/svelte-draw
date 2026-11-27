@@ -13,6 +13,8 @@
 	// the editor, not through the UI. `Whiteboard` calls it once; after that the board is whatever
 	// was drawn on it, kept in this browser and shared with its other tabs.
 	function seed(editor: Editor) {
+		// On a narrow window the notes go below the shapes instead of beside them.
+		const notes = innerWidth < 600 ? { x: -500, y: 620 } : { x: 0, y: 0 };
 		const rectangle = editor.createShape({
 			kind: 'geo',
 			x: 120,
@@ -35,22 +37,22 @@
 		});
 		editor.createShape({
 			kind: 'note',
-			x: 660,
-			y: 110,
+			x: 660 + notes.x,
+			y: 110 + notes.y,
 			props: { text: 'Double click to write' },
 			style: { color: 'ink' }
 		});
 		editor.createShape({
 			kind: 'note',
-			x: 790,
-			y: 250,
+			x: 790 + notes.x,
+			y: 250 + notes.y,
 			props: { text: 'Make it pop' },
 			style: { color: 'violet' }
 		});
 		editor.createShape({
 			kind: 'note',
-			x: 640,
-			y: 330,
+			x: 640 + notes.x,
+			y: 330 + notes.y,
 			props: {
 				text: 'Write a lot on a note and the writing gets smaller, so that all of it still fits on the paper'
 			},
@@ -58,8 +60,8 @@
 		});
 		editor.createShape({
 			kind: 'note',
-			x: 850,
-			y: 470,
+			x: 850 + notes.x,
+			y: 470 + notes.y,
 			props: { text: 'It’s pronounced “gif”' },
 			style: { color: 'green' }
 		});
@@ -99,7 +101,31 @@
 			props: { text: 'svelte-draw', w: 230, h: 40 },
 			style: { size: 'l' }
 		});
+		seeded = true;
 	}
+
+	// A first board that does not fit the window is shown whole: a phone would open on a corner
+	// of it. It waits for the canvas to know its size, and an address that names a view wins.
+	let seeded = $state(false);
+	const linked = location.hash.includes('view=');
+	let fitted = false;
+	$effect(() => {
+		const { w } = editor.viewport.get();
+		if (!seeded || fitted || w === 0) return;
+		fitted = true;
+		if (linked) return;
+		const view = editor.getViewportPageBounds();
+		const cut = editor.getShapes().some((shape) => {
+			const box = editor.getShapePageBounds(shape);
+			return (
+				box.x < view.x ||
+				box.y < view.y ||
+				box.x + box.w > view.x + view.w ||
+				box.y + box.h > view.y + view.h
+			);
+		});
+		if (cut) editor.zoomToFit();
+	});
 
 	// For poking at it from the console.
 	(globalThis as { editor?: Editor }).editor = editor;

@@ -10,7 +10,7 @@
 	import TextAlignCenter from 'phosphor-svelte/lib/TextAlignCenter';
 	import TextAlignLeft from 'phosphor-svelte/lib/TextAlignLeft';
 	import TextAlignRight from 'phosphor-svelte/lib/TextAlignRight';
-	import { Tooltip } from 'bits-ui';
+	import { Popover, Tooltip } from 'bits-ui';
 	import StyleRow from './style-row.svelte';
 	import {
 		ALIGNS,
@@ -28,12 +28,15 @@
 		type StyleKey
 	} from '@klementine/svelte-draw';
 	import { defaultLabels, type DrawLabels } from './labels';
-	import { useScheme } from './board';
+	import { toCanvas, useScheme } from './board';
 
 	/**
 	 * StylePanel: the look of what is selected, or of the next shape when nothing is. One row
 	 * for each style the selected kinds have (a line has no fill, a text has a typeface); every
 	 * row always has one pick. Nothing shows for kinds with no styles (a frame).
+	 *
+	 * `collapsed` folds it behind one button that shows the picked colour, for a board too narrow
+	 * to keep the panel open (a phone).
 	 *
 	 * @example
 	 * <StylePanel {editor} />
@@ -41,8 +44,12 @@
 	let {
 		editor,
 		labels = defaultLabels,
+		collapsed = false,
 		class: className
-	}: { editor: Editor; labels?: DrawLabels; class?: string } = $props();
+	}: { editor: Editor; labels?: DrawLabels; collapsed?: boolean; class?: string } = $props();
+
+	/** The button of the folded panel: where the focus finds the canvas again. */
+	let key = $state<HTMLElement | null>(null);
 
 	// What is in a selected group speaks for the group.
 	const shapes = $derived(editor.getLeaves(editor.getSelectedShapes()));
@@ -88,12 +95,12 @@
 	const scheme = useScheme();
 </script>
 
-{#if rows.length > 0}
+{#snippet panel(panelClass?: string)}
 	<Tooltip.Provider delayDuration={500} skipDelayDuration={300}>
 		<div
 			role="group"
 			aria-label={labels.style}
-			class={['wb wb-panel', className]}
+			class={['wb wb-panel', panelClass]}
 			data-scheme={scheme()}
 		>
 			{#if rows.includes('color')}
@@ -183,4 +190,30 @@
 			{/if}
 		</div>
 	</Tooltip.Provider>
+{/snippet}
+
+{#if rows.length > 0}
+	{#if collapsed}
+		<Popover.Root>
+			<div bind:this={key} class={['wb wb-bar', className]} data-scheme={scheme()}>
+				<Popover.Trigger class="wb-item" aria-label={labels.style}>
+					<span class="wb-swatch" data-color={style.color}></span>
+				</Popover.Trigger>
+			</div>
+			<!-- No portal: the dots use the canvas's colours, so the panel stays inside the canvas.
+			     The focus stays on the button: a finger that opens the panel wants no hint on a dot. -->
+			<Popover.Content
+				side="bottom"
+				align="end"
+				sideOffset={6}
+				collisionPadding={8}
+				onOpenAutoFocus={(event) => event.preventDefault()}
+				onCloseAutoFocus={(event) => toCanvas(event, key)}
+			>
+				{@render panel()}
+			</Popover.Content>
+		</Popover.Root>
+	{:else}
+		{@render panel(className)}
+	{/if}
 {/if}

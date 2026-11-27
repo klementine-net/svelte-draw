@@ -70,6 +70,10 @@
 	const hold = { [createAttachmentKey()]: holdForMenu };
 	/** The canvas's surface, for the menu's copy of the selection as a picture. */
 	let surface = $state<HTMLElement | null>(null);
+	// A narrow board (a phone) folds the style panel behind a button: the same width as the
+	// container query below.
+	let width = $state(0);
+	const narrow = $derived(width > 0 && width < 600);
 
 	$effect(() => editor.setReadOnly(props.readOnly ?? false));
 	// Without storage the address is read at once; with it, once the board is loaded (below).
@@ -104,7 +108,7 @@
 </script>
 
 <!-- The board's width decides how the controls are arranged, not the window's. -->
-<div class="board">
+<div class="board" bind:clientWidth={width}>
 	<Canvas {editor} {plugins} label={labels.canvas} {scheme}>
 		<!-- The right-click menu: its trigger goes around the canvas's surface. -->
 		{#snippet around(canvas)}
@@ -129,7 +133,7 @@
 			<div class="at top-left"><PageMenu {editor} {labels} /></div>
 			<div class="at bottom-left"><ZoomControl {editor} {labels} /></div>
 			{#if !readOnly}
-				<div class="at top-right"><StylePanel {editor} {labels} /></div>
+				<div class="at top-right"><StylePanel {editor} {labels} collapsed={narrow} /></div>
 				<div class="at bottom"><DrawToolbar {editor} {plugins} {labels} /></div>
 			{/if}
 			{#if props.minimap}

@@ -30,7 +30,17 @@
 	--wb-field: var(--wb-light, #ebe7de) var(--wb-dark, #151412);
 	--wb-field-shade: var(--wb-light, rgb(36 35 29 / 0.1)) var(--wb-dark, rgb(0 0 0 / 0.38));
 
+	--wb-size: 36px; /* a control: its width and height */
+	--wb-row: 32px; /* a row of a menu */
+
 	color: var(--wb-ink);
+}
+/* A finger needs more room than a pointer. */
+@media (pointer: coarse) {
+	.wb {
+		--wb-size: 44px;
+		--wb-row: 44px;
+	}
 }
 .wb[data-scheme='dark'] {
 	--wb-light: ;
@@ -67,7 +77,7 @@
 	background: var(--wb-rule);
 }
 
-/* A control of a bar or a panel: 36px round, an icon in it; `wb-text` for one with words. */
+/* A control of a bar or a panel: round (`--wb-size`), an icon in it; `wb-text` for one with words. */
 .wb-item {
 	position: relative;
 	display: inline-flex;
@@ -75,8 +85,8 @@
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	width: 36px;
-	height: 36px;
+	width: var(--wb-size);
+	height: var(--wb-size);
 	padding: 0;
 	border: 0;
 	border-radius: 9999px;
@@ -127,7 +137,7 @@
 }
 /* The caret that opens a group of tools: narrow, and close to the tool it belongs to. */
 .wb-item.wb-caret {
-	width: 20px;
+	width: calc(var(--wb-size) - 16px);
 	margin-left: -6px;
 }
 
@@ -148,11 +158,12 @@
 }
 .wb-choices {
 	display: grid;
-	grid-template-columns: repeat(4, 36px);
+	grid-template-columns: repeat(4, var(--wb-size));
 	gap: 2px;
 }
 .wb-choices[data-columns='5'] {
-	grid-template-columns: repeat(5, 30px);
+	/* Five in the width of four. */
+	grid-template-columns: repeat(5, calc((var(--wb-size) * 4 + 6px) / 5));
 	gap: 0;
 }
 .wb-choices[data-columns='5'] .wb-item {
@@ -192,7 +203,7 @@
 	align-items: center;
 	gap: 10px;
 	box-sizing: border-box;
-	min-height: 32px;
+	min-height: var(--wb-row);
 	padding: 4px 10px;
 	border-radius: 10px;
 	corner-shape: squircle;

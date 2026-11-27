@@ -20,24 +20,28 @@ It needs `bits-ui` (menus, hints and bars that work with a keyboard) and `phosph
 </div>
 ```
 
-| File                  | What                                                                      |
-| --------------------- | ------------------------------------------------------------------------- |
-| `whiteboard.svelte`   | the canvas with every control in its corner, and the phone arrangement    |
-| `draw-toolbar.svelte` | the tools of the plugins, grouped, then undo and redo                     |
-| `style-panel.svelte`  | the look of what is selected: colour, fill, size, line, type, opacity     |
-| `page-menu.svelte`    | the pages, and saving to a file or a picture                              |
-| `zoom-control.svelte` | out, the zoom in percent, in, show everything                             |
-| `canvas-menu.svelte`  | what the right-click menu offers for the selection                        |
-| `hint.svelte`         | an icon's name and key, beside it                                         |
-| `board.ts`            | the scheme for menus and hints, the keys back to the canvas, a long press |
-| `labels.ts`           | every word the controls say, to translate                                 |
-| `ui.css`              | the look: classes `wb-*`, colours as properties on `.wb`                  |
+| File                  | What                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `whiteboard.svelte`   | the canvas with every control in its corner, and the phone arrangement                                        |
+| `draw-toolbar.svelte` | the tools of the plugins, grouped, then undo and redo                                                         |
+| `style-panel.svelte`  | the look of what is selected: colour, fill, size, line, type, opacity; `collapsed` folds it behind one button |
+| `page-menu.svelte`    | the pages, and saving to a file or a picture                                                                  |
+| `zoom-control.svelte` | out, the zoom in percent, in, show everything                                                                 |
+| `canvas-menu.svelte`  | what the right-click menu offers for the selection                                                            |
+| `hint.svelte`         | an icon's name and key, beside it                                                                             |
+| `board.ts`            | the scheme for menus and hints, the keys back to the canvas, a long press                                     |
+| `labels.ts`           | every word the controls say, to translate                                                                     |
+| `ui.css`              | the look: classes `wb-*`, colours as properties on `.wb`                                                      |
 
 ## Make it yours
 
 - **Typeface:** the controls take the page's, so set one on `body`.
 - **Colours:** set the `--wb-*` properties on `.wb` (a bar, a panel, ink, the picked tool).
   Each has a light and a dark value.
+- **Sizes:** `--wb-size` is a control's width and height, `--wb-row` a menu row's. Both grow on
+  a touch screen (`pointer: coarse`), where a finger needs more room than a pointer.
+- **A narrow board:** below 600px (a phone) `Whiteboard` gives the tools the bottom edge, drops
+  the zoom control and the map, and folds the style panel behind a button with the picked colour.
 - **Light and dark:** `<Whiteboard scheme="dark">`, or `auto` (the default) to follow the
   system. Menus and hints are drawn outside the board, on the page; they get the scheme through
   `board.ts`.
