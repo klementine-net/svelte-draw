@@ -120,7 +120,7 @@
 		<p class="border-t border-(--line) py-8 text-label font-normal text-ink3">
 			svelte-draw, MIT licensed. <a href={REPOSITORY} class="underline underline-offset-2"
 				>Source on GitHub</a
-			>.
+			>. Visits to these pages are counted without cookies.
 		</p>
 	</footer>
 </main>

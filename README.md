@@ -14,7 +14,8 @@ Shapes and tools are plugins, so the same engine can be a whiteboard today and a
 
 **Documentation:** <https://docs.klementine.net/svelte-draw/>, with a board to draw on and
 examples that run. **Demo:** <https://docs.klementine.net/svelte-draw/demo/>. Both keep what
-you draw in your own browser; nothing is sent anywhere.
+you draw in your own browser: no drawing is sent anywhere. The two sites count visits with
+Cloudflare Web Analytics, without cookies.
 
 ## Install
 

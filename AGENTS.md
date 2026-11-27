@@ -18,7 +18,9 @@ in `site`. Read README.md, then `packages/draw/AGENTS.md`.
   call them by the absolute path of the install: the shims fail outside an interactive shell.
 - **This repository is public, in the Klementine organization.** No local paths or anything private
   in code, docs or commit messages, and no other products by name. The documentation site
-  (`site/`) and the demo are published with `scripts/publish-site.sh`.
+  (`site/`) and the demo are published with `scripts/publish-site.sh`, which also adds the
+  visit counter (Cloudflare Web Analytics, no cookies) to the published pages; it is in no source
+  file, and the README and the site's footer say that visits are counted.
 - **The docs read as a published library**: install from npm, an early-development warning on
   the pages people arrive at, and openly built with AI. tldraw is credited once per place
   people land (the READMEs' and the introduction's Credits) and named nowhere else; features

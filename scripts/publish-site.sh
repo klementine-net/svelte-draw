@@ -25,6 +25,18 @@ cp -R "$root/site/build/." "$out/"
 # No Jekyll: the files are served as they are (Jekyll would leave out the _app folder).
 touch "$out/.nojekyll"
 
+# The published pages count visits, without cookies (Cloudflare Web Analytics). The script is
+# added here and nowhere else: not in the library, not in the example's source, not in a local
+# build. The token is the project's own, so it is used for the project's own repository only; a
+# copy published elsewhere counts nothing unless ANALYTICS_TOKEN is set (empty: no counting).
+if [ -z "${ANALYTICS_TOKEN+x}" ] && [[ "$url" == *klementine-net/svelte-draw* ]]; then
+	ANALYTICS_TOKEN=597da3a96c234d3ca16094a7722884af
+fi
+if [ -n "${ANALYTICS_TOKEN:-}" ]; then
+	beacon="<script defer src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon='{\"token\": \"$ANALYTICS_TOKEN\"}'></script>"
+	find "$out" -name '*.html' -exec env BEACON="$beacon" perl -pi -e 's#</head>#$ENV{BEACON}</head>#' {} +
+fi
+
 cd "$out"
 git init -q -b gh-pages
 git add -A
