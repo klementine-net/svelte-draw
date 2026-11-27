@@ -32,13 +32,15 @@ Two layers. A Svelte app imports one thing, and the engine also comes on its own
   browser, and a few never ran at all. [What is built](./features/) says which is which, line by
   line.
 - **Built with AI.** The code, the tests and these pages are written by AI coding agents
-  (Claude Code), directed by the project's maintainers.
-- **No controls of its own.** The library is the engine and the canvas, in plain CSS, with
-  three small dependencies. The toolbar, the panels and the menus are your app's: build them
-  on the editor, or copy the ones in the whiteboard example.
+  (Claude Code), directed by the project's maintainers. The pages are not finished: not all of
+  them have been reviewed by a person yet.
+- **The UI is yours.** The library provides the engine and the canvas, in plain CSS, with
+  three small dependencies. The toolbar, the panels and the menus you build in your own design:
+  on the editor, or by adapting the ones in the whiteboard example.
   [Getting started](./start/) shows both.
-- **No server sync yet.** Tabs of one browser stay in step today. The seam for a server is two
-  small interfaces, and nothing on the server side is written.
+- **No server sync yet.** A board open in several tabs of one browser updates in all of them.
+  Syncing through a server is prepared by two small interfaces, and nothing on the server side is
+  written.
 
 ## Credits
 

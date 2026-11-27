@@ -69,8 +69,9 @@
 			<div>
 				<h2 class="text-headline font-semibold tracking-[-0.02em]">Start</h2>
 				<p class="mt-3 leading-[1.625] text-ink2">
-					Install it, make an editor and show it on a canvas: that is a whiteboard, worked by its
-					keys. The toolbar and the panels are yours to build, or to copy from the example.
+					Install it, make an editor and show it on a canvas: that is already a whiteboard, used
+					with the keyboard. The toolbar and the panels are yours to build, or to copy from the
+					example.
 				</p>
 				<pre class="code !mb-0"><code>npm install @klementine/svelte-draw</code></pre>
 				<a href={href('/docs/start/')} class="more"
@@ -95,9 +96,17 @@
 			<h2 class="text-headline font-semibold tracking-[-0.02em]">Where it stands</h2>
 			<div class="mt-4"><EarlyNotice /></div>
 			<ul class="mt-4 flex flex-col gap-2 leading-[1.625] text-ink2">
-				<li>Built with AI: coding agents write the code, the tests and the docs.</li>
-				<li>The engine and the canvas, no controls: those are your app's.</li>
-				<li>Tabs of one browser stay in step; syncing through a server is not built yet.</li>
+				<li>
+					Written with Claude: the code, the tests and these pages. The pages are not finished, and
+					not all of them are reviewed yet.
+				</li>
+				<li>
+					It provides the canvas and the logic. You build the toolbar and the menus in your own
+					design, or adapt the demo's.
+				</li>
+				<li>
+					A board open in two tabs updates in both. Working together over a server is not built yet.
+				</li>
 				<li>MIT licensed.</li>
 			</ul>
 			<a href={href('/docs/features/')} class="more"

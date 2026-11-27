@@ -33,8 +33,8 @@ styles are plain CSS on a few custom properties (`--kd-ground`, `--kd-ink`, …)
 alone (`@klementine/svelte-draw/core`) is plain TypeScript that Node runs as it is. Hand-drawn text wants a handwriting font: load
 one and name it in `--kd-font-hand`.
 
-The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
-or copy the set in the repository's
+The library provides the canvas and the logic; the toolbar, the panels and the menus you build in
+your own design. Build them on the editor, or adapt the set in the repository's
 [whiteboard example](https://github.com/klementine-net/svelte-draw/tree/main/examples/whiteboard/src/lib/ui).
 
 svelte-draw is built with AI: its code, tests and documentation are written by AI coding agents

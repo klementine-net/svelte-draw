@@ -39,8 +39,8 @@ svelte-draw needs Svelte 5.57 or newer and nothing else: the styles are plain CS
 alone, for a server or a script without Svelte, is `@klementine/svelte-draw/core`: plain
 TypeScript that Node runs as it is.
 
-The library brings no toolbar, panels or menus: those are your app's. Build them on the editor,
-or copy the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
+The library provides the canvas and the logic; the toolbar, the panels and the menus you build in
+your own design. Build them on the editor, or adapt the set in [the whiteboard example](examples/whiteboard/src/lib/ui), which is what the
 demo shows: Svelte components on [bits-ui](https://bits-ui.com) and one plain stylesheet. [Getting started](https://docs.klementine.net/svelte-draw/docs/start/) has the
 rest, and [FEATURES.md](FEATURES.md) lists what is built and what is not.
 
