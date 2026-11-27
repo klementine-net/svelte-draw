@@ -2,8 +2,10 @@
 
 An infinite canvas for Svelte: draw, write, drag out shapes, connect them with arrows, add
 pictures and links, group, frame, turn, snap, copy and paste, undo, on several pages. It keeps
-the document in the browser, keeps tabs in step and saves pictures and files. Shapes and tools
-are plugins, so the same engine can be a whiteboard today and a design tool later.
+the document in the browser, shows the same board in every open tab and saves pictures and files.
+Shapes and tools are plugins, so the same engine can be a whiteboard today and a design tool later.
+
+![The svelte-draw demo: a hand-drawn rectangle with an arrow to a blue circle, sticky notes in four colours, a star and a cloud, with the page menu, the style panel, the toolbar and a small map around them](site/static/board.png)
 
 > [!WARNING]
 > **Early development.** Draw works, and it is young. Its API will change between releases

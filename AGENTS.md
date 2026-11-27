@@ -22,7 +22,9 @@ in `site`. Read README.md, then `packages/draw/AGENTS.md`.
 - **The docs read as a published library**: install from npm, an early-development warning on
   the pages people arrive at, and openly built with AI. tldraw is credited once per place
   people land (the READMEs' and the introduction's Credits) and named nowhere else; features
-  are described on their own terms, never by comparison.
+  are described on their own terms, never by comparison. One exception, in the maintainer's
+  words: the introduction and the home page say the library is structured like the TanStack
+  libraries (a core that knows no framework, a framework layer on top).
 - **The site documents the code.** Its API reference is read from the source at build time;
   the guides are written by hand: change the page in `site/src/routes/docs/` with the code it
   describes. Its design is decided in `site/DESIGN.md`.

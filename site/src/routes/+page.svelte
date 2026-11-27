@@ -85,8 +85,9 @@
 			<p class="mt-3 leading-[1.625] text-ink2">
 				Everything on the board is a plain record in one store, and every change is a diff. Undo,
 				saving and sharing are listeners on that stream. A kind of shape is one class, a tool is a
-				small state machine, and both come in as plugins. The engine has no idea Svelte exists, so
-				it runs in a test or on a server just the same.
+				small state machine, and both come in as plugins. It is structured like the TanStack
+				libraries: the engine is plain TypeScript and knows no framework, so it runs in a test or on
+				a server just the same, and Svelte is a layer on top.
 			</p>
 			<a href={href('/docs/concepts/')} class="more"
 				>How it is built<ArrowRight aria-hidden="true" /></a

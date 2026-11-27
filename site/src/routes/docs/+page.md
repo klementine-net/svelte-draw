@@ -5,8 +5,8 @@
 svelte-draw is an infinite canvas for Svelte: the engine of a whiteboard, and the parts to
 put one on a page. You draw, write, drag out shapes, connect them with arrows that stay
 attached, add pictures and links, group and frame things, turn and snap them, copy and paste,
-undo, on as many pages as you like. A board can be kept in the browser and stays in step across
-tabs; it saves to a file and to a picture.
+undo, on as many pages as you like. A board can be kept in the browser, where every open tab
+shows the same board; it saves to a file and to a picture.
 
 Shapes and tools are plugins, also the ones that come with it. So the same engine can be a
 whiteboard today and a design tool later, and a kind of shape your app needs is a class and a
@@ -16,7 +16,9 @@ Svelte component, not a fork.
 
 ## What it is made of
 
-Two layers. A Svelte app imports one thing, and the engine also comes on its own:
+Two layers, structured like the [TanStack](https://tanstack.com) libraries: a core in plain
+TypeScript that knows no framework, and a Svelte layer on top. A Svelte app imports one thing,
+and the core also comes on its own:
 
 | Import                         | What it is                                                                                                    |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
