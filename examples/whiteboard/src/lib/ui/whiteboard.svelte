@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { createAttachmentKey } from 'svelte/attachments';
 	import {
 		broadcastChannel,
@@ -56,6 +56,11 @@
 		minimap?: boolean;
 		/** Keeps the page and the view in the address, so a copied link opens where it was. */
 		deepLinks?: boolean;
+		/**
+		 * Controls of your own for the top left corner, after the page menu: a link, a share
+		 * button. They get the controls' colours: a `wb-bar` with a `wb-item` in it is a key.
+		 */
+		topLeft?: Snippet;
 	} = $props();
 
 	// Plugins are fixed for an editor's life: a tool tree is built once.
@@ -130,7 +135,11 @@
 		{/snippet}
 		<!-- The controls lie above the surface, each in its corner. -->
 		{#if !props.focus}
-			<div class="at top-left"><PageMenu {editor} {labels} /></div>
+			<!-- `wb` and the scheme here give what is in `topLeft` the controls' colours and sizes. -->
+			<div class="at top-left wb" data-scheme={scheme}>
+				<PageMenu {editor} {labels} />
+				{@render props.topLeft?.()}
+			</div>
 			<div class="at bottom-left"><ZoomControl {editor} {labels} /></div>
 			{#if !readOnly}
 				<div class="at top-right"><StylePanel {editor} {labels} collapsed={narrow} /></div>
@@ -155,6 +164,9 @@
 	.top-left {
 		top: 12px;
 		left: 12px;
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
 	}
 	.top-right {
 		top: 12px;

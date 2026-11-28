@@ -42,6 +42,9 @@ It needs `bits-ui` (menus, hints and bars that work with a keyboard) and `phosph
   a touch screen (`pointer: coarse`), where a finger needs more room than a pointer.
 - **A narrow board:** below 600px (a phone) `Whiteboard` gives the tools the bottom edge, drops
   the zoom control and the map, and folds the style panel behind a button with the picked colour.
+- **Controls of your own:** what is in `Whiteboard`'s `topLeft` snippet stands beside the page
+  menu and gets the controls' colours, light or dark: a link, a share button. The demo puts its
+  link to the code there, a `wb-bar` with one `wb-item` in it.
 - **Light and dark:** `<Whiteboard scheme="dark">`, or `auto` (the default) to follow the
   system. Menus and hints are drawn outside the board, on the page; they get the scheme through
   `board.ts`.
