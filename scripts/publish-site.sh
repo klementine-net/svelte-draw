@@ -33,8 +33,16 @@ if [ -z "${ANALYTICS_TOKEN+x}" ] && [[ "$url" == *klementine-net/svelte-draw* ]]
 	ANALYTICS_TOKEN=597da3a96c234d3ca16094a7722884af
 fi
 if [ -n "${ANALYTICS_TOKEN:-}" ]; then
-	beacon="<script defer src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon='{\"token\": \"$ANALYTICS_TOKEN\"}'></script>"
-	find "$out" -name '*.html' -exec env BEACON="$beacon" perl -pi -e 's#</head>#$ENV{BEACON}</head>#' {} +
+	# $1: the options after the token. Writes the script before </head> of the files on stdin.
+	count() {
+		BEACON="<script defer src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon='{\"token\": \"$ANALYTICS_TOKEN\"$1}'></script>" \
+			xargs -0 perl -pi -e 's#</head>#$ENV{BEACON}</head>#'
+	}
+	# The demo writes its view into the address on every move, and the counter would take each
+	# of those for a page opened: there it counts the page load alone ("spa": false). The site's
+	# pages are real pages, counted as they are opened.
+	find "$out/demo" -name '*.html' -print0 | count ', "spa": false'
+	find "$out" -path "$out/demo" -prune -o -name '*.html' -print0 | count ''
 fi
 
 cd "$out"
